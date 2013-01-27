@@ -22,8 +22,10 @@ let _ =
     (Sequence.map (fun (x, y) -> (string_of_int x) ^ " -> " ^ (string_of_int y))
       (Sequence.Hashtbl.to_seq h))
   in
+  let l3 = Sequence.List.of_seq (Sequence.Int.range ~start:0 ~stop:42) in
   Format.printf "l=@[<h>[%a]@]@." (pp_list Format.pp_print_int) l;
   Format.printf "l'=@[<h>[%a]@]@." (pp_list Format.pp_print_int) l';
   Format.printf "l''=@[<h>[%a]@]@." (pp_list Format.pp_print_int) l'';
   Format.printf "l2=@[<h>[%a]@]@." (pp_list Format.pp_print_string) l2;
+  Format.printf "l3=@[<h>[%a]@]@." (pp_list Format.pp_print_int) l3;
   ()

@@ -45,3 +45,11 @@ module Hashtbl :
     val of_seq : ('a * 'b) t -> ('a, 'b) Hashtbl.t
     val to_seq : ('a, 'b) Hashtbl.t -> ('a * 'b) t
   end
+
+(** Iterate on ranges of ints *)
+module Int :
+  sig
+    val range : start:int -> stop:int -> int t
+      (** Iterator on [start...stop] by steps 1 *)
+  end
+

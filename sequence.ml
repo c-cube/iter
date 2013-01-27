@@ -66,3 +66,10 @@ module Hashtbl =
       from_iter (fun k -> Hashtbl.iter (fun a b -> k (a, b)) h)
   end
 
+module Int =
+  struct
+    let range ~start ~stop =
+      let seq_fun k =
+        for i = start to stop do k i done
+      in { seq_fun; }
+  end
