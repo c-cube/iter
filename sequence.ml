@@ -2,7 +2,7 @@
 (** {2 Transient iterators, that abstract on a finite sequence of elements. *)
 
 (** Sequence abstract iterator type *)
-type 'a sequence = {
+type 'a t = {
   seq_fun: ('a -> unit) -> unit;
 }
 
