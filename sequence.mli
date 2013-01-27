@@ -31,3 +31,17 @@ val take : int -> 'a sequence -> 'a sequence
 
 val drop : int -> 'a sequence -> 'a sequence
   (** Drop the [n] first elements of the sequence *)
+
+(** {2 Basic data structures converters} *)
+
+module List :
+  sig
+    val of_seq : 'a sequence -> 'a list
+    val to_seq : 'a list -> 'a sequence
+  end
+
+module Hashtbl :
+  sig
+    val of_seq : ('a * 'b) sequence -> ('a, 'b) Hashtbl.t
+    val to_seq : ('a, 'b) Hashtbl.t -> ('a * 'b) sequence
+  end

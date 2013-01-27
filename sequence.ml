@@ -49,3 +49,20 @@ let drop n seq =
   let seq_fun k = seq.seq_fun
     (fun x -> if !count >= n then k x else incr count)
   in { seq_fun; }
+
+module List =
+  struct
+    let of_seq seq = List.rev (fold (fun y x -> x::y) [] seq)
+    let to_seq l = from_iter (fun k -> List.iter k l)
+  end
+
+module Hashtbl =
+  struct
+    let of_seq seq =
+      let h = Hashtbl.create 3 in
+      iter (fun (k,v) -> Hashtbl.replace h k v) seq;
+      h
+    let to_seq h =
+      from_iter (fun k -> Hashtbl.iter (fun a b -> k (a, b)) h)
+  end
+
