@@ -30,10 +30,18 @@ let filter p seq =
   let seq_fun' k = seq.seq_fun (fun x -> if p x then k x) in
   { seq_fun=seq_fun'; }
 
-(** Concatenate two sequences *)
-let concat s1 s2 =
+(** Append two sequences *)
+let append s1 s2 =
   let seq_fun k = s1.seq_fun k; s2.seq_fun k in
   { seq_fun; }
+
+(** Concatenate a sequence of sequences into one sequence *)
+let concat s =
+  let seq_fun k =
+    (* function that is called on every sub-sequence *)
+    let k_seq seq = iter k seq in
+    s.seq_fun k_seq
+  in { seq_fun; }
 
 (** Take at most [n] elements from the sequence *)
 let take n seq =

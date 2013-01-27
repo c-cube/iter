@@ -23,8 +23,11 @@ val map : ('a -> 'b) -> 'a t -> 'b t
 val filter : ('a -> bool) -> 'a t -> 'a t
   (** Filter on elements of the sequence *)
 
-val concat : 'a t -> 'a t -> 'a t
-  (** Concatenate two sequences *)
+val append : 'a t -> 'a t -> 'a t
+  (** Append two sequences *)
+
+val concat : 'a t t -> 'a t
+  (** Concatenate a sequence of sequences into one sequence *)
 
 val take : int -> 'a t -> 'a t
   (** Take at most [n] elements from the sequence *)
