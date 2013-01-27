@@ -14,6 +14,16 @@ let _ =
     (Sequence.filter (fun x -> x mod 2 = 0) (Sequence.List.to_seq l)) in
   let l'' = Sequence.List.of_seq
     (Sequence.take 3 (Sequence.drop 1 (Sequence.List.to_seq l))) in
+  let h = Hashtbl.create 3 in
+  for i = 0 to 5 do
+    Hashtbl.add h i (i*i);
+  done;
+  let l2 = Sequence.List.of_seq
+    (Sequence.map (fun (x, y) -> (string_of_int x) ^ " -> " ^ (string_of_int y))
+      (Sequence.Hashtbl.to_seq h))
+  in
   Format.printf "l=@[<h>[%a]@]@." (pp_list Format.pp_print_int) l;
   Format.printf "l'=@[<h>[%a]@]@." (pp_list Format.pp_print_int) l';
   Format.printf "l''=@[<h>[%a]@]@." (pp_list Format.pp_print_int) l'';
+  Format.printf "l2=@[<h>[%a]@]@." (pp_list Format.pp_print_string) l2;
+  ()
