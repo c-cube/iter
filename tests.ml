@@ -23,6 +23,7 @@ let rec pp_list ?(sep=", ") pp_item formatter = function
 let _ =
   let l = [0;1;2;3;4;5;6] in
   let l' = list_of_seq (Sequence.filter (fun x -> x mod 2 = 0) (seq_of_list l)) in
-  Format.printf "l=@[<h>[%a]@]; l'=@[<h>[%a]@]@."
-    (pp_list Format.pp_print_int) l
-    (pp_list Format.pp_print_int) l'
+  let l'' = list_of_seq (Sequence.take 3 (Sequence.drop 1 (seq_of_list l))) in
+  Format.printf "l=@[<h>[%a]@]@." (pp_list Format.pp_print_int) l;
+  Format.printf "l'=@[<h>[%a]@]@." (pp_list Format.pp_print_int) l';
+  Format.printf "l''=@[<h>[%a]@]@." (pp_list Format.pp_print_int) l'';

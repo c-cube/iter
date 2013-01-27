@@ -4,8 +4,12 @@
 type 'a sequence
   (** Sequence abstract iterator type *)
 
+(** {2 Build a sequence} *)
+
 val from_iter : (('a -> unit) -> unit) -> 'a sequence
   (** Build a sequence from a iter function *)
+
+(** {2 Use a sequence} *)
 
 val iter : ('a -> unit) -> 'a sequence -> unit
   (** Consume the sequence, passing all its arguments to the function *)
@@ -18,3 +22,12 @@ val map : ('a -> 'b) -> 'a sequence -> 'b sequence
 
 val filter : ('a -> bool) -> 'a sequence -> 'a sequence
   (** Filter on elements of the sequence *)
+
+val concat : 'a sequence -> 'a sequence -> 'a sequence
+  (** Concatenate two sequences *)
+
+val take : int -> 'a sequence -> 'a sequence
+  (** Take at most [n] elements from the sequence *)
+
+val drop : int -> 'a sequence -> 'a sequence
+  (** Drop the [n] first elements of the sequence *)
