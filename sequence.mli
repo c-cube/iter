@@ -1,5 +1,5 @@
 
-(** {2 Transient iterators, that abstract on a finite sequence of elements. *)
+(** {2 Transient iterators, that abstract on a finite sequence of elements.} *)
 
 type 'a t
   (** Sequence abstract iterator type *)
