@@ -82,9 +82,11 @@ let concat s =
 (** Take at most [n] elements from the sequence *)
 let take n seq =
   let count = ref 0 in
-  let seq_fun k = seq.seq_fun
-    (fun x ->
-      if !count < n then begin incr count; k x end)
+  let seq_fun k =
+    try
+      seq.seq_fun
+        (fun x -> if !count < n then begin incr count; k x end else raise Exit)
+    with Exit -> ()
   in { seq_fun; }
 
 (** Drop the [n] first elements of the sequence *)
@@ -125,15 +127,54 @@ let exists p seq =
 module List =
   struct
     let of_seq seq = List.rev (fold (fun y x -> x::y) [] seq)
+
     let to_seq l = from_iter (fun k -> List.iter k l)
+  end
+
+module Array =
+  struct
+    let of_seq seq =
+      (* intermediate list... *)
+      let l = List.of_seq seq in
+      Array.of_list l
+
+    let to_seq a = from_iter (fun k -> Array.iter k a)
+
+    let slice a i j =
+      assert (i >= 0 && j < Array.length a);
+      let seq_fun k =
+        for idx = i to j do
+          k a.(idx);  (* iterate on sub-array *)
+        done
+      in { seq_fun; }
+  end
+
+module Stack =
+  struct
+    let push_seq s seq = iter (fun x -> Stack.push x s) seq
+
+    let to_seq s = from_iter (fun k -> Stack.iter k s)
+  end
+
+module Queue =
+  struct
+    let push_seq q seq = iter (fun x -> Queue.push x q) seq
+    let to_seq q = from_iter (fun k -> Queue.iter k q)
   end
 
 module Hashtbl =
   struct
+    let add_seq h seq =
+      iter (fun (k,v) -> Hashtbl.add h k v) seq
+
+    let replace_seq h seq =
+      iter (fun (k,v) -> Hashtbl.replace h k v) seq
+
     let of_seq seq =
       let h = Hashtbl.create 3 in
-      iter (fun (k,v) -> Hashtbl.replace h k v) seq;
+      replace_seq h seq;
       h
+
     let to_seq h =
       from_iter (fun k -> Hashtbl.iter (fun a b -> k (a, b)) h)
   end
@@ -144,6 +185,10 @@ module Int =
       let seq_fun k =
         for i = start to stop do k i done
       in { seq_fun; }
+
+    let repeat i =
+      let seq_fun k = while true do k i; done in
+      { seq_fun; }
   end
 
 module Set =
