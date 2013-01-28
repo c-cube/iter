@@ -14,6 +14,9 @@ val from_iter : (('a -> unit) -> unit) -> 'a t
 val iter : ('a -> unit) -> 'a t -> unit
   (** Consume the sequence, passing all its arguments to the function *)
 
+val iteri : (int -> 'a -> unit) -> 'a t -> unit
+  (** Iterate on elements and their index in the sequence *)
+
 val fold : ('b -> 'a -> 'b) -> 'b -> 'a t -> 'b
   (** Fold over elements of the sequence, consuming it *)
 
@@ -34,6 +37,15 @@ val take : int -> 'a t -> 'a t
 
 val drop : int -> 'a t -> 'a t
   (** Drop the [n] first elements of the sequence *)
+
+val rev : 'a t -> 'a t
+  (** Reverse the sequence. O(n) memory. *)
+
+val for_all : ('a -> bool) -> 'a t -> bool
+  (** Do all elements satisfy the predicate? *)
+
+val exists : ('a -> bool) -> 'a t -> bool
+  (** Exists there some element satisfying the predicate? *)
 
 (** {2 Basic data structures converters} *)
 

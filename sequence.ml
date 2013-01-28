@@ -14,6 +14,14 @@ let from_iter f = {
 (** Consume the sequence, passing all its arguments to the function *)
 let iter f seq = seq.seq_fun f
 
+(** Iterate on elements and their index in the sequence *)
+let iteri f seq =
+  let r = ref 0 in
+  let k x =
+    f !r x;
+    incr r
+  in seq.seq_fun k
+
 (** Fold over elements of the sequence, consuming it *)
 let fold f init seq =
   let r = ref init in
@@ -57,6 +65,32 @@ let drop n seq =
   let seq_fun k = seq.seq_fun
     (fun x -> if !count >= n then k x else incr count)
   in { seq_fun; }
+
+(** Reverse the sequence. O(n) memory. *)
+let rev seq =
+  let seq_fun k =
+    (* continuation for the prefix of the input sequence so far *)
+    let cont = ref (fun () -> ()) in
+    iter (fun x ->
+      let current_cont = !cont in
+      let cont' () = k x; current_cont () in
+      cont := cont') seq;
+    !cont ()
+  in { seq_fun; }
+
+(** Do all elements satisfy the predicate? *)
+let for_all p seq =
+  try
+    seq.seq_fun (fun x -> if not (p x) then raise Exit);
+    true
+  with Exit -> false
+
+(** Exists there some element satisfying the predicate? *)
+let exists p seq =
+  try
+    seq.seq_fun (fun x -> if p x then raise Exit);
+    false
+  with Exit -> true
 
 module List =
   struct
