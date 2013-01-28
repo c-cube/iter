@@ -69,7 +69,9 @@ let drop n seq =
 (** Reverse the sequence. O(n) memory. *)
 let rev seq =
   let seq_fun k =
-    (* continuation for the prefix of the input sequence so far *)
+    (* if we have traversed [s_1, ..., s_m], [cont ()] will call [k] on s_m,
+       s_{m-1}, ..., s_1. Once we know [s_{m+1}], we update [cont] so that it
+       first returns it, and then called the previous cont. *)
     let cont = ref (fun () -> ()) in
     iter (fun x ->
       let current_cont = !cont in
