@@ -128,6 +128,8 @@ module List =
   struct
     let of_seq seq = List.rev (fold (fun y x -> x::y) [] seq)
 
+    let of_rev_seq seq = fold (fun y x -> x :: y) [] seq
+
     let to_seq l = from_iter (fun k -> List.iter k l)
   end
 
@@ -191,15 +193,16 @@ module Int =
       { seq_fun; }
   end
 
-module Set =
+(** Iterate on sets. The functor must be instantiated with a set type *)
+module Set(S : Set.S) =
   struct
-    let to_seq (type s) (type t) m set =
-      let module S = (val m : Set.S with type elt = s and type t = t) in
-      from_iter (fun k -> S.iter k set)
+    type set = S.t
 
-    let of_seq (type s) (type t) m seq =
-      let module S = (val m : Set.S with type elt = s and type t = t) in
-      fold (fun set x -> S.add x set) S.empty seq
+    type elt = S.elt
+
+    let to_seq set = from_iter (fun k -> S.iter k set)
+
+    let of_seq seq = fold (fun set x -> S.add x set) S.empty seq
   end
 
 (** {2 Pretty printing of sequences} *)

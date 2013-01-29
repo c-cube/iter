@@ -85,6 +85,9 @@ module List :
   sig
     val of_seq : 'a t -> 'a list
 
+    val of_rev_seq : 'a t -> 'a list
+      (** Get the list of the reversed sequence (more efficient) *)
+
     val to_seq : 'a list -> 'a t
   end
 
@@ -146,11 +149,16 @@ module Int :
           sequences. *)
   end
 
-(** Iterate on sets. The Set module has to be provided. *)
-module Set :
+(** Iterate on sets. The functor must be instantiated with a set type *)
+module Set(S : Set.S) :
   sig
-    val to_seq : (module Set.S with type elt = 'a and type t = 'b) -> 'b -> 'a t
-    val of_seq : (module Set.S with type elt = 'a and type t = 'b) -> 'a t -> 'b
+    type set = S.t
+    
+    type elt = S.elt
+    
+    val to_seq : set -> elt t
+
+    val of_seq : elt t -> set
   end
 
 (** {2 Pretty printing of sequences} *)

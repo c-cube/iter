@@ -7,6 +7,7 @@ let pp_list ?(sep=", ") pp_item formatter l =
 
 (** Set of integers *)
 module ISet = Set.Make(struct type t = int let compare = compare end)
+module ISetSeq = Sequence.Set(ISet)
 
 let _ =
   let l = [0;1;2;3;4;5;6] in
@@ -24,12 +25,12 @@ let _ =
   in
   let l3 = Sequence.List.of_seq (Sequence.rev (Sequence.Int.range ~start:0 ~stop:42)) in
   let set = List.fold_left (fun set x -> ISet.add x set) ISet.empty [4;3;100;42] in
-  let s = (module ISet : Set.S with type elt = int and type t = ISet.t) in
-  let l4 = Sequence.List.of_seq (Sequence.Set.to_seq s set) in
+  let l4 = Sequence.List.of_seq (ISetSeq.to_seq set) in
   Format.printf "l=@[<h>[%a]@]@." (pp_list Format.pp_print_int) l;
   Format.printf "l'=@[<h>[%a]@]@." (pp_list Format.pp_print_int) l';
   Format.printf "l''=@[<h>[%a]@]@." (pp_list Format.pp_print_int) l'';
   Format.printf "l2=@[<h>[%a]@]@." (pp_list Format.pp_print_string) l2;
   Format.printf "l3=@[<h>[%a]@]@." (pp_list Format.pp_print_int) l3;
+  Format.printf "s={@[<h>%a@]}@." (Sequence.pp_seq Format.pp_print_int) (ISetSeq.to_seq set);
   Format.printf "l4=@[<h>[%a]@]@." (pp_list Format.pp_print_int) l4;
   ()
