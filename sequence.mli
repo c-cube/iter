@@ -137,6 +137,12 @@ module Hashtbl :
       (** Sequence of key/value pairs from the hashtable *)
   end
 
+module String :
+  sig
+    val to_seq : string -> char t
+    val of_seq : char t -> string
+  end
+
 (** Sequences of ints *)
 module Int :
   sig
@@ -153,7 +159,6 @@ module Int :
 module Set(S : Set.S) :
   sig
     type set = S.t
-    
     type elt = S.elt
     
     val to_seq : set -> elt t

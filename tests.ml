@@ -33,4 +33,8 @@ let _ =
   Format.printf "l3=@[<h>[%a]@]@." (pp_list Format.pp_print_int) l3;
   Format.printf "s={@[<h>%a@]}@." (Sequence.pp_seq Format.pp_print_int) (ISetSeq.to_seq set);
   Format.printf "l4=@[<h>[%a]@]@." (pp_list Format.pp_print_int) l4;
+  Format.printf "l3[:5]+l4=@[<h>[%a]@]@." (Sequence.pp_seq Format.pp_print_int)
+    (Sequence.Array.to_seq
+      (Sequence.Array.of_seq (Sequence.append
+        (Sequence.take 5 (Sequence.List.to_seq l3)) (Sequence.List.to_seq l4))));
   ()

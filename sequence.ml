@@ -137,8 +137,16 @@ module Array =
   struct
     let of_seq seq =
       (* intermediate list... *)
-      let l = List.of_seq seq in
-      Array.of_list l
+      let l = List.of_rev_seq seq in
+      let a = Array.of_list l in
+      (* reverse array *)
+      let n = Array.length a in
+      for i = 0 to (n-1) / 2 do
+        let tmp = a.(i) in
+        a.(i) <- a.(n-i-1);
+        a.(n-i-1) <- tmp;
+      done;
+      a
 
     let to_seq a = from_iter (fun k -> Array.iter k a)
 
@@ -181,6 +189,16 @@ module Hashtbl =
       from_iter (fun k -> Hashtbl.iter (fun a b -> k (a, b)) h)
   end
 
+module String =
+  struct
+    let to_seq s = from_iter (fun k -> String.iter k s)
+    
+    let of_seq seq =
+      let b = Buffer.create 64 in
+      iter (fun c -> Buffer.add_char b c) seq;
+      Buffer.contents b
+  end
+
 module Int =
   struct
     let range ~start ~stop =
@@ -197,7 +215,6 @@ module Int =
 module Set(S : Set.S) =
   struct
     type set = S.t
-
     type elt = S.elt
 
     let to_seq set = from_iter (fun k -> S.iter k set)
