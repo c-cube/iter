@@ -187,6 +187,12 @@ module Hashtbl =
 
     let to_seq h =
       from_iter (fun k -> Hashtbl.iter (fun a b -> k (a, b)) h)
+
+    let keys h =
+      from_iter (fun k -> Hashtbl.iter (fun a b -> k a) h)
+
+    let values h =
+      from_iter (fun k -> Hashtbl.iter (fun a b -> k b) h)
   end
 
 module String =
@@ -220,6 +226,25 @@ module Set(S : Set.S) =
     let to_seq set = from_iter (fun k -> S.iter k set)
 
     let of_seq seq = fold (fun set x -> S.add x set) S.empty seq
+  end
+
+(** Iterate on maps. The functor must be instantiated with a map type *)
+module Map(M : Map.S) =
+  struct
+    type 'a map = 'a M.t
+    type key = M.key
+    
+    let to_seq m =
+      from_iter (fun k -> M.iter (fun key value -> k (key, value)) m)
+
+    let keys m =
+      from_iter (fun k -> M.iter (fun key _ -> k key) m)
+
+    let values m =
+      from_iter (fun k -> M.iter (fun _ value -> k value) m)
+
+    let of_seq seq =
+      fold (fun m (key,value) -> M.add key value m) M.empty seq
   end
 
 (** {2 Pretty printing of sequences} *)

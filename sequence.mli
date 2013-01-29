@@ -135,6 +135,9 @@ module Hashtbl :
 
     val to_seq : ('a, 'b) Hashtbl.t -> ('a * 'b) t
       (** Sequence of key/value pairs from the hashtable *)
+
+    val keys : ('a, 'b) Hashtbl.t -> 'a t
+    val values : ('a, 'b) Hashtbl.t -> 'b t
   end
 
 module String :
@@ -164,6 +167,21 @@ module Set(S : Set.S) :
     val to_seq : set -> elt t
 
     val of_seq : elt t -> set
+  end
+
+(** Iterate on maps. The functor must be instantiated with a map type *)
+module Map(M : Map.S) :
+  sig
+    type 'a map = 'a M.t
+    type key = M.key
+    
+    val to_seq : 'a map -> (key * 'a) t
+
+    val keys : 'a map -> key t
+
+    val values : 'a map -> 'a t
+
+    val of_seq : (key * 'a) t -> 'a map
   end
 
 (** {2 Pretty printing of sequences} *)
