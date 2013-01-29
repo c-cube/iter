@@ -2,11 +2,8 @@
 (** {2 Test sequences} *)
 
 (** print a list of items using the printing function *)
-let rec pp_list ?(sep=", ") pp_item formatter = function
-  | x::y::xs -> Format.fprintf formatter "%a%s@,%a"
-      pp_item x sep (pp_list ~sep:sep pp_item) (y::xs)
-  | x::[] -> pp_item formatter x
-  | [] -> ()
+let pp_list ?(sep=", ") pp_item formatter l = 
+  Sequence.pp_seq ~sep pp_item formatter (Sequence.List.to_seq l)
 
 (** Set of integers *)
 module ISet = Set.Make(struct type t = int let compare = compare end)

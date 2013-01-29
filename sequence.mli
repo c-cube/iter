@@ -152,3 +152,10 @@ module Set :
     val to_seq : (module Set.S with type elt = 'a and type t = 'b) -> 'b -> 'a t
     val of_seq : (module Set.S with type elt = 'a and type t = 'b) -> 'a t -> 'b
   end
+
+(** {2 Pretty printing of sequences} *)
+
+val pp_seq : ?sep:string -> (Format.formatter -> 'a -> unit) ->
+             Format.formatter -> 'a t -> unit
+  (** Pretty print a sequence of ['a], using the given pretty printer
+      to print each elements. An optional separator string can be provided. *)

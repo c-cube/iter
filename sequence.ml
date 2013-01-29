@@ -201,3 +201,16 @@ module Set =
       let module S = (val m : Set.S with type elt = s and type t = t) in
       fold (fun set x -> S.add x set) S.empty seq
   end
+
+(** {2 Pretty printing of sequences} *)
+
+(** Pretty print a sequence of ['a], using the given pretty printer
+    to print each elements. An optional separator string can be provided. *)
+let pp_seq ?(sep=", ") pp_elt formatter seq =
+  let first = ref true in
+  iter
+    (fun x -> 
+      (if !first then first := false else Format.pp_print_string formatter sep);
+      pp_elt formatter x;
+      Format.pp_print_cut formatter ())
+    seq
