@@ -1,0 +1,6 @@
+name="sequence"
+version="0.1"
+description="Abstract sequences of elements, for conversion into and from data structures"
+requires=""
+archive(byte) = "sequence.cma"
+archive(native) = "sequence.cmxa"
