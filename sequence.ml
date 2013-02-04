@@ -192,6 +192,12 @@ module String =
       let b = Buffer.create 64 in
       iter (fun c -> Buffer.add_char b c) seq;
       Buffer.contents b
+
+    let of_in ic =
+      from_iter (fun k ->
+        try while true do
+          let c = input_char ic in k c
+        done with End_of_file -> ())
   end
 
 module Int =

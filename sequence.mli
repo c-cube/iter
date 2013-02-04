@@ -144,6 +144,8 @@ module String :
   sig
     val to_seq : string -> char t
     val of_seq : char t -> string
+
+    val of_in : in_channel -> char t
   end
 
 (** Sequences of ints *)
