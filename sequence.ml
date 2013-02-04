@@ -26,21 +26,15 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 (** {2 Transient iterators, that abstract on a finite sequence of elements. *)
 
 (** Sequence abstract iterator type *)
-type 'a t = {
-  seq_fun: ('a -> unit) -> unit;
-}
+type 'a t = ('a -> unit) -> unit
 
 (** Build a sequence from a iter function *)
-let from_iter f = {
-  seq_fun = f;
-}
+let from_iter f = f
 
-let singleton x = {
-  seq_fun = fun k -> k x;
-}
+let singleton x = fun k -> k x
 
 (** Consume the sequence, passing all its arguments to the function *)
-let iter f seq = seq.seq_fun f
+let iter f seq = seq f
 
 (** Iterate on elements and their index in the sequence *)
 let iteri f seq =
@@ -48,57 +42,54 @@ let iteri f seq =
   let k x =
     f !r x;
     incr r
-  in seq.seq_fun k
+  in seq k
 
 (** Fold over elements of the sequence, consuming it *)
 let fold f init seq =
   let r = ref init in
-  seq.seq_fun (fun elt -> r := f !r elt);
+  seq (fun elt -> r := f !r elt);
   !r
     
 (** Map objects of the sequence into other elements, lazily *)
 let map f seq =
-  let seq_fun' k = seq.seq_fun (fun x -> k (f x)) in
-  { seq_fun=seq_fun'; }
+  let seq_fun' k = seq (fun x -> k (f x)) in
+  seq_fun'
 
 (** Filter on elements of the sequence *)
 let filter p seq =
-  let seq_fun' k = seq.seq_fun (fun x -> if p x then k x) in
-  { seq_fun=seq_fun'; }
+  let seq_fun' k = seq (fun x -> if p x then k x) in
+  seq_fun'
 
 (** Append two sequences *)
 let append s1 s2 =
-  let seq_fun k = s1.seq_fun k; s2.seq_fun k in
-  { seq_fun; }
+  let seq_fun k = s1 k; s2 k in
+  seq_fun
 
 (** Concatenate a sequence of sequences into one sequence *)
 let concat s =
-  let seq_fun k =
+  fun k ->
     (* function that is called on every sub-sequence *)
     let k_seq seq = iter k seq in
-    s.seq_fun k_seq
-  in { seq_fun; }
+    s k_seq
 
 (** Take at most [n] elements from the sequence *)
 let take n seq =
   let count = ref 0 in
-  let seq_fun k =
+  fun k ->
     try
-      seq.seq_fun
+      seq
         (fun x -> if !count < n then begin incr count; k x end else raise Exit)
     with Exit -> ()
-  in { seq_fun; }
 
 (** Drop the [n] first elements of the sequence *)
 let drop n seq =
   let count = ref 0 in
-  let seq_fun k = seq.seq_fun
+  fun k -> seq
     (fun x -> if !count >= n then k x else incr count)
-  in { seq_fun; }
 
 (** Reverse the sequence. O(n) memory. *)
 let rev seq =
-  let seq_fun k =
+  fun k ->
     (* if we have traversed [s_1, ..., s_m], [cont ()] will call [k] on s_m,
        s_{m-1}, ..., s_1. Once we know [s_{m+1}], we update [cont] so that it
        first returns it, and then called the previous cont. *)
@@ -108,19 +99,18 @@ let rev seq =
       let cont' () = k x; current_cont () in
       cont := cont') seq;
     !cont ()
-  in { seq_fun; }
 
 (** Do all elements satisfy the predicate? *)
 let for_all p seq =
   try
-    seq.seq_fun (fun x -> if not (p x) then raise Exit);
+    seq (fun x -> if not (p x) then raise Exit);
     true
   with Exit -> false
 
 (** Exists there some element satisfying the predicate? *)
 let exists p seq =
   try
-    seq.seq_fun (fun x -> if p x then raise Exit);
+    seq (fun x -> if p x then raise Exit);
     false
   with Exit -> true
 
@@ -152,11 +142,10 @@ module Array =
 
     let slice a i j =
       assert (i >= 0 && j < Array.length a);
-      let seq_fun k =
+      fun k ->
         for idx = i to j do
           k a.(idx);  (* iterate on sub-array *)
         done
-      in { seq_fun; }
   end
 
 module Stack =
@@ -208,13 +197,10 @@ module String =
 module Int =
   struct
     let range ~start ~stop =
-      let seq_fun k =
+      fun k ->
         for i = start to stop do k i done
-      in { seq_fun; }
 
-    let repeat i =
-      let seq_fun k = while true do k i; done in
-      { seq_fun; }
+    let repeat i = fun k -> while true do k i; done
   end
 
 (** Iterate on sets. The functor must be instantiated with a set type *)
