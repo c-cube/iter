@@ -45,5 +45,9 @@ let _ =
   Format.printf "%dx1 = %d@." n sum;
   assert (n=sum);
   let s = Sexpr.of_seq (Sexpr.lex (Sequence.String.to_seq sexpr)) in
-  Format.printf "parse @[<h>%s@] into @[<h>%a@]@." sexpr (Sexpr.pp_sexpr ~indent:false) s;
+  let s = Sexpr.of_seq (Sequence.map
+    (function | `Atom s -> `Atom (String.capitalize s) | tok -> tok)
+    (Sexpr.traverse s))
+  in
+  Format.printf "@[<hov2>transform @[<h>%s@] into @[<h>%a@]@]@." sexpr (Sexpr.pp_sexpr ~indent:false) s;
   ()
