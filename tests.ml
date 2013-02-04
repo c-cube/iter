@@ -37,4 +37,9 @@ let _ =
     (Sequence.Array.to_seq
       (Sequence.Array.of_seq (Sequence.append
         (Sequence.take 5 (Sequence.List.to_seq l3)) (Sequence.List.to_seq l4))));
+  (* sum *)
+  let n = 200000000 in
+  let sum = Sequence.fold (+) 0 (Sequence.take n (Sequence.Int.repeat 1)) in
+  Format.printf "%dx1 = %d@." n sum;
+  assert (n=sum);
   ()
