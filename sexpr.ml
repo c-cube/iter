@@ -95,13 +95,15 @@ let pp_token formatter token = match token with
 (** Print a sequence of Sexpr tokens on the given formatter *)
 let pp_tokens formatter tokens =
   let first = ref true in
+  let last = ref false in
   Sequence.iter
     (fun token ->
       (match token with
       | `Open -> (if not !first then Format.fprintf formatter " "); first := true
-      | `Close -> first := false
+      | `Close -> first := false; last := true
       | _ -> if !first then first := false else Format.fprintf formatter " ");
-      pp_token formatter token)
+      pp_token formatter token;
+      if !last then (Format.pp_print_break formatter 0 0; last := false))
     tokens
 
 (** Pretty-print the S-expr. If [indent] is true, the S-expression
