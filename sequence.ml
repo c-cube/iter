@@ -120,6 +120,17 @@ let exists p seq =
     false
   with Exit -> true
 
+(** How long is the sequence? *)
+let length seq =
+  let r = ref 0 in
+  seq (fun _ -> incr r);
+  !r
+
+(** Is the sequence empty? *)
+let is_empty seq =
+  try seq (fun _ -> raise Exit); true
+  with Exit -> false
+
 module List =
   struct
     let of_seq seq = List.rev (fold (fun y x -> x::y) [] seq)

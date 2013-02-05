@@ -66,6 +66,12 @@ val for_all : ('a -> bool) -> 'a t -> bool
 val exists : ('a -> bool) -> 'a t -> bool
   (** Exists there some element satisfying the predicate? *)
 
+val length : 'a t -> int
+  (** How long is the sequence? *)
+
+val is_empty : 'a t -> bool
+  (** Is the sequence empty? *)
+
 (** {2 Transform a sequence} *)
 
 val filter : ('a -> bool) -> 'a t -> 'a t
