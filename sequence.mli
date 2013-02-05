@@ -39,6 +39,13 @@ val from_iter : (('a -> unit) -> unit) -> 'a t
 val singleton : 'a -> 'a t
   (** Singleton sequence *)
 
+val repeat : 'a -> 'a t
+  (** Infinite sequence of the same element *)
+
+val cycle : 'a t -> 'a t
+  (** Cycle forever through the given sequence. Assume the
+      given sequence can be traversed any amount of times (not transient). *)
+
 (** {2 Consume a sequence} *)
 
 val iter : ('a -> unit) -> 'a t -> unit
@@ -153,11 +160,6 @@ module Int :
   sig
     val range : start:int -> stop:int -> int t
       (** Iterator on [start...stop] by steps 1 *)
-
-    val repeat : int -> int t
-      (** Infinite sequence of integers. Should be used only with 
-          transformers such as [take], that work even with infinite
-          sequences. *)
   end
 
 (** Iterate on sets. The functor must be instantiated with a set type *)

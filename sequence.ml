@@ -33,6 +33,12 @@ let from_iter f = f
 
 let singleton x = fun k -> k x
 
+(** Infinite sequence of the same element *)
+let repeat x = fun k -> while true do k x done
+
+(** Cycle forever through the given sequence. O(n). *)
+let cycle s = fun k -> while true do s k; done
+
 (** Consume the sequence, passing all its arguments to the function *)
 let iter f seq = seq f
 
@@ -205,8 +211,6 @@ module Int =
     let range ~start ~stop =
       fun k ->
         for i = start to stop do k i done
-
-    let repeat i = fun k -> while true do k i; done
   end
 
 (** Iterate on sets. The functor must be instantiated with a set type *)
