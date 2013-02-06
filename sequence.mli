@@ -151,9 +151,6 @@ val of_set : (module Set.S with type elt = 'a and type t = 'b) -> 'b -> 'a t
 val to_set : (module Set.S with type elt = 'a and type t = 'b) -> 'a t -> 'b
   (** Convert the sequence to a set, given the proper set module *)
 
-val of_map : (module Map.S with type key = 'a and type t = 'b) -> 'b -> ('a * 'c) t
-  (** Convert the Map to the sequence of its key/values *)
-
 (** Iterate on maps. The functor must be instantiated with a map type *)
 module Map(M : Map.S) :
   sig
