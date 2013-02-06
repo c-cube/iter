@@ -78,14 +78,17 @@ let concat s =
     let k_seq seq = iter k seq in
     s k_seq
 
+exception ExitSequence
+
 (** Take at most [n] elements from the sequence *)
 let take n seq =
   let count = ref 0 in
   fun k ->
     try
       seq
-        (fun x -> if !count < n then begin incr count; k x end else raise Exit)
-    with Exit -> ()
+        (fun x -> if !count < n then begin incr count; k x end
+                                else raise ExitSequence)
+    with ExitSequence -> ()
 
 (** Drop the [n] first elements of the sequence *)
 let drop n seq =
@@ -109,16 +112,16 @@ let rev seq =
 (** Do all elements satisfy the predicate? *)
 let for_all p seq =
   try
-    seq (fun x -> if not (p x) then raise Exit);
+    seq (fun x -> if not (p x) then raise ExitSequence);
     true
-  with Exit -> false
+  with ExitSequence -> false
 
 (** Exists there some element satisfying the predicate? *)
 let exists p seq =
   try
-    seq (fun x -> if p x then raise Exit);
+    seq (fun x -> if p x then raise ExitSequence);
     false
-  with Exit -> true
+  with ExitSequence -> true
 
 (** How long is the sequence? *)
 let length seq =
@@ -128,8 +131,8 @@ let length seq =
 
 (** Is the sequence empty? *)
 let is_empty seq =
-  try seq (fun _ -> raise Exit); true
-  with Exit -> false
+  try seq (fun _ -> raise ExitSequence); true
+  with ExitSequence -> false
 
 let to_list seq = List.rev (fold (fun y x -> x::y) [] seq)
 
