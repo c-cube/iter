@@ -131,109 +131,99 @@ let is_empty seq =
   try seq (fun _ -> raise Exit); true
   with Exit -> false
 
-module List =
-  struct
-    let of_seq seq = List.rev (fold (fun y x -> x::y) [] seq)
+let to_list seq = List.rev (fold (fun y x -> x::y) [] seq)
 
-    let of_rev_seq seq = fold (fun y x -> x :: y) [] seq
+let to_rev_list seq = fold (fun y x -> x :: y) [] seq
+  (** Get the list of the reversed sequence (more efficient) *)
 
-    let to_seq l = from_iter (fun k -> List.iter k l)
-  end
+let of_list l = from_iter (fun k -> List.iter k l)
 
-module Array =
-  struct
-    let of_seq seq =
-      (* intermediate list... *)
-      let l = List.of_rev_seq seq in
-      let a = Array.of_list l in
-      (* reverse array *)
-      let n = Array.length a in
-      for i = 0 to (n-1) / 2 do
-        let tmp = a.(i) in
-        a.(i) <- a.(n-i-1);
-        a.(n-i-1) <- tmp;
-      done;
-      a
+let to_array seq =
+  (* intermediate list... *)
+  let l = to_rev_list seq in
+  let a = Array.of_list l in
+  (* reverse array *)
+  let n = Array.length a in
+  for i = 0 to (n-1) / 2 do
+    let tmp = a.(i) in
+    a.(i) <- a.(n-i-1);
+    a.(n-i-1) <- tmp;
+  done;
+  a
 
-    let to_seq a = from_iter (fun k -> Array.iter k a)
+let of_array a = from_iter (fun k -> Array.iter k a)
 
-    let slice a i j =
-      assert (i >= 0 && j < Array.length a);
-      fun k ->
-        for idx = i to j do
-          k a.(idx);  (* iterate on sub-array *)
-        done
-  end
+(** [array_slice a i j] Sequence of elements whose indexes range
+    from [i] to [j] *)
+let array_slice a i j =
+  assert (i >= 0 && j < Array.length a);
+  fun k ->
+    for idx = i to j do
+      k a.(idx);  (* iterate on sub-array *)
+    done
 
-module Stack =
-  struct
-    let push_seq s seq = iter (fun x -> Stack.push x s) seq
+(** Push elements of the sequence on the stack *)
+let to_stack s seq = iter (fun x -> Stack.push x s) seq
 
-    let to_seq s = from_iter (fun k -> Stack.iter k s)
-  end
+(** Sequence of elements of the stack (same order as [Stack.iter]) *)
+let of_stack s = from_iter (fun k -> Stack.iter k s)
 
-module Queue =
-  struct
-    let push_seq q seq = iter (fun x -> Queue.push x q) seq
-    let to_seq q = from_iter (fun k -> Queue.iter k q)
-  end
+(** Push elements of the sequence into the queue *)
+let to_queue q seq = iter (fun x -> Queue.push x q) seq
 
-module Hashtbl =
-  struct
-    let add_seq h seq =
-      iter (fun (k,v) -> Hashtbl.add h k v) seq
+(** Sequence of elements contained in the queue, FIFO order *)
+let of_queue q = from_iter (fun k -> Queue.iter k q)
 
-    let replace_seq h seq =
-      iter (fun (k,v) -> Hashtbl.replace h k v) seq
+let hashtbl_add h seq =
+  iter (fun (k,v) -> Hashtbl.add h k v) seq
 
-    let of_seq seq =
-      let h = Hashtbl.create 3 in
-      replace_seq h seq;
-      h
+let hashtbl_replace h seq =
+  iter (fun (k,v) -> Hashtbl.replace h k v) seq
 
-    let to_seq h =
-      from_iter (fun k -> Hashtbl.iter (fun a b -> k (a, b)) h)
+let to_hashtbl seq =
+  let h = Hashtbl.create 3 in
+  hashtbl_replace h seq;
+  h
 
-    let keys h =
-      from_iter (fun k -> Hashtbl.iter (fun a b -> k a) h)
+let of_hashtbl h =
+  from_iter (fun k -> Hashtbl.iter (fun a b -> k (a, b)) h)
 
-    let values h =
-      from_iter (fun k -> Hashtbl.iter (fun a b -> k b) h)
-  end
+let hashtbl_keys h =
+  from_iter (fun k -> Hashtbl.iter (fun a b -> k a) h)
 
-module String =
-  struct
-    let to_seq s = from_iter (fun k -> String.iter k s)
+let hashtbl_values h =
+  from_iter (fun k -> Hashtbl.iter (fun a b -> k b) h)
+
+let of_str s = from_iter (fun k -> String.iter k s)
     
-    let of_seq seq =
-      let b = Buffer.create 64 in
-      iter (fun c -> Buffer.add_char b c) seq;
-      Buffer.contents b
+let to_str seq =
+  let b = Buffer.create 64 in
+  iter (fun c -> Buffer.add_char b c) seq;
+  Buffer.contents b
 
-    let of_in ic =
-      from_iter (fun k ->
-        try while true do
-          let c = input_char ic in k c
-        done with End_of_file -> ())
-  end
+let of_in_channel ic =
+  from_iter (fun k ->
+    try while true do
+      let c = input_char ic in k c
+    done with End_of_file -> ())
 
-module Int =
-  struct
-    let range ~start ~stop =
-      fun k ->
-        for i = start to stop do k i done
-  end
+(** Iterator on integers in [start...stop] by steps 1 *)
+let int_range ~start ~stop =
+  fun k ->
+    for i = start to stop do k i done
 
-(** Iterate on sets. The functor must be instantiated with a set type *)
-module Set(S : Set.S) =
-  struct
-    type set = S.t
-    type elt = S.elt
+(** Convert the given set to a sequence. The set module must be provided. *)
+let of_set (type s) (type v) m set =
+  let module S = (val m : Set.S with type t = s and type elt = v) in
+  from_iter
+    (fun k -> S.iter k set)
 
-    let to_seq set = from_iter (fun k -> S.iter k set)
-
-    let of_seq seq = fold (fun set x -> S.add x set) S.empty seq
-  end
+(** Convert the sequence to a set, given the proper set module *)
+let to_set (type s) (type v) m seq =
+  let module S = (val m : Set.S with type t = s and type elt = v) in
+  fold
+    (fun set x -> S.add x set)
+    S.empty seq
 
 (** Iterate on maps. The functor must be instantiated with a map type *)
 module Map(M : Map.S) =

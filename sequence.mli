@@ -94,90 +94,65 @@ val rev : 'a t -> 'a t
 
 (** {2 Basic data structures converters} *)
 
-module List :
-  sig
-    val of_seq : 'a t -> 'a list
+val to_list : 'a t -> 'a list
 
-    val of_rev_seq : 'a t -> 'a list
-      (** Get the list of the reversed sequence (more efficient) *)
+val to_rev_list : 'a t -> 'a list
+  (** Get the list of the reversed sequence (more efficient) *)
 
-    val to_seq : 'a list -> 'a t
-  end
+val of_list : 'a list -> 'a t
 
-module Array :
-  sig
-    val of_seq : 'a t -> 'a array
+val to_array : 'a t -> 'a array
 
-    val to_seq : 'a array -> 'a t
+val of_array : 'a array -> 'a t
 
-    val slice : 'a array -> int -> int -> 'a t
-      (** [slice a i j] Sequence of elements whose indexes range
-          from [i] to [j] *)
-  end
+val array_slice : 'a array -> int -> int -> 'a t
+  (** [array_slice a i j] Sequence of elements whose indexes range
+      from [i] to [j] *)
 
-module Stack :
-  sig
-    val push_seq : 'a Stack.t -> 'a t -> unit
-      (** Push elements of the sequence on the stack *)
+val to_stack : 'a Stack.t -> 'a t -> unit
+  (** Push elements of the sequence on the stack *)
 
-    val to_seq : 'a Stack.t -> 'a t
-      (** Sequence of elements of the stack (same order as [Stack.iter]) *)
-  end
+val of_stack : 'a Stack.t -> 'a t
+  (** Sequence of elements of the stack (same order as [Stack.iter]) *)
 
-module Queue :
-  sig
-    val push_seq : 'a Queue.t -> 'a t -> unit
-      (** Push elements of the sequence into the queue *)
+val to_queue : 'a Queue.t -> 'a t -> unit
+  (** Push elements of the sequence into the queue *)
 
-    val to_seq : 'a Queue.t -> 'a t
-      (** Sequence of elements contained in the queue, FIFO order *)
-  end
+val of_queue : 'a Queue.t -> 'a t
+  (** Sequence of elements contained in the queue, FIFO order *)
 
-module Hashtbl :
-  sig
-    val add_seq : ('a, 'b) Hashtbl.t -> ('a * 'b) t -> unit
-      (** Add elements of the sequence to the hashtable, with
-          Hashtbl.add *)
+val hashtbl_add : ('a, 'b) Hashtbl.t -> ('a * 'b) t -> unit
+  (** Add elements of the sequence to the hashtable, with
+      Hashtbl.add *)
 
-    val replace_seq : ('a, 'b) Hashtbl.t -> ('a * 'b) t -> unit
-      (** Add elements of the sequence to the hashtable, with
-          Hashtbl.replace (erases conflicting bindings) *)
+val hashtbl_replace : ('a, 'b) Hashtbl.t -> ('a * 'b) t -> unit
+  (** Add elements of the sequence to the hashtable, with
+      Hashtbl.replace (erases conflicting bindings) *)
 
-    val of_seq : ('a * 'b) t -> ('a, 'b) Hashtbl.t
-      (** Build a hashtable from a sequence *)
+val to_hashtbl :('a * 'b) t -> ('a, 'b) Hashtbl.t
+  (** Build a hashtable from a sequence of key/value pairs *)
 
-    val to_seq : ('a, 'b) Hashtbl.t -> ('a * 'b) t
-      (** Sequence of key/value pairs from the hashtable *)
+val of_hashtbl : ('a, 'b) Hashtbl.t -> ('a * 'b) t
+  (** Sequence of key/value pairs from the hashtable *)
 
-    val keys : ('a, 'b) Hashtbl.t -> 'a t
-    val values : ('a, 'b) Hashtbl.t -> 'b t
-  end
+val hashtbl_keys : ('a, 'b) Hashtbl.t -> 'a t
+val hashtbl_values : ('a, 'b) Hashtbl.t -> 'b t
 
-module String :
-  sig
-    val to_seq : string -> char t
-    val of_seq : char t -> string
+val of_str : string -> char t
+val to_str :  char t -> string
+val of_in_channel : in_channel -> char t
 
-    val of_in : in_channel -> char t
-  end
+val int_range : start:int -> stop:int -> int t
+  (** Iterator on integers in [start...stop] by steps 1 *)
 
-(** Sequences of ints *)
-module Int :
-  sig
-    val range : start:int -> stop:int -> int t
-      (** Iterator on [start...stop] by steps 1 *)
-  end
+val of_set : (module Set.S with type elt = 'a and type t = 'b) -> 'b -> 'a t
+  (** Convert the given set to a sequence. The set module must be provided. *)
 
-(** Iterate on sets. The functor must be instantiated with a set type *)
-module Set(S : Set.S) :
-  sig
-    type set = S.t
-    type elt = S.elt
-    
-    val to_seq : set -> elt t
+val to_set : (module Set.S with type elt = 'a and type t = 'b) -> 'a t -> 'b
+  (** Convert the sequence to a set, given the proper set module *)
 
-    val of_seq : elt t -> set
-  end
+val of_map : (module Map.S with type key = 'a and type t = 'b) -> 'b -> ('a * 'c) t
+  (** Convert the Map to the sequence of its key/values *)
 
 (** Iterate on maps. The functor must be instantiated with a map type *)
 module Map(M : Map.S) :
