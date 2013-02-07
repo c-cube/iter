@@ -151,7 +151,25 @@ val of_set : (module Set.S with type elt = 'a and type t = 'b) -> 'b -> 'a t
 val to_set : (module Set.S with type elt = 'a and type t = 'b) -> 'a t -> 'b
   (** Convert the sequence to a set, given the proper set module *)
 
-(** Conversion between maps and sequences. *)
+(** {2 Functorial conversions between sets and sequences} *)
+
+module Set : sig
+  module type S = sig
+    type set
+    include Set.S with type t := set
+    val of_seq : elt t -> set
+    val to_seq : set -> elt t
+  end
+
+  (** Create an enriched Set module from the given one *)
+  module Adapt(X : Set.S) : S with type elt = X.elt and type set = X.t
+    
+  (** Functor to build an extended Set module from an ordered type *)
+  module Make(X : Set.OrderedType) : S with type elt = X.t
+end
+
+(** {2 Conversion between maps and sequences.} *)
+
 module Map : sig
   module type S = sig
     type +'a map

@@ -228,7 +228,36 @@ let to_set (type s) (type v) m seq =
     (fun set x -> S.add x set)
     S.empty seq
 
-(** Conversion between maps and sequences. *)
+(** {2 Functorial conversions between sets and sequences} *)
+
+module Set = struct
+  module type S = sig
+    type set
+    include Set.S with type t := set
+    val of_seq : elt t -> set
+    val to_seq : set -> elt t
+  end
+
+  (** Create an enriched Set module from the given one *)
+  module Adapt(X : Set.S) : S with type elt = X.elt and type set = X.t = struct
+    type set = X.t
+
+    let to_seq set = from_iter (fun k -> X.iter k set)
+
+    let of_seq seq = fold (fun set x -> X.add x set) X.empty seq
+
+    include X
+  end
+    
+  (** Functor to build an extended Set module from an ordered type *)
+  module Make(X : Set.OrderedType) : S with type elt = X.t = struct
+    module MySet = Set.Make(X)
+    include Adapt(MySet)
+  end
+end
+
+(** {2 Conversion between maps and sequences.} *)
+
 module Map = struct
   module type S = sig
     type +'a map
