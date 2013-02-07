@@ -9,9 +9,15 @@ let pp_list ?(sep=", ") pp_item formatter l =
 module ISet = Set.Make(struct type t = int let compare = compare end)
 let iset = (module ISet : Set.S with type elt = int and type t = ISet.t)
 
+module OrderedString = struct type t = string let compare = compare end
+module SMap = Sequence.Map.Make(OrderedString)
+
+let my_map = SMap.of_seq (Sequence.of_list ["1", 1; "2", 2; "3", 3; "answer", 42])
+
 let sexpr = "(foo bar (bazz quux hello 42) world (zoo foo bar (1 2 (3 4))))"
 
 let _ =
+  (* lists *)
   let l = [0;1;2;3;4;5;6] in
   let l' = Sequence.to_list
     (Sequence.filter (fun x -> x mod 2 = 0) (Sequence.of_list l)) in
@@ -39,11 +45,21 @@ let _ =
     (Sequence.of_array
       (Sequence.to_array (Sequence.append
         (Sequence.take 5 (Sequence.of_list l3)) (Sequence.of_list l4))));
+  (* maps *)
+  Format.printf "@[<h>map: %a@]@."
+    (Sequence.pp_seq (fun formatter (k,v) -> Format.fprintf formatter "\"%s\" -> %d" k v))
+    (SMap.to_seq my_map);
+  let module MyMapSeq = Sequence.Map.Adapt(Map.Make(OrderedString)) in
+  let my_map' = MyMapSeq.of_seq (Sequence.of_list ["1", 1; "2", 2; "3", 3; "answer", 42]) in
+  Format.printf "@[<h>map: %a@]@."
+    (Sequence.pp_seq (fun formatter (k,v) -> Format.fprintf formatter "\"%s\" -> %d" k v))
+    (MyMapSeq.to_seq my_map');
   (* sum *)
   let n = 100000000 in
   let sum = Sequence.fold (+) 0 (Sequence.take n (Sequence.repeat 1)) in
   Format.printf "%dx1 = %d@." n sum;
   assert (n=sum);
+  (* sexpr *)
   let s = Sexpr.of_seq (Sexpr.lex (Sequence.of_str sexpr)) in
   let s = Sexpr.of_seq (Sequence.map
     (function | `Atom s -> `Atom (String.capitalize s) | tok -> tok)

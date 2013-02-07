@@ -228,24 +228,38 @@ let to_set (type s) (type v) m seq =
     (fun set x -> S.add x set)
     S.empty seq
 
-(** Iterate on maps. The functor must be instantiated with a map type *)
-module Map(M : Map.S) =
-  struct
-    type 'a map = 'a M.t
-    type key = M.key
-    
-    let to_seq m =
-      from_iter (fun k -> M.iter (fun key value -> k (key, value)) m)
-
-    let keys m =
-      from_iter (fun k -> M.iter (fun key _ -> k key) m)
-
-    let values m =
-      from_iter (fun k -> M.iter (fun _ value -> k value) m)
-
-    let of_seq seq =
-      fold (fun m (key,value) -> M.add key value m) M.empty seq
+(** Conversion between maps and sequences. *)
+module Map = struct
+  module type S = sig
+    type +'a map
+    include Map.S with type 'a t := 'a map
+    val to_seq : 'a map -> (key * 'a) t
+    val of_seq : (key * 'a) t -> 'a map
+    val keys : 'a map -> key t
+    val values : 'a map -> 'a t
   end
+
+  (** Adapt a pre-existing Map module to make it sequence-aware *)
+  module Adapt(M : Map.S) : S with type key = M.key and type 'a map = 'a M.t = struct
+    type 'a map = 'a M.t
+
+    let to_seq m = from_iter (fun k -> M.iter (fun x y -> k (x,y)) m)
+
+    let of_seq seq = fold (fun m (k,v) -> M.add k v m) M.empty seq
+
+    let keys m = from_iter (fun k -> M.iter (fun x _ -> k x) m)
+
+    let values m = from_iter (fun k -> M.iter (fun _ y -> k y) m)
+
+    include M
+  end
+
+  (** Create an enriched Map module, with sequence-aware functions *)
+  module Make(V : Map.OrderedType) : S with type key = V.t = struct
+    module M = Map.Make(V)
+    include Adapt(M)
+  end
+end
 
 (** {2 Pretty printing of sequences} *)
 
