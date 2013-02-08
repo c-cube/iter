@@ -124,7 +124,7 @@ let pp_tokens formatter tokens =
       | `Close -> first := false; last := true
       | _ -> if !first then first := false else Format.fprintf formatter " ");
       pp_token formatter token;
-      if !last then (Format.pp_print_break formatter 0 0; last := false))
+      if !last then last := false)
     tokens
 
 (** Pretty-print the S-expr. If [indent] is true, the S-expression
@@ -133,6 +133,20 @@ let pp_sexpr ?(indent=false) formatter s =
   if indent
     then Format.fprintf formatter "@[<hov 4>%a@]" pp_tokens (traverse s)
     else pp_tokens formatter (traverse s)
+
+(** {2 Serializing} *)
+
+let output_seq name subexpr k =
+  k `Open;
+  k (`Atom name);
+  Sequence.iter k subexpr;
+  k `Close
+
+let output_str name str k =
+  k `Open;
+  k (`Atom name);
+  k (`Atom str);
+  k `Close
 
 (** {2 Parsing} *)
 
@@ -163,6 +177,8 @@ let fail reason = Fail reason
 
 let one f = One f
 
+let skip = One (fun _ -> ())
+
 let lookahead f = Zero f
 
 let left = One (function | `Open -> ()
@@ -181,6 +197,14 @@ let triple f g h =
   g >>= fun y ->
   h >>= fun z ->
   return (x, y, z)
+
+(** [(name,p) ^|| p'] behaves as p if the next token is [`Atom name], and
+    like [p'] otherwise *)
+let (^||) (name,p) p' =
+  lookahead
+    (fun token -> match token with
+    | `Atom s when s = name -> skip >> p ()
+    | _ -> p')
 
 (** Maps the value returned by the parser *)
 let map p f = p >>= fun x -> return (f x)
@@ -231,12 +255,11 @@ let parse_k p tokens k =
   let rec state = Push(p, fun x -> match k x with `Stop -> Bottom | `Continue -> state) in
   (* Token handler. It also takes the current parser. *)
   let rec one_step state token =
-    match state with
+    match reduce state with
     | Bottom ->  (* should not happen, unless there are too many tokens *)
       raise (ParseFailure "unexpected ')'")
-    | Push (Return x, cont) ->
-      let state' = cont x in
-      one_step state' token  (* do not consume token *)
+    | Push (Return _, cont) ->
+      assert false (* should be reduced *)
     | Push (Zero f, cont) ->
       let p' = f token in
       let state' = Push (p', cont) in
@@ -244,7 +267,7 @@ let parse_k p tokens k =
     | Push (One f, cont) ->
       let x = f token in
       let state' = cont x in
-      state'  (* consume token *)
+      reduce state'  (* consume token *)
     (* | Maybe f, _ -> let x = f token in (Obj.magic cont) x *)
     | Push (Bind (p', cont'), cont) ->
       let cont'' x =
@@ -254,6 +277,12 @@ let parse_k p tokens k =
       let state' = Push (p', cont'') in
       one_step state' token  (* do not consume token *)
     | Push (Fail reason, _) -> raise (ParseFailure reason)
+  (* Reduce parser state *)
+  and reduce state = match state with
+    | Push (Return x, cont) ->
+      let state' = cont x in
+      reduce state'
+    | _ -> state
   in
   (* iterate on the tokens *)
   ignore (Sequence.fold one_step state tokens)

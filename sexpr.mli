@@ -62,6 +62,14 @@ val pp_sexpr : ?indent:bool -> Format.formatter -> t -> unit
   (** Pretty-print the S-expr. If [indent] is true, the S-expression
       is printed with indentation. *)
 
+(** {2 Serializing} *)
+
+val output_seq : string -> token Sequence.t -> (token -> unit) -> unit
+  (** print a pair "(name @,sequence)" *)
+
+val output_str : string -> string -> (token -> unit) -> unit
+  (** print a pair "(name str)" *)
+
 (** {2 Parsing} *)
 
 (** Monadic combinators for parsing data from a sequence of tokens,
@@ -87,6 +95,9 @@ val fail : string -> 'a parser
 val one : (token -> 'a) -> 'a parser
   (** consumes one token with the function *)
 
+val skip : unit parser
+  (** Skip the token *)
+
 val lookahead : (token -> 'a parser) -> 'a parser
   (** choose parser given current token *)
 
@@ -98,6 +109,10 @@ val right : unit parser
 
 val pair : 'a parser -> 'b parser -> ('a * 'b) parser
 val triple : 'a parser -> 'b parser -> 'c parser -> ('a * 'b * 'c) parser
+
+val (^||) : (string * (unit -> 'a parser)) -> 'a parser -> 'a parser
+  (** [(name,p) ^|| p'] behaves as [p ()] if the next token is [`Atom name], and
+      like [p'] otherwise *)
 
 val map : 'a parser -> ('a -> 'b) -> 'b parser
   (** Maps the value returned by the parser *)
