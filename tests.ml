@@ -16,6 +16,55 @@ let my_map = SMap.of_seq (Sequence.of_list ["1", 1; "2", 2; "3", 3; "answer", 42
 
 let sexpr = "(foo bar (bazz quux hello 42) world (zoo foo bar (1 2 (3 4))))"
 
+type term = | Lambda of term | Const of string | Var of int | Apply of term * term
+
+let random_term () =
+  let max = 10
+  and num = ref 0 in
+  let rec build depth =
+    if depth > 4 || !num > max then Const (random_const ()) else
+    match Random.int 6 with
+    | 0 -> if depth > 0 then Var (Random.int depth) else Const (random_const ())
+    | 1 -> incr num; Lambda (build (depth+1))
+    | 2 -> Const (random_const ())
+    | _ -> incr num; Apply ((build depth), (build depth))
+  and random_const () = [|"a"; "b"; "c"; "f"; "g"; "h"|].(Random.int 6)
+  in build 0
+
+let rec sexpr_of_term t =
+  let f t k = match t with
+    | Var i -> Sexpr.output_str "var" (string_of_int i) k
+    | Lambda t' -> Sexpr.output_seq "lambda" (sexpr_of_term t') k
+    | Apply (t1, t2) -> Sexpr.output_seq "apply" (Sequence.append (sexpr_of_term t1) (sexpr_of_term t2)) k
+    | Const s -> Sexpr.output_str "const" s k
+  in Sequence.from_iter (f t)
+
+let term_parser =
+  let open Sexpr in
+  let rec p_term () =
+    left >>
+    (("lambda", p_lambda) ^|| ("var", p_var) ^|| ("const", p_const) ^||
+      ("apply", p_apply) ^|| fail "bad term") >>= fun x ->
+    right >> return x
+  and p_apply () =
+    p_term () >>= fun x ->
+    p_term () >>= fun y ->
+    return (Apply (x,y))
+  and p_var () = p_int >>= fun i -> return (Var i)
+  and p_const () = p_str >>= fun s -> return (Const s)
+  and p_lambda () = p_term () >>= fun t -> return (Lambda t)
+  in p_term ()
+
+let term_of_sexp seq = Sexpr.parse term_parser seq
+
+let test_term () =
+  let t = random_term () in
+  Format.printf "@[<h>random term: %a@]@." Sexpr.pp_tokens (sexpr_of_term t);
+  let tokens = sexpr_of_term t in
+  let t' = term_of_sexp tokens in
+  Format.printf "@[<h>parsed: %a@]@." Sexpr.pp_tokens (sexpr_of_term t');
+  ()
+
 let _ =
   (* lists *)
   let l = [0;1;2;3;4;5;6] in
@@ -55,7 +104,7 @@ let _ =
     (Sequence.pp_seq (fun formatter (k,v) -> Format.fprintf formatter "\"%s\" -> %d" k v))
     (MyMapSeq.to_seq my_map');
   (* sum *)
-  let n = 100000000 in
+  let n = 1000000 in
   let sum = Sequence.fold (+) 0 (Sequence.take n (Sequence.repeat 1)) in
   Format.printf "%dx1 = %d@." n sum;
   assert (n=sum);
@@ -68,4 +117,9 @@ let _ =
   Format.printf "@[<hov2>transform @[<h>%s@] into @[<h>%a@]@]@." sexpr (Sexpr.pp_sexpr ~indent:false) s;
   Format.printf "@[<hv2> cycle:%a@]@." Sexpr.pp_tokens
     (Sequence.concat (Sequence.take 10 (Sequence.repeat (Sexpr.traverse s))));
+  (* sexpr parsing/printing *)
+  for i = 0 to 20 do
+    Format.printf "%d-th term test@." i;
+    test_term ();
+  done;
   ()
