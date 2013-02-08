@@ -224,10 +224,11 @@ type 'a state =
   | Bottom : 'a state
   | Push : ('b parser * ('b -> 'a state)) -> 'a state
 
-(** Actually parse the sequence of tokens *)
-let parse p tokens =
-  let res = ref None in
-  let state = Push(p, fun x -> (res := Some x; Bottom)) in
+(** Actually parse the sequence of tokens, with a callback to be called
+    on every parsed value. The callback decides whether to push another
+    state or whether to continue. *)
+let parse_k p tokens k =
+  let rec state = Push(p, fun x -> match k x with `Stop -> Bottom | `Continue -> state) in
   (* Token handler. It also takes the current parser. *)
   let rec one_step state token =
     match state with
@@ -255,9 +256,21 @@ let parse p tokens =
     | Push (Fail reason, _) -> raise (ParseFailure reason)
   in
   (* iterate on the tokens *)
-  ignore (Sequence.fold one_step state tokens);
+  ignore (Sequence.fold one_step state tokens)
+
+(** Parse one value *)
+let parse p tokens =
+  let res = ref None in
+  parse_k p tokens (fun x -> res := Some x; `Stop);
   (* return result *)
   match !res with
   | None -> raise (ParseFailure "incomplete input")
   | Some x -> x
+
+(** Parse a sequence of values *)
+let parse_seq p tokens =
+  let seq_fun k =
+    parse_k p tokens (fun x -> k x; `Continue)
+  in
+  Sequence.from_iter seq_fun
 

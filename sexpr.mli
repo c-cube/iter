@@ -110,5 +110,8 @@ val many : 'a parser -> 'a list parser
 val many1 : 'a parser -> 'a list parser
 
 val parse : 'a parser -> token Sequence.t -> 'a
-  (** Actually parse the sequence of tokens. Raises
+  (** Parses exactly one value from the sequence of tokens. Raises
       ParseFailure if anything goes wrong. *)
+
+val parse_seq : 'a parser -> token Sequence.t -> 'a Sequence.t
+  (** Parses a sequence of values *)
