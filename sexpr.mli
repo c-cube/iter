@@ -36,6 +36,12 @@ val iter : (token -> unit) -> t -> unit
 val traverse : t -> token Sequence.t
   (** Traverse. This yields a sequence of tokens *)
 
+val validate : token Sequence.t -> token Sequence.t
+  (** Returns the same sequence of tokens, but during iteration, if
+      the structure of the Sexpr corresponding to the sequence
+      is wrong (bad parenthesing), Invalid_argument is raised
+      and iteration is stoped *)
+
 (** {2 Text <-> tokens} *)
 
 val lex : char Sequence.t -> token Sequence.t
@@ -55,3 +61,54 @@ val pp_tokens : Format.formatter -> token Sequence.t -> unit
 val pp_sexpr : ?indent:bool -> Format.formatter -> t -> unit
   (** Pretty-print the S-expr. If [indent] is true, the S-expression
       is printed with indentation. *)
+
+(** {2 Parsing} *)
+
+(** Monadic combinators for parsing data from a sequence of tokens,
+    without converting to concrete S-expressions. *)
+
+type 'a parser
+
+exception ParseFailure of string
+
+val (>>=) : 'a parser -> ('a -> 'b parser) -> 'b parser
+  (** Monadic bind: computes a parser from the result of
+      the first parser *)
+
+val (>>) : 'a parser -> 'b parser -> 'b parser
+  (** Like (>>=), but ignores the result of the first parser *)
+
+val return : 'a -> 'a parser
+  (** Parser that consumes no input and return the given value *)
+
+val fail : string -> 'a parser
+  (** Fails parsing with the given message *)
+
+val one : (token -> 'a) -> 'a parser
+  (** consumes one token with the function *)
+
+val lookahead : (token -> 'a parser) -> 'a parser
+  (** choose parser given current token *)
+
+val left : unit parser
+  (** Parses a `Open *)
+
+val right : unit parser
+  (** Parses a `Close *)
+
+val pair : 'a parser -> 'b parser -> ('a * 'b) parser
+val triple : 'a parser -> 'b parser -> 'c parser -> ('a * 'b * 'c) parser
+
+val map : 'a parser -> ('a -> 'b) -> 'b parser
+  (** Maps the value returned by the parser *)
+
+val p_str : string parser
+val p_int : int parser
+val p_bool : bool parser
+
+val many : 'a parser -> 'a list parser
+val many1 : 'a parser -> 'a list parser
+
+val parse : 'a parser -> token Sequence.t -> 'a
+  (** Actually parse the sequence of tokens. Raises
+      ParseFailure if anything goes wrong. *)

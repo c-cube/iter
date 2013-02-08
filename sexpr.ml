@@ -28,6 +28,8 @@ type t =
 (** Token that compose a Sexpr once serialized *)
 type token = [`Open | `Close | `Atom of string]
 
+(** {2 Traverse a sequence of tokens} *)
+
 (** Iterate on the S-expression, calling the callback with tokens *)
 let rec iter f s = match s with
   | Atom a -> f (`Atom a)
@@ -38,6 +40,23 @@ and iter_list f l = match l with
 
 (** Traverse. This yields a sequence of tokens *)
 let traverse s = Sequence.from_iter (fun k -> iter k s)
+
+(** Returns the same sequence of tokens, but during iteration, if
+    the structure of the Sexpr corresponding to the sequence
+    is wrong (bad parenthesing), Invalid_argument is raised
+    and iteration is stoped *)
+let validate seq =
+  let depth = ref 0 in
+  Sequence.map
+    (fun tok -> match tok with
+     | `Open -> incr depth; tok
+     | `Close -> if !depth = 0
+      then raise (Invalid_argument "wrong parenthesing")
+      else decr depth; tok
+     | _ -> tok)
+    seq
+
+(** {2 Text <-> tokens} *)
 
 (** Lex: create a sequence of tokens from the given in_channel. *)
 let lex input =
@@ -86,6 +105,8 @@ let of_seq seq =
   | [] -> failwith "no Sexpr could be parsed"
   | _ -> failwith "too many elements on the stack"
 
+(** {2 Printing} *)
+
 (** Print a token on the given formatter *)
 let pp_token formatter token = match token with
   | `Open -> Format.fprintf formatter "@[("
@@ -112,4 +133,131 @@ let pp_sexpr ?(indent=false) formatter s =
   if indent
     then Format.fprintf formatter "@[<hov 4>%a@]" pp_tokens (traverse s)
     else pp_tokens formatter (traverse s)
+
+(** {2 Parsing} *)
+
+(** Monadic combinators for parsing data from a sequence of tokens,
+    without converting to concrete S-expressions.
+
+    The [one] parser can raise ParseFailure if it fails to parse
+    the atomic type. *)
+
+(** parser that returns a 'a *)
+type 'a parser =
+  | Return : 'a -> 'a parser
+  | One : (token -> 'a) -> 'a parser
+  | Zero : (token -> 'a parser) -> 'a parser
+  (* | Maybe of (token -> 'a option) *)
+  | Bind : ('b parser * ('b -> 'a parser)) -> 'a parser
+  | Fail : string -> 'a parser
+
+exception ParseFailure of string
+
+let (>>=) p f = Bind (p, f)
+
+let (>>) p p' = p >>= fun _ -> p'
+
+let return x = Return x
+
+let fail reason = Fail reason
+
+let one f = One f
+
+let lookahead f = Zero f
+
+let left = One (function | `Open -> ()
+                         | _ -> raise (ParseFailure "expected '('"))
+
+let right = One (function | `Close -> ()
+                          | _ -> raise (ParseFailure "expected ')'"))
+
+let pair f g =
+  f >>= fun x ->
+  g >>= fun y ->
+  return (x, y)
+
+let triple f g h =
+  f >>= fun x ->
+  g >>= fun y ->
+  h >>= fun z ->
+  return (x, y, z)
+
+(** Maps the value returned by the parser *)
+let map p f = p >>= fun x -> return (f x)
+
+let p_str = one
+  (function | `Atom s -> s | _ -> raise (ParseFailure "expected string"))
+
+let p_int = one
+  (function | `Atom s -> (try int_of_string s
+                          with Failure _ -> raise (ParseFailure "expected int"))
+              | _ -> raise (ParseFailure "expected int"))
+
+let p_bool = one
+  (function | `Atom s -> (try bool_of_string s
+                          with Failure _ -> raise (ParseFailure "expected bool"))
+              | _ -> raise (ParseFailure "expected bool"))
+
+let p_float = one
+  (function | `Atom s -> (try float_of_string s
+                          with Failure _ -> raise (ParseFailure "expected float"))
+              | _ -> raise (ParseFailure "expected float"))
+
+let many p =
+  let rec elements token =
+    match token with
+    | `Close -> return []
+    | _ ->
+      p >>= fun x ->
+      lookahead elements >>= fun l ->
+      return (x :: l)
+  in
+  left >> lookahead elements >>= fun l -> right >> return l
+
+let many1 p =
+  p >>= fun x ->
+  many p >>= fun l ->
+  return (x::l)
+
+(** parsing state that returns a 'a *)
+type 'a state =
+  | Bottom : 'a state
+  | Push : ('b parser * ('b -> 'a state)) -> 'a state
+
+(** Actually parse the sequence of tokens *)
+let parse p tokens =
+  let res = ref None in
+  let state = Push(p, fun x -> (res := Some x; Bottom)) in
+  (* Token handler. It also takes the current parser. *)
+  let rec one_step state token =
+    match state with
+    | Bottom ->  (* should not happen, unless there are too many tokens *)
+      raise (ParseFailure "unexpected ')'")
+    | Push (Return x, cont) ->
+      let state' = cont x in
+      one_step state' token  (* do not consume token *)
+    | Push (Zero f, cont) ->
+      let p' = f token in
+      let state' = Push (p', cont) in
+      one_step state' token  (* do not consume token *)
+    | Push (One f, cont) ->
+      let x = f token in
+      let state' = cont x in
+      state'  (* consume token *)
+    (* | Maybe f, _ -> let x = f token in (Obj.magic cont) x *)
+    | Push (Bind (p', cont'), cont) ->
+      let cont'' x =
+        let p'' = cont' x in
+        Push (p'', cont)
+      in
+      let state' = Push (p', cont'') in
+      one_step state' token  (* do not consume token *)
+    | Push (Fail reason, _) -> raise (ParseFailure reason)
+  in
+  (* iterate on the tokens *)
+  ignore (Sequence.fold one_step state tokens);
+  (* return result *)
+  match !res with
+  | None -> raise (ParseFailure "incomplete input")
+  | Some x -> x
 
