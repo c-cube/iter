@@ -6,7 +6,10 @@ LIB = $(addprefix _build/, $(TARGETS))
 INSTALL = $(LIB) sequence.mli
 
 all:
-	ocamlbuild tests.native $(TARGETS) $(DOC)
+	ocamlbuild $(TARGETS) $(DOC)
+
+tests:
+	ocamlbuild tests.native
 
 install: all
 	ocamlfind install $(NAME) META $(INSTALL)
