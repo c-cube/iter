@@ -42,6 +42,12 @@ val singleton : 'a -> 'a t
 val repeat : 'a -> 'a t
   (** Infinite sequence of the same element *)
 
+val iterate : ('a -> 'a) -> 'a -> 'a t
+  (** [iterate f x] is the infinite sequence (x, f(x), f(f(x)), ...) *)
+
+val forever : (unit -> 'b) -> 'b t
+  (** Sequence that calls the given function to produce elements *)
+
 val cycle : 'a t -> 'a t
   (** Cycle forever through the given sequence. Assume the
       given sequence can be traversed any amount of times (not transient). *)
@@ -203,6 +209,19 @@ module Map : sig
   (** Create an enriched Map module, with sequence-aware functions *)
   module Make(V : Map.OrderedType) : S with type key = V.t
 end
+
+(** {2 Infinite sequences of random values} *)
+
+val random_int : int -> int t
+
+val random_bool : bool t
+
+val random_float : float -> float t
+
+val random_array : 'a array -> 'a t
+  (** Sequence of choices of an element in the array *)
+
+val random_list : 'a list -> 'a t
 
 (** {2 Pretty printing of sequences} *)
 

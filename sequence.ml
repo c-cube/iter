@@ -36,6 +36,16 @@ let singleton x = fun k -> k x
 (** Infinite sequence of the same element *)
 let repeat x = fun k -> while true do k x done
 
+(** [iterate f x] is the infinite sequence (x, f(x), f(f(x)), ...) *)
+let iterate f x =
+  let rec iterate k x = k x; iterate k (f x) in
+  from_iter (fun k -> iterate k x)
+
+(** Sequence that calls the given function to produce elements *)
+let forever f =
+  let rec forever k = k (f ()); forever k in
+  from_iter forever
+
 (** Cycle forever through the given sequence. O(n). *)
 let cycle s = fun k -> while true do s k; done
 
@@ -319,6 +329,26 @@ module Map = struct
     include Adapt(M)
   end
 end
+
+(** {2 Infinite sequences of random values} *)
+
+let random_int bound = forever (fun () -> Random.int bound)
+
+let random_bool = forever Random.bool
+
+let random_float bound = forever (fun () -> Random.float bound)
+
+(** Sequence of choices of an element in the array *)
+let random_array a =
+  assert (Array.length a > 0);
+  let seq k =
+    while true do
+      let i = Random.int (Array.length a) in
+      k a.(i);
+    done in
+  from_iter seq
+
+let random_list l = random_array (Array.of_list l)
 
 (** {2 Pretty printing of sequences} *)
 
