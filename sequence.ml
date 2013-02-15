@@ -55,10 +55,26 @@ let fold f init seq =
   let r = ref init in
   seq (fun elt -> r := f !r elt);
   !r
+
+(** Fold over elements of the sequence and their index, consuming it *)
+let foldi f init seq =
+  let i = ref 0 in
+  let r = ref init in
+  seq (fun elt ->
+    r := f !r !i elt;
+    incr i);
+  !r
     
 (** Map objects of the sequence into other elements, lazily *)
 let map f seq =
   let seq_fun' k = seq (fun x -> k (f x)) in
+  seq_fun'
+
+(** Map objects, along with their index in the sequence *)
+let mapi f seq =
+  let seq_fun' k =
+    let i = ref 0 in
+    seq (fun x -> k (f !i x); incr i) in
   seq_fun'
 
 (** Filter on elements of the sequence *)
@@ -156,6 +172,11 @@ let to_array seq =
 
 let of_array a = from_iter (fun k -> Array.iter k a)
 
+let of_array_i a =
+  let seq k =
+    for i = 0 to Array.length a - 1 do k (i, a.(i)) done
+  in from_iter seq
+
 (** [array_slice a i j] Sequence of elements whose indexes range
     from [i] to [j] *)
 let array_slice a i j =
@@ -164,6 +185,11 @@ let array_slice a i j =
     for idx = i to j do
       k a.(idx);  (* iterate on sub-array *)
     done
+
+(** Sequence of elements of a stream *)
+let of_stream s =
+  let seq k = Stream.iter k s in
+  from_iter seq
 
 (** Push elements of the sequence on the stack *)
 let to_stack s seq = iter (fun x -> Stack.push x s) seq
@@ -209,6 +235,10 @@ let of_in_channel ic =
     try while true do
       let c = input_char ic in k c
     done with End_of_file -> ())
+
+(** Copy content of the sequence into the buffer *)
+let to_buffer seq buf =
+  iter (fun c -> Buffer.add_char buf c) seq
 
 (** Iterator on integers in [start...stop] by steps 1 *)
 let int_range ~start ~stop =

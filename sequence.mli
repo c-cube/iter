@@ -27,7 +27,7 @@ for any direct, indirect, incidental, special, exemplary, or consequential
     are designed to allow easy transfer (mappings) between data structures,
     without defining n^2 conversions between the n types. *)
 
-type 'a t
+type +'a t
   (** Sequence abstract iterator type, representing a finite sequence of
       values of type ['a]. *)
 
@@ -57,8 +57,14 @@ val iteri : (int -> 'a -> unit) -> 'a t -> unit
 val fold : ('b -> 'a -> 'b) -> 'b -> 'a t -> 'b
   (** Fold over elements of the sequence, consuming it *)
 
+val foldi : ('b -> int -> 'a -> 'b) -> 'b -> 'a t -> 'b
+  (** Fold over elements of the sequence and their index, consuming it *)
+
 val map : ('a -> 'b) -> 'a t -> 'b t
   (** Map objects of the sequence into other elements, lazily *)
+
+val mapi : (int -> 'a -> 'b) -> 'a t -> 'b t
+  (** Map objects, along with their index in the sequence *)
 
 val for_all : ('a -> bool) -> 'a t -> bool
   (** Do all elements satisfy the predicate? *)
@@ -90,7 +96,7 @@ val drop : int -> 'a t -> 'a t
   (** Drop the [n] first elements of the sequence *)
 
 val rev : 'a t -> 'a t
-  (** Reverse the sequence. O(n) memory. *)
+  (** Reverse the sequence. O(n) memory and time. *)
 
 (** {2 Basic data structures converters} *)
 
@@ -102,12 +108,20 @@ val to_rev_list : 'a t -> 'a list
 val of_list : 'a list -> 'a t
 
 val to_array : 'a t -> 'a array
+  (** Convert to an array. Currently not very efficient because
+      and intermediate list is used. *)
 
 val of_array : 'a array -> 'a t
+
+val of_array_i : 'a array -> (int * 'a) t
+  (** Elements of the array, with their index *)
 
 val array_slice : 'a array -> int -> int -> 'a t
   (** [array_slice a i j] Sequence of elements whose indexes range
       from [i] to [j] *)
+
+val of_stream : 'a Stream.t -> 'a t
+  (** Sequence of elements of a stream *)
 
 val to_stack : 'a Stack.t -> 'a t -> unit
   (** Push elements of the sequence on the stack *)
@@ -141,6 +155,9 @@ val hashtbl_values : ('a, 'b) Hashtbl.t -> 'b t
 val of_str : string -> char t
 val to_str :  char t -> string
 val of_in_channel : in_channel -> char t
+
+val to_buffer : char t -> Buffer.t -> unit
+  (** Copy content of the sequence into the buffer *)
 
 val int_range : start:int -> stop:int -> int t
   (** Iterator on integers in [start...stop] by steps 1 *)
