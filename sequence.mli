@@ -36,6 +36,9 @@ type +'a t
 val from_iter : (('a -> unit) -> unit) -> 'a t
   (** Build a sequence from a iter function *)
 
+val empty : 'a t
+  (** Empty sequence *)
+
 val singleton : 'a -> 'a t
   (** Singleton sequence *)
 

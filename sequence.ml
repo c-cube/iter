@@ -31,6 +31,8 @@ type 'a t = ('a -> unit) -> unit
 (** Build a sequence from a iter function *)
 let from_iter f = f
 
+let empty = fun k -> ()
+
 let singleton x = fun k -> k x
 
 (** Infinite sequence of the same element *)
