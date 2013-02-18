@@ -99,6 +99,25 @@ val flatMap : ('a -> 'b t) -> 'a t -> 'b t
   (** Monadic bind. It applies the function to every element of the
       initial sequence, and calls [concat]. *)
 
+val intersperse : 'a t -> 'a -> 'a t
+  (** Insert the second element between every element of the sequence *)
+
+val product : 'a t -> 'b t -> ('a * 'b) t
+  (** Cartesian product of the sequences. The first one is outer
+      and therefore must be traversable several times. *)
+
+val unfoldr : ('b -> ('a * 'b) option) -> 'b -> 'a t 
+  (** [unfoldr f b] will apply [f] to [b]. If it
+      yields [Some (x,b')] then [x] is returned
+      and unfoldr recurses with [b']. *)
+
+val max : ?lt:('a -> 'a -> bool) -> 'a t -> 'a -> 'a
+  (** Max element of the sequence, using the given comparison
+      function. A default element has to be provided. *)
+
+val min : ?lt:('a -> 'a -> bool) -> 'a t -> 'a -> 'a
+  (** Min element of the sequence, using the given comparison function *)
+
 val take : int -> 'a t -> 'a t
   (** Take at most [n] elements from the sequence *)
 

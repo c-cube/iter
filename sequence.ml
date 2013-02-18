@@ -110,6 +110,37 @@ let flatMap f seq =
   from_iter
     (fun k -> seq (fun x -> (f x) k))
 
+(** Insert the second element between every element of the sequence *)
+let intersperse seq elem =
+  from_iter
+    (fun k -> seq (fun x -> k x; k elem))
+
+(** Cartesian product of the sequences. *)
+let product outer inner =
+  from_iter
+    (fun k ->
+      outer (fun x ->
+        inner (fun y -> k (x,y))))
+
+(** [unfoldr f b] will apply [f] to [b]. If it
+    yields [Some (x,b')] then [x] is returned
+    and unfoldr recurses with [b']. *)
+let unfoldr f b =
+  let rec unfold k b = match f b with
+    | None -> ()
+    | Some (x, b') -> k x; unfold k b'
+  in
+  from_iter (fun k -> unfold k b)
+
+(** Max element of the sequence, using the given comparison
+    function. A default element has to be provided. *)
+let max ?(lt=fun x y -> x < y) seq m =
+  fold (fun m x -> if lt m x then x else m) m seq
+
+(** Min element of the sequence, using the given comparison function *)
+let min ?(lt=fun x y -> x < y) seq m =
+  fold (fun m x -> if lt x m then x else m) m seq
+
 exception ExitSequence
 
 (** Take at most [n] elements from the sequence *)
