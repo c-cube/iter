@@ -95,6 +95,10 @@ val append : 'a t -> 'a t -> 'a t
 val concat : 'a t t -> 'a t
   (** Concatenate a sequence of sequences into one sequence *)
 
+val flatMap : ('a -> 'b t) -> 'a t -> 'b t
+  (** Monadic bind. It applies the function to every element of the
+      initial sequence, and calls [concat]. *)
+
 val take : int -> 'a t -> 'a t
   (** Take at most [n] elements from the sequence *)
 

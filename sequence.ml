@@ -99,10 +99,16 @@ let append s1 s2 =
 
 (** Concatenate a sequence of sequences into one sequence *)
 let concat s =
-  fun k ->
+  from_iter (fun k ->
     (* function that is called on every sub-sequence *)
     let k_seq seq = iter k seq in
-    s k_seq
+    s k_seq)
+
+(** Monadic bind. It applies the function to every element of the
+    initial sequence, and calls [concat]. *)
+let flatMap f seq =
+  from_iter
+    (fun k -> seq (fun x -> (f x) k))
 
 exception ExitSequence
 
