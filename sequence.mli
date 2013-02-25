@@ -105,9 +105,14 @@ val flatMap : ('a -> 'b t) -> 'a t -> 'b t
 val intersperse : 'a t -> 'a -> 'a t
   (** Insert the second element between every element of the sequence *)
 
+val persistent : 'a t -> 'a t
+  (** Iterate on the sequence, storing elements in a data structure.
+      The resulting sequence can be iterated on as many times as needed. *)
+
 val product : 'a t -> 'b t -> ('a * 'b) t
-  (** Cartesian product of the sequences. The first one is outer
-      and therefore must be traversable several times. *)
+  (** Cartesian product of the sequences. The first one is transformed
+      by calling [persistent] on it, so that it can be traversed
+      several times (outer loop of the product) *)
 
 val unfoldr : ('b -> ('a * 'b) option) -> 'b -> 'a t 
   (** [unfoldr f b] will apply [f] to [b]. If it

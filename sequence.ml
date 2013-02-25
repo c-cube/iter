@@ -23,7 +23,7 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 *)
 
-(** {2 Transient iterators, that abstract on a finite sequence of elements. *)
+(** {1 Transient iterators, that abstract on a finite sequence of elements. *)
 
 (** Sequence abstract iterator type *)
 type 'a t = ('a -> unit) -> unit
@@ -117,8 +117,96 @@ let intersperse seq elem =
   from_iter
     (fun k -> seq (fun x -> k x; k elem))
 
+(** Mutable unrolled list to serve as intermediate storage *)
+module MList = struct
+  type 'a t = {
+    content : 'a array;   (* elements of the node *)
+    mutable len : int;    (* number of elements in content *)
+    mutable tl : 'a t;    (* tail *)
+  } (** A list that contains some elements, and may point to another list *)
+
+  let _empty () : 'a t = Obj.magic 0
+    (** Empty list, for the tl field *)
+
+  let make n =
+    assert (n > 0);
+    { content = Array.make n (Obj.magic 0);
+      len = 0;
+      tl = _empty ();
+    }
+
+  let rec is_empty l =
+    l.len = 0 && (l.tl == _empty () || is_empty l.tl)
+
+  let rec iter f l =
+    for i = 0 to l.len - 1 do f l.content.(i); done;
+    if l.tl != _empty () then iter f l.tl
+
+  let iteri f l =
+    let rec iteri i f l =
+      for j = 0 to l.len - 1 do f (i+j) l.content.(j); done;
+      if l.tl != _empty () then iteri (i+l.len) f l.tl
+    in iteri 0 f l
+
+  let length l =
+    let rec len acc l =
+      if l.tl == _empty () then acc+l.len else len (acc+l.len) l.tl
+    in len 0 l
+
+  (** Get element by index *)
+  let rec get l i =
+    if i < l.len then l.content.(i)
+    else if i >= l.len && l.tl == _empty () then raise (Invalid_argument "MList.get")
+    else get l.tl (i - l.len)
+
+  (** Push [x] at the end of the list. It returns the block in which the
+      element is inserted. *)
+  let rec push x l =
+    if l.len = Array.length l.content
+      then begin (* insert in the next block *)
+        (if l.tl == _empty () then l.tl <- make (Array.length l.content));
+        push x l.tl
+      end else begin  (* insert in l *)
+        l.content.(l.len) <- x;
+        l.len <- l.len + 1;
+        l
+      end
+
+  (** Reverse list (in place), and returns the new head *)
+  let rev l =
+    let rec rev prev l =
+      (* reverse array *)
+      for i = 0 to (l.len-1) / 2 do
+        let x = l.content.(i) in
+        l.content.(i) <- l.content.(l.len - i - 1);
+        l.content.(l.len - i - 1) <- x;
+      done;
+      (* reverse next block *)
+      let l' = l.tl in
+      l.tl <- prev;
+      if l' == _empty () then l else rev l l'
+    in
+    rev (_empty ()) l
+
+  (** Build a MList of elements of the Seq. The optional argument indicates
+      the size of the blocks *)
+  let of_seq ?(size=64) seq =
+    (* read sequence into a MList.t *)
+    let start = make size in
+    let l = ref start in
+    seq (fun x -> l := push x !l);
+    start
+end
+
+(** Iterate on the sequence, storing elements in a data structure.
+    The resulting sequence can be iterated on as many times as needed. *)
+let persistent (seq : 'a t) : 'a t =
+  let l = MList.of_seq seq in
+  from_iter (fun k -> MList.iter k l)
+
 (** Cartesian product of the sequences. *)
 let product outer inner =
+  let outer = persistent outer in
   from_iter
     (fun k ->
       outer (fun x ->
@@ -163,16 +251,9 @@ let drop n seq =
 
 (** Reverse the sequence. O(n) memory. *)
 let rev seq =
-  fun k ->
-    (* if we have traversed [s_1, ..., s_m], [cont ()] will call [k] on s_m,
-       s_{m-1}, ..., s_1. Once we know [s_{m+1}], we update [cont] so that it
-       first returns it, and then called the previous cont. *)
-    let cont = ref (fun () -> ()) in
-    iter (fun x ->
-      let current_cont = !cont in
-      let cont' () = k x; current_cont () in
-      cont := cont') seq;
-    !cont ()
+  let l = MList.of_seq seq in
+  let l' = MList.rev l in
+  from_iter (fun k -> MList.iter k l')
 
 (** Do all elements satisfy the predicate? *)
 let for_all p seq =
@@ -207,17 +288,15 @@ let to_rev_list seq = fold (fun y x -> x :: y) [] seq
 let of_list l = from_iter (fun k -> List.iter k l)
 
 let to_array seq =
-  (* intermediate list... *)
-  let l = to_rev_list seq in
-  let a = Array.of_list l in
-  (* reverse array *)
-  let n = Array.length a in
-  for i = 0 to (n-1) / 2 do
-    let tmp = a.(i) in
-    a.(i) <- a.(n-i-1);
-    a.(n-i-1) <- tmp;
-  done;
-  a
+  let l = MList.of_seq seq in
+  let n = MList.length l in
+  if n = 0
+    then [||]
+    else begin
+      let a = Array.make n (MList.get l 0) in
+      MList.iteri (fun i x -> a.(i) <- x) l;
+      a
+    end
 
 let of_array a = from_iter (fun k -> Array.iter k a)
 
