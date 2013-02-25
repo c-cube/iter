@@ -148,6 +148,10 @@ module MList = struct
       if l.tl != _empty () then iteri (i+l.len) f l.tl
     in iteri 0 f l
 
+  let iter_rev f l =
+    (if l.tl != _empty () then iter f l.tl);
+    for i = l.len - 1 downto 0 do f l.content.(i); done
+
   let length l =
     let rec len acc l =
       if l.tl == _empty () then acc+l.len else len (acc+l.len) l.tl
@@ -252,8 +256,7 @@ let drop n seq =
 (** Reverse the sequence. O(n) memory. *)
 let rev seq =
   let l = MList.of_seq seq in
-  let l' = MList.rev l in
-  from_iter (fun k -> MList.iter k l')
+  from_iter (fun k -> MList.iter_rev k l)
 
 (** Do all elements satisfy the predicate? *)
 let for_all p seq =
