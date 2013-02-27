@@ -254,6 +254,38 @@ val random_array : 'a array -> 'a t
 
 val random_list : 'a list -> 'a t
 
+(** {2 Type-classes} *)
+
+module TypeClass : sig
+  (** {3 Classes} *)
+  type ('a,'b) sequenceable = {
+    to_seq : 'b -> 'a t;
+    of_seq : 'a t -> 'b;
+  }
+
+  type ('a,'b) addable = {
+    empty : 'b;
+    add : 'b -> 'a -> 'b;
+  }
+
+  type 'a monoid = ('a,'a) addable
+
+  type ('a,'b) iterable = {
+    iter : ('a -> unit) -> 'b -> unit;
+  }
+
+  (** {3 Instances} *)
+
+  val sequenceable : ('a,'a t) sequenceable
+  val iterable : ('a,'a t) iterable
+  val monoid : 'a t monoid
+
+  (** {3 Conversions} *)
+
+  val of_iterable : ('a,'b) iterable -> 'b -> 'a t
+  val to_addable : ('a,'b) addable -> 'a t -> 'b
+end
+
 (** {2 Pretty printing of sequences} *)
 
 val pp_seq : ?sep:string -> (Format.formatter -> 'a -> unit) ->
