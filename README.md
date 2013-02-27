@@ -26,6 +26,11 @@ The module `sexpr.mli` exposes the interface of the S-expression example library
 requires OCaml>=4.0 to compile, because of the GADT structure used in the monadic
 parser combinators part of `sexpr.ml`.
 
+Documentation
+=============
+
+See [the online API](http://c-cube.github.com/sequence/api/).
+
 License
 =======
 
