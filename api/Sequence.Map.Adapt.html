@@ -1,0 +1,41 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<link rel="stylesheet" href="style.css" type="text/css">
+<meta content="text/html; charset=iso-8859-1" http-equiv="Content-Type">
+<link rel="Start" href="index.html">
+<link rel="next" href="Sequence.Map.Make.html">
+<link rel="Up" href="Sequence.Map.html">
+<link title="Index of types" rel=Appendix href="index_types.html">
+<link title="Index of values" rel=Appendix href="index_values.html">
+<link title="Index of modules" rel=Appendix href="index_modules.html">
+<link title="Index of module types" rel=Appendix href="index_module_types.html">
+<link title="Sequence" rel="Chapter" href="Sequence.html"><title>Sequence.Map.Adapt</title>
+</head>
+<body>
+<div class="navbar">&nbsp;<a class="up" href="Sequence.Map.html" title="Sequence.Map">Up</a>
+&nbsp;<a class="post" href="Sequence.Map.Make.html" title="Sequence.Map.Make">Next</a>
+</div>
+<h1>Functor <a href="type_Sequence.Map.Adapt.html">Sequence.Map.Adapt</a></h1>
+<pre><span class="keyword">module</span> Adapt: <div class="sig_block"><code class="code">functor (</code><code class="code">M</code><code class="code"> : </code><code class="type">Map.S</code><code class="code">) -&gt; </code><code class="type"><a href="Sequence.Map.S.html">S</a></code><code class="type">  with type key = M.key and type 'a map = 'a M.t</code></div></pre><div class="info">
+Adapt a pre-existing Map module to make it sequence-aware<br>
+</div>
+<table border="0" cellpadding="3" width="100%">
+<tr>
+<td align="left" valign="top" width="1%%"><b>Parameters: </b></td>
+<td>
+<table class="paramstable">
+<tr>
+<td align="center" valign="top" width="15%">
+<code>M</code></td>
+<td align="center" valign="top">:</td>
+<td><code class="type">Map.S</code>
+</table>
+</td>
+</tr>
+</table>
+<hr width="100%">
+<pre><span id="TYPEmap"><span class="keyword">type</span> <code class="type">+'a</code> map</span> </pre>
+
+<pre><span class="keyword">include</span> Map.S</pre>
+<pre><span id="VALto_seq"><span class="keyword">val</span> to_seq</span> : <code class="type">'a <a href="Sequence.Map.S.html#TYPEmap">map</a> -> (key * 'a) <a href="Sequence.html#TYPEt">Sequence.t</a></code></pre><pre><span id="VALof_seq"><span class="keyword">val</span> of_seq</span> : <code class="type">(key * 'a) <a href="Sequence.html#TYPEt">Sequence.t</a> -> 'a <a href="Sequence.Map.S.html#TYPEmap">map</a></code></pre><pre><span id="VALkeys"><span class="keyword">val</span> keys</span> : <code class="type">'a <a href="Sequence.Map.S.html#TYPEmap">map</a> -> key <a href="Sequence.html#TYPEt">Sequence.t</a></code></pre><pre><span id="VALvalues"><span class="keyword">val</span> values</span> : <code class="type">'a <a href="Sequence.Map.S.html#TYPEmap">map</a> -> 'a <a href="Sequence.html#TYPEt">Sequence.t</a></code></pre></body></html>

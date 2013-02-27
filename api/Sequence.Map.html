@@ -1,0 +1,29 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<link rel="stylesheet" href="style.css" type="text/css">
+<meta content="text/html; charset=iso-8859-1" http-equiv="Content-Type">
+<link rel="Start" href="index.html">
+<link rel="previous" href="Sequence.Set.html">
+<link rel="next" href="Sequence.TypeClass.html">
+<link rel="Up" href="Sequence.html">
+<link title="Index of types" rel=Appendix href="index_types.html">
+<link title="Index of values" rel=Appendix href="index_values.html">
+<link title="Index of modules" rel=Appendix href="index_modules.html">
+<link title="Index of module types" rel=Appendix href="index_module_types.html">
+<link title="Sequence" rel="Chapter" href="Sequence.html"><title>Sequence.Map</title>
+</head>
+<body>
+<div class="navbar"><a class="pre" href="Sequence.Set.html" title="Sequence.Set">Previous</a>
+&nbsp;<a class="up" href="Sequence.html" title="Sequence">Up</a>
+&nbsp;<a class="post" href="Sequence.TypeClass.html" title="Sequence.TypeClass">Next</a>
+</div>
+<h1>Module <a href="type_Sequence.Map.html">Sequence.Map</a></h1>
+<pre><span class="keyword">module</span> Map: <code class="code">sig</code> <a href="Sequence.Map.html">..</a> <code class="code">end</code></pre><hr width="100%">
+<pre><span class="keyword">module type</span> <a href="Sequence.Map.S.html">S</a> = <code class="code">sig</code> <a href="Sequence.Map.S.html">..</a> <code class="code">end</code></pre><pre><span class="keyword">module</span> <a href="Sequence.Map.Adapt.html">Adapt</a>: <div class="sig_block"><code class="code">functor (</code><code class="code">M</code><code class="code"> : </code><code class="type">Map.S</code><code class="code">) -&gt; </code><code class="type"><a href="Sequence.Map.S.html">S</a></code><code class="type">  with type key = M.key and type 'a map = 'a M.t</code></div></pre><div class="info">
+Adapt a pre-existing Map module to make it sequence-aware
+</div>
+<pre><span class="keyword">module</span> <a href="Sequence.Map.Make.html">Make</a>: <div class="sig_block"><code class="code">functor (</code><code class="code">V</code><code class="code"> : </code><code class="type">Map.OrderedType</code><code class="code">) -&gt; </code><code class="type"><a href="Sequence.Map.S.html">S</a></code><code class="type">  with type key = V.t</code></div></pre><div class="info">
+Create an enriched Map module, with sequence-aware functions
+</div>
+</body></html>

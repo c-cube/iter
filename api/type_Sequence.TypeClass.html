@@ -1,0 +1,26 @@
+<html><head>
+<link rel="stylesheet" href="style.css" type="text/css">
+<meta content="text/html; charset=iso-8859-1" http-equiv="Content-Type">
+<link rel="Start" href="index.html">
+<link title="Index of types" rel=Appendix href="index_types.html">
+<link title="Index of values" rel=Appendix href="index_values.html">
+<link title="Index of modules" rel=Appendix href="index_modules.html">
+<link title="Index of module types" rel=Appendix href="index_module_types.html">
+<link title="Sequence" rel="Chapter" href="Sequence.html"><title>Sequence.TypeClass</title>
+</head>
+<body>
+<code class="code"><span class="keyword">sig</span><br>
+&nbsp;&nbsp;<span class="keyword">type</span>&nbsp;(<span class="keywordsign">'</span>a,&nbsp;<span class="keywordsign">'</span>b)&nbsp;sequenceable&nbsp;=&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;to_seq&nbsp;:&nbsp;<span class="keywordsign">'</span>b&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keywordsign">'</span>a&nbsp;<span class="constructor">Sequence</span>.t;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;of_seq&nbsp;:&nbsp;<span class="keywordsign">'</span>a&nbsp;<span class="constructor">Sequence</span>.t&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keywordsign">'</span>b;<br>
+&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;<span class="keyword">type</span>&nbsp;(<span class="keywordsign">'</span>a,&nbsp;<span class="keywordsign">'</span>b)&nbsp;addable&nbsp;=&nbsp;{&nbsp;empty&nbsp;:&nbsp;<span class="keywordsign">'</span>b;&nbsp;add&nbsp;:&nbsp;<span class="keywordsign">'</span>b&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keywordsign">'</span>a&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keywordsign">'</span>b;&nbsp;}<br>
+&nbsp;&nbsp;<span class="keyword">type</span>&nbsp;<span class="keywordsign">'</span>a&nbsp;monoid&nbsp;=&nbsp;(<span class="keywordsign">'</span>a,&nbsp;<span class="keywordsign">'</span>a)&nbsp;<span class="constructor">Sequence</span>.<span class="constructor">TypeClass</span>.addable<br>
+&nbsp;&nbsp;<span class="keyword">type</span>&nbsp;(<span class="keywordsign">'</span>a,&nbsp;<span class="keywordsign">'</span>b)&nbsp;iterable&nbsp;=&nbsp;{&nbsp;iter&nbsp;:&nbsp;(<span class="keywordsign">'</span>a&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;unit)&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keywordsign">'</span>b&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;unit;&nbsp;}<br>
+&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;sequenceable&nbsp;:&nbsp;(<span class="keywordsign">'</span>a,&nbsp;<span class="keywordsign">'</span>a&nbsp;<span class="constructor">Sequence</span>.t)&nbsp;<span class="constructor">Sequence</span>.<span class="constructor">TypeClass</span>.sequenceable<br>
+&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;iterable&nbsp;:&nbsp;(<span class="keywordsign">'</span>a,&nbsp;<span class="keywordsign">'</span>a&nbsp;<span class="constructor">Sequence</span>.t)&nbsp;<span class="constructor">Sequence</span>.<span class="constructor">TypeClass</span>.iterable<br>
+&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;monoid&nbsp;:&nbsp;<span class="keywordsign">'</span>a&nbsp;<span class="constructor">Sequence</span>.t&nbsp;<span class="constructor">Sequence</span>.<span class="constructor">TypeClass</span>.monoid<br>
+&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;of_iterable&nbsp;:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;(<span class="keywordsign">'</span>a,&nbsp;<span class="keywordsign">'</span>b)&nbsp;<span class="constructor">Sequence</span>.<span class="constructor">TypeClass</span>.iterable&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keywordsign">'</span>b&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keywordsign">'</span>a&nbsp;<span class="constructor">Sequence</span>.t<br>
+&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;to_addable&nbsp;:&nbsp;(<span class="keywordsign">'</span>a,&nbsp;<span class="keywordsign">'</span>b)&nbsp;<span class="constructor">Sequence</span>.<span class="constructor">TypeClass</span>.addable&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keywordsign">'</span>a&nbsp;<span class="constructor">Sequence</span>.t&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="keywordsign">'</span>b<br>
+<span class="keyword">end</span></code></body></html>

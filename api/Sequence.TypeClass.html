@@ -1,0 +1,79 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<link rel="stylesheet" href="style.css" type="text/css">
+<meta content="text/html; charset=iso-8859-1" http-equiv="Content-Type">
+<link rel="Start" href="index.html">
+<link rel="previous" href="Sequence.Map.html">
+<link rel="Up" href="Sequence.html">
+<link title="Index of types" rel=Appendix href="index_types.html">
+<link title="Index of values" rel=Appendix href="index_values.html">
+<link title="Index of modules" rel=Appendix href="index_modules.html">
+<link title="Index of module types" rel=Appendix href="index_module_types.html">
+<link title="Sequence" rel="Chapter" href="Sequence.html"><link title="Instances" rel="Section" href="#3_Instances">
+<link title="Conversions" rel="Section" href="#3_Conversions">
+<title>Sequence.TypeClass</title>
+</head>
+<body>
+<div class="navbar"><a class="pre" href="Sequence.Map.html" title="Sequence.Map">Previous</a>
+&nbsp;<a class="up" href="Sequence.html" title="Sequence">Up</a>
+&nbsp;</div>
+<h1>Module <a href="type_Sequence.TypeClass.html">Sequence.TypeClass</a></h1>
+<pre><span class="keyword">module</span> TypeClass: <code class="code">sig</code> <a href="Sequence.TypeClass.html">..</a> <code class="code">end</code></pre><hr width="100%">
+<pre><code><span id="TYPEsequenceable"><span class="keyword">type</span> <code class="type">('a, 'b)</code> sequenceable</span> = {</code></pre><table class="typetable">
+<tr>
+<td align="left" valign="top" >
+<code>&nbsp;&nbsp;</code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTsequenceable.to_seq">to_seq</span>&nbsp;:<code class="type">'b -> 'a <a href="Sequence.html#TYPEt">Sequence.t</a></code>;</code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code>&nbsp;&nbsp;</code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTsequenceable.of_seq">of_seq</span>&nbsp;:<code class="type">'a <a href="Sequence.html#TYPEt">Sequence.t</a> -> 'b</code>;</code></td>
+
+</tr></table>
+}
+
+<div class="info">
+<h3 id="3_Classes">Classes</h3><br>
+</div>
+
+<pre><code><span id="TYPEaddable"><span class="keyword">type</span> <code class="type">('a, 'b)</code> addable</span> = {</code></pre><table class="typetable">
+<tr>
+<td align="left" valign="top" >
+<code>&nbsp;&nbsp;</code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTaddable.empty">empty</span>&nbsp;:<code class="type">'b</code>;</code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code>&nbsp;&nbsp;</code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTaddable.add">add</span>&nbsp;:<code class="type">'b -> 'a -> 'b</code>;</code></td>
+
+</tr></table>
+}
+
+
+<pre><span id="TYPEmonoid"><span class="keyword">type</span> <code class="type">'a</code> monoid</span> = <code class="type">('a, 'a) <a href="Sequence.TypeClass.html#TYPEaddable">addable</a></code> </pre>
+
+<pre><code><span id="TYPEiterable"><span class="keyword">type</span> <code class="type">('a, 'b)</code> iterable</span> = {</code></pre><table class="typetable">
+<tr>
+<td align="left" valign="top" >
+<code>&nbsp;&nbsp;</code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTiterable.iter">iter</span>&nbsp;:<code class="type">('a -> unit) -> 'b -> unit</code>;</code></td>
+
+</tr></table>
+}
+
+
+<br>
+<h3 id="3_Instances">Instances</h3><br>
+<pre><span id="VALsequenceable"><span class="keyword">val</span> sequenceable</span> : <code class="type">('a, 'a <a href="Sequence.html#TYPEt">Sequence.t</a>) <a href="Sequence.TypeClass.html#TYPEsequenceable">sequenceable</a></code></pre><pre><span id="VALiterable"><span class="keyword">val</span> iterable</span> : <code class="type">('a, 'a <a href="Sequence.html#TYPEt">Sequence.t</a>) <a href="Sequence.TypeClass.html#TYPEiterable">iterable</a></code></pre><pre><span id="VALmonoid"><span class="keyword">val</span> monoid</span> : <code class="type">'a <a href="Sequence.html#TYPEt">Sequence.t</a> <a href="Sequence.TypeClass.html#TYPEmonoid">monoid</a></code></pre><br>
+<h3 id="3_Conversions">Conversions</h3><br>
+<pre><span id="VALof_iterable"><span class="keyword">val</span> of_iterable</span> : <code class="type">('a, 'b) <a href="Sequence.TypeClass.html#TYPEiterable">iterable</a> -> 'b -> 'a <a href="Sequence.html#TYPEt">Sequence.t</a></code></pre><pre><span id="VALto_addable"><span class="keyword">val</span> to_addable</span> : <code class="type">('a, 'b) <a href="Sequence.TypeClass.html#TYPEaddable">addable</a> -> 'a <a href="Sequence.html#TYPEt">Sequence.t</a> -> 'b</code></pre></body></html>
