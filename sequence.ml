@@ -148,8 +148,8 @@ module MList = struct
       if l.tl != _empty () then iteri (i+l.len) f l.tl
     in iteri 0 f l
 
-  let iter_rev f l =
-    (if l.tl != _empty () then iter f l.tl);
+  let rec iter_rev f l =
+    (if l.tl != _empty () then iter_rev f l.tl);
     for i = l.len - 1 downto 0 do f l.content.(i); done
 
   let length l =
