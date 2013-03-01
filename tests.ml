@@ -94,6 +94,12 @@ let _ =
     (Sequence.of_array
       (Sequence.to_array (Sequence.append
         (Sequence.take 5 (Sequence.of_list l3)) (Sequence.of_list l4))));
+  (* sequence, persistent, etc *)
+  let seq = Sequence.int_range ~start:0 ~stop:100000 in
+  let seq' = Sequence.persistent seq in
+  let stream = Sequence.to_stream seq' in
+  Format.printf "test length [0..100000]: persistent1 %d, stream %d, persistent2 %d"
+    (Sequence.length seq') (Sequence.length (Sequence.of_stream stream)) (Sequence.length seq');
   (* maps *)
   Format.printf "@[<h>map: %a@]@."
     (Sequence.pp_seq (fun formatter (k,v) -> Format.fprintf formatter "\"%s\" -> %d" k v))

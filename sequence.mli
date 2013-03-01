@@ -158,7 +158,10 @@ val array_slice : 'a array -> int -> int -> 'a t
       from [i] to [j] *)
 
 val of_stream : 'a Stream.t -> 'a t
-  (** Sequence of elements of a stream *)
+  (** Sequence of elements of a stream (usable only once) *)
+
+val to_stream : 'a t -> 'a Stream.t
+  (** Convert to a stream. linear in memory and time (a copy is made in memory) *)
 
 val to_stack : 'a Stack.t -> 'a t -> unit
   (** Push elements of the sequence on the stack *)

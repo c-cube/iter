@@ -317,10 +317,21 @@ let array_slice a i j =
       k a.(idx);  (* iterate on sub-array *)
     done
 
-(** Sequence of elements of a stream *)
+(** Sequence of elements of a stream (usable only once) *)
 let of_stream s =
   let seq k = Stream.iter k s in
   from_iter seq
+
+(** Convert to a stream. The sequence is made persistent. *)
+let to_stream seq =
+  let l = ref (MList.of_seq seq) in
+  let i = ref 0 in
+  let rec get_next () =
+    if !l == MList._empty () then None
+    else if (!l).MList.len = !i then (l := (!l).MList.tl; i := 0; get_next ())
+    else let x = (!l).MList.content.(!i) in (incr i; Some x)
+  in
+  Stream.from (fun _ -> get_next ())
 
 (** Push elements of the sequence on the stack *)
 let to_stack s seq = iter (fun x -> Stack.push x s) seq
