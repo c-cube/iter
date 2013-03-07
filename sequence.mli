@@ -119,6 +119,9 @@ val unfoldr : ('b -> ('a * 'b) option) -> 'b -> 'a t
       yields [Some (x,b')] then [x] is returned
       and unfoldr recurses with [b']. *)
 
+val scan : ('b -> 'a -> 'b) -> 'b -> 'a t -> 'b t
+  (** Sequence of intermediate results *)
+
 val max : ?lt:('a -> 'a -> bool) -> 'a t -> 'a -> 'a
   (** Max element of the sequence, using the given comparison
       function. A default element has to be provided. *)

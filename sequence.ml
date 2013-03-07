@@ -226,6 +226,14 @@ let unfoldr f b =
   in
   from_iter (fun k -> unfold k b)
 
+(** Sequence of intermediate results *)
+let scan f acc seq =
+  from_iter
+    (fun k ->
+      k acc;
+      let acc = ref acc in
+      seq (fun elt -> let acc' = f !acc elt in k acc'; acc := acc'))
+
 (** Max element of the sequence, using the given comparison
     function. A default element has to be provided. *)
 let max ?(lt=fun x y -> x < y) seq m =
