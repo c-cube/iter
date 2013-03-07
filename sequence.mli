@@ -183,6 +183,8 @@ val of_array : 'a array -> 'a t
 val of_array_i : 'a array -> (int * 'a) t
   (** Elements of the array, with their index *)
 
+val of_array2 : 'a array -> (int, 'a) t2
+
 val array_slice : 'a array -> int -> int -> 'a t
   (** [array_slice a i j] Sequence of elements whose indexes range
       from [i] to [j] *)
@@ -213,10 +215,16 @@ val hashtbl_replace : ('a, 'b) Hashtbl.t -> ('a * 'b) t -> unit
   (** Add elements of the sequence to the hashtable, with
       Hashtbl.replace (erases conflicting bindings) *)
 
-val to_hashtbl :('a * 'b) t -> ('a, 'b) Hashtbl.t
+val to_hashtbl : ('a * 'b) t -> ('a, 'b) Hashtbl.t
+  (** Build a hashtable from a sequence of key/value pairs *)
+
+val to_hashtbl2 : ('a, 'b) t2 -> ('a, 'b) Hashtbl.t
   (** Build a hashtable from a sequence of key/value pairs *)
 
 val of_hashtbl : ('a, 'b) Hashtbl.t -> ('a * 'b) t
+  (** Sequence of key/value pairs from the hashtable *)
+
+val of_hashtbl2 : ('a, 'b) Hashtbl.t -> ('a, 'b) t2
   (** Sequence of key/value pairs from the hashtable *)
 
 val hashtbl_keys : ('a, 'b) Hashtbl.t -> 'a t

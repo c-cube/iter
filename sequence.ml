@@ -362,6 +362,10 @@ let of_array_i a =
     for i = 0 to Array.length a - 1 do k (i, a.(i)) done
   in from_iter seq
 
+let of_array2 a =
+  fun k ->
+    for i = 0 to Array.length a - 1 do k i a.(i) done
+
 (** [array_slice a i j] Sequence of elements whose indexes range
     from [i] to [j] *)
 let array_slice a i j =
@@ -410,8 +414,16 @@ let to_hashtbl seq =
   hashtbl_replace h seq;
   h
 
+let to_hashtbl2 seq2 =
+  let h = Hashtbl.create 3 in
+  seq2 (fun k v -> Hashtbl.replace h k v);
+  h
+
 let of_hashtbl h =
   from_iter (fun k -> Hashtbl.iter (fun a b -> k (a, b)) h)
+
+let of_hashtbl2 h =
+  fun k -> Hashtbl.iter k h
 
 let hashtbl_keys h =
   from_iter (fun k -> Hashtbl.iter (fun a b -> k a) h)
