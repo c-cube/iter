@@ -28,6 +28,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 (** Sequence abstract iterator type *)
 type 'a t = ('a -> unit) -> unit
 
+type (+'a, +'b) t2 = ('a -> 'b -> unit) -> unit
+  (** Sequence of pairs of values of type ['a] and ['b]. *)
+
 (** Build a sequence from a iter function *)
 let from_iter f = f
 
@@ -290,6 +293,49 @@ let length seq =
 let is_empty seq =
   try seq (fun _ -> raise ExitSequence); true
   with ExitSequence -> false
+
+(** {2 Transform a sequence} *)
+
+let empty2 =
+  fun k -> ()
+
+let is_empty2 seq2 =
+  try ignore (seq2 (fun _ _ -> raise ExitSequence)); true
+  with ExitSequence -> false
+
+let length2 seq2 =
+  let r = ref 0 in
+  seq2 (fun _ _ -> incr r);
+  !r
+
+let zip seq2 =
+  fun k -> seq2 (fun x y -> k (x,y))
+
+let unzip seq =
+  fun k -> seq (fun (x,y) -> k x y)
+
+(** Zip elements of the sequence with their index in the sequence *)
+let zip_i seq =
+  fun k ->
+    let r = ref 0 in
+    seq (fun x -> let n = !r in incr r; k n x)
+
+let fold2 f acc seq2 =
+  let acc = ref acc in
+  seq2 (fun x y -> acc := f !acc x y);
+  !acc
+
+let iter2 f seq2 =
+  seq2 f
+
+let map2 f seq2 =
+  fun k -> seq2 (fun x y -> k (f x y))
+
+(** [map2_2 f g seq2] maps each [x, y] of seq2 into [f x y, g x y] *)
+let map2_2 f g seq2 =
+  fun k -> seq2 (fun x y -> k (f x y) (g x y))
+
+(** {2 Basic data structures converters} *)
 
 let to_list seq = List.rev (fold (fun y x -> x::y) [] seq)
 

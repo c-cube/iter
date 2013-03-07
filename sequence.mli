@@ -27,9 +27,12 @@ for any direct, indirect, incidental, special, exemplary, or consequential
     are designed to allow easy transfer (mappings) between data structures,
     without defining n^2 conversions between the n types. *)
 
-type +'a t
+type +'a t = ('a -> unit) -> unit
   (** Sequence abstract iterator type, representing a finite sequence of
       values of type ['a]. *)
+
+type (+'a, +'b) t2 = ('a -> 'b -> unit) -> unit
+  (** Sequence of pairs of values of type ['a] and ['b]. *)
 
 (** {2 Build a sequence} *)
 
@@ -137,6 +140,30 @@ val drop : int -> 'a t -> 'a t
 
 val rev : 'a t -> 'a t
   (** Reverse the sequence. O(n) memory and time. *)
+
+(** {2 Binary sequences} *)
+
+val empty2 : ('a, 'b) t2
+
+val is_empty2 : (_, _) t2 -> bool
+
+val length2 : (_, _) t2 -> int
+
+val zip : ('a, 'b) t2 -> ('a * 'b) t
+
+val unzip : ('a * 'b) t -> ('a, 'b) t2
+
+val zip_i : 'a t -> (int, 'a) t2
+  (** Zip elements of the sequence with their index in the sequence *)
+
+val fold2 : ('c -> 'a -> 'b -> 'c) -> 'c -> ('a, 'b) t2 -> 'c
+
+val iter2 : ('a -> 'b -> unit) -> ('a, 'b) t2 -> unit
+
+val map2 : ('a -> 'b -> 'c) -> ('a, 'b) t2 -> 'c t
+
+val map2_2 : ('a -> 'b -> 'c) -> ('a -> 'b -> 'd) -> ('a, 'b) t2 -> ('c, 'd) t2
+  (** [map2_2 f g seq2] maps each [x, y] of seq2 into [f x y, g x y] *)
 
 (** {2 Basic data structures converters} *)
 
