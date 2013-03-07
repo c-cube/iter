@@ -319,6 +319,16 @@ module TypeClass : sig
   val to_addable : ('a,'b) addable -> 'a t -> 'b
 end
 
+(** {2 Infix functions} *)
+
+module Infix : sig
+  val (--) : int -> int -> int t
+
+  val (|>) : 'a -> ('a -> 'b) -> 'b
+
+  val (@@) : 'a t -> 'a t -> 'a t
+end
+
 (** {2 Pretty printing of sequences} *)
 
 val pp_seq : ?sep:string -> (Format.formatter -> 'a -> unit) ->

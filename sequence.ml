@@ -582,6 +582,17 @@ module TypeClass = struct
     fold addable.add addable.empty seq
 end
 
+(** {2 Infix functions} *)
+
+module Infix = struct
+  let (--) i j = int_range ~start:i ~stop:j
+
+  let (|>) x f = f x
+
+  let (@@) a b = append a b
+
+  let (>>=) x f = flatMap f x
+end
 
 (** {2 Pretty printing of sequences} *)
 
