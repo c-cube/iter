@@ -1,0 +1,11 @@
+
+## 3.1.4
+
+- sort, uniq, group and sort_uniq combinators implemented
+- some conversion functions that use Sequence.t2
+- infix operators in Sequence.Infix
+- Sequence.t2 type for efficient iteration on pairs of elements
+- some combinators are adapted to Sequence.t2
+- zip, unzip and zip_i to convert between t and t2
+- added scan combinator
+
