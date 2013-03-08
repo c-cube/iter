@@ -211,6 +211,48 @@ let persistent (seq : 'a t) : 'a t =
   let l = MList.of_seq seq in
   from_iter (fun k -> MList.iter k l)
 
+(** Sort the sequence. Eager, O(n) ram and O(n ln(n)) time. *)
+let sort ?(cmp=Pervasives.compare) seq =
+  (* use an intermediate list, then sort the list *)
+  let l = fold (fun l x -> x::l) [] seq in
+  let l = List.fast_sort cmp l in
+  fun k -> List.iter k l
+
+(** Group equal consecutive elements. *)
+let group ?(eq=fun x y -> x = y) seq =
+  fun k ->
+    let cur = ref [] in
+    seq (fun x ->
+      match !cur with
+      | [] -> cur := [x]
+      | (y::_) as l when eq x y ->
+        cur := x::l  (* [x] belongs to the group *)
+      | (_::_) as l ->
+        k l; (* yield group, and start another one *)
+        cur := [x]);
+    (* last list *)
+    if !cur <> [] then k !cur
+  
+(** Remove consecutive duplicate elements. Basically this is
+    like [fun seq -> map List.hd (group seq)]. *)
+let uniq ?(eq=fun x y -> x = y) seq =
+  fun k ->
+    let has_prev = ref false
+    and prev = ref (Obj.magic 0) in  (* avoid option type, costly *)
+    seq (fun x ->
+      if !has_prev && eq !prev x
+        then ()  (* duplicate *)
+        else begin
+          has_prev := true;
+          prev := x;
+          k x
+        end)
+
+(** Sort the sequence and remove duplicates. Eager, same as [sort] *)
+let sort_uniq ?(cmp=Pervasives.compare) seq =
+  let seq' = sort ~cmp seq in
+  uniq ~eq:(fun x y -> cmp x y = 0) seq'
+
 (** Cartesian product of the sequences. *)
 let product outer inner =
   let outer = persistent outer in

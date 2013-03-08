@@ -112,6 +112,19 @@ val persistent : 'a t -> 'a t
   (** Iterate on the sequence, storing elements in a data structure.
       The resulting sequence can be iterated on as many times as needed. *)
 
+val sort : ?cmp:('a -> 'a -> int) -> 'a t -> 'a t
+  (** Sort the sequence. Eager, O(n) ram and O(n ln(n)) time. *)
+
+val sort_uniq : ?cmp:('a -> 'a -> int) -> 'a t -> 'a t
+  (** Sort the sequence and remove duplicates. Eager, same as [sort] *)
+
+val group : ?eq:('a -> 'a -> bool) -> 'a t -> 'a list t
+  (** Group equal consecutive elements. *)
+
+val uniq : ?eq:('a -> 'a -> bool) -> 'a t -> 'a t
+  (** Remove consecutive duplicate elements. Basically this is
+      like [fun seq -> map List.hd (group seq)]. *)
+
 val product : 'a t -> 'b t -> ('a * 'b) t
   (** Cartesian product of the sequences. The first one is transformed
       by calling [persistent] on it, so that it can be traversed
