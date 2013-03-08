@@ -109,6 +109,8 @@ let concat s =
     let k_seq seq = iter k seq in
     s k_seq)
 
+let flatten s = concat s
+
 (** Monadic bind. It applies the function to every element of the
     initial sequence, and calls [concat]. *)
 let flatMap f seq =
