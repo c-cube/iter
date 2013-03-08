@@ -19,12 +19,26 @@ You need OCaml, say OCaml 3.12 or OCaml 4.0.
 
     $ make
 
-To see how to use it, check `tests.ml`. `sequence.ml` has a few examples of how to convert
-data structures into sequences, and conversely.
+If you have `OUnit` installed, you can build and run tests with
 
-The module `sexpr.mli` exposes the interface of the S-expression example library. It
-requires OCaml>=4.0 to compile, because of the GADT structure used in the monadic
-parser combinators part of `sexpr.ml`.
+    $ make tests
+    $ ./run_tests.native
+
+If you have `Bench` installed, you can build and run benchmarks with
+
+    $ make benchs
+    $ ./benchs.native
+
+To see how to use the library, check the `examples` directory.
+`tests.ml` has a few examples of how to convert basic data structures into
+sequences, and conversely.
+
+Examples
+========
+
+The module `examples/sexpr.mli` exposes the interface of the S-expression
+example library. It requires OCaml>=4.0 to compile, because of the GADT
+structure used in the monadic parser combinators part of `examples/sexpr.ml`.
 
 Documentation
 =============

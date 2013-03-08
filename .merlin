@@ -1,2 +1,6 @@
-B _build
 S .
+S tests/
+B _build
+B _build/tests/
+PKG oUnit
+PKG bench
