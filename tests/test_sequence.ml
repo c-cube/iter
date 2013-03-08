@@ -139,6 +139,29 @@ let test_drop () =
 let test_rev () =
   1 -- 5 |> S.rev |> S.to_list |> OUnit.assert_equal [5;4;3;2;1]
 
+let test_unfoldr () =
+  let f x = if x < 5 then Some (string_of_int x,x+1) else None in
+  S.unfoldr f 0
+    |> S.to_list
+    |> OUnit.assert_equal ["0"; "1"; "2"; "3"; "4"]
+
+let test_hashtbl () =
+  let h = 1 -- 5
+    |> S.zip_i
+    |> S.to_hashtbl2 in
+  0 -- 4
+    |> S.iter (fun i -> OUnit.assert_equal (i+1) (Hashtbl.find h i));
+  OUnit.assert_equal [0;1;2;3;4] (S.hashtbl_keys h |> S.sort |> S.to_list);
+  ()
+
+let test_buff () =
+  let b = Buffer.create 4 in
+  "hello world"
+    |> S.of_str |> S.rev |> S.map Char.uppercase
+    |> (fun seq -> S.to_buffer seq b);
+  OUnit.assert_equal "DLROW OLLEH" (Buffer.contents b);
+  ()
+
 let suite =
   "test_sequence" >:::
     [ "test_empty" >:: test_empty;
@@ -161,4 +184,6 @@ let suite =
       "test_scan" >:: test_scan;
       "test_drop" >:: test_drop;
       "test_rev" >:: test_rev;
+      "test_unfoldr" >:: test_unfoldr;
+      "test_hashtbl" >:: test_hashtbl;
     ]
