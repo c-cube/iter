@@ -5,11 +5,11 @@ TARGETS = sequence.cma sequence.cmxa sequence.cmi sequence.a
 LIB = $(addprefix _build/, $(TARGETS)) 
 INSTALL = $(LIB) sequence.mli
 
-all: tests
+all:
 	ocamlbuild $(TARGETS) $(DOC)
 
-bench: all
-	ocamlbuild -use-ocamlfind -pkg bench tests/benchs.native
+benchs: all
+	ocamlbuild -use-ocamlfind -pkg bench -pkg unix tests/benchs.native
 
 tests:
 	ocamlbuild -use-ocamlfind -pkg oUnit tests/run_tests.native
@@ -20,4 +20,4 @@ install: all
 clean:
 	ocamlbuild -clean
 
-.PHONY: all clean tests bench
+.PHONY: all clean tests benchs
