@@ -274,6 +274,18 @@ let product outer inner =
       outer (fun x ->
         inner (fun y -> k (x,y))))
 
+(** [join ~join_row a b] combines every element of [a] with every
+    element of [b] using [join_row]. If [join_row] returns None, then
+    the two elements do not combine. Assume that [b] allows for multiple
+    iterations. *)
+let join ~join_row s1 s2 =
+  fun k ->
+    s1 (fun a ->
+      s2 (fun b ->
+        match join_row a b with
+        | None -> ()
+        | Some c -> k c))  (* yield the combination of [a] and [b] *)
+
 (** [unfoldr f b] will apply [f] to [b]. If it
     yields [Some (x,b')] then [x] is returned
     and unfoldr recurses with [b']. *)

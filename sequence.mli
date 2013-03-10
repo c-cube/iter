@@ -147,6 +147,12 @@ val product : 'a t -> 'b t -> ('a * 'b) t
       by calling [persistent] on it, so that it can be traversed
       several times (outer loop of the product) *)
 
+val join : join_row:('a -> 'b -> 'c option) -> 'a t -> 'b t -> 'c t
+  (** [join ~join_row a b] combines every element of [a] with every
+      element of [b] using [join_row]. If [join_row] returns None, then
+      the two elements do not combine. Assume that [b] allows for multiple
+      iterations. *)
+
 val unfoldr : ('b -> ('a * 'b) option) -> 'b -> 'a t 
   (** [unfoldr f b] will apply [f] to [b]. If it
       yields [Some (x,b')] then [x] is returned

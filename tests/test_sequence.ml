@@ -88,6 +88,7 @@ let test_persistent () =
   let printer = pp_ilist in
   let stream = Stream.from (fun i -> if i < 5 then Some i else None) in
   let seq = S.of_stream stream in
+  (* consume seq into a persistent version of itself *)
   let seq' = S.persistent seq in
   OUnit.assert_equal ~printer [] (seq |> S.to_list);
   OUnit.assert_equal ~printer [0;1;2;3;4] (seq' |> S.to_list);
@@ -126,6 +127,16 @@ let test_product () =
   OUnit.assert_equal ["a",0; "a", 1; "a", 2;
                       "b",0; "b", 1; "b", 2;
                       "c",0; "c", 1; "c", 2;] s
+
+let test_join () =
+  let s1 = (1 -- 3) in
+  let s2 = S.of_list ["1"; "2"] in
+  let join_row i j =
+    if string_of_int i = j then Some (string_of_int i ^ " = " ^ j) else None
+  in
+  let s = S.join ~join_row s1 s2 in
+  OUnit.assert_equal ["1 = 1"; "2 = 2"] (S.to_list s);
+  ()
 
 let test_scan () =
   1 -- 5 
@@ -181,6 +192,7 @@ let suite =
       "test_group" >:: test_group;
       "test_uniq" >:: test_uniq;
       "test_product" >:: test_product;
+      "test_join" >:: test_join;
       "test_scan" >:: test_scan;
       "test_drop" >:: test_drop;
       "test_rev" >:: test_rev;
