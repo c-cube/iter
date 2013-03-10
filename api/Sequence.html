@@ -12,11 +12,13 @@
 <link title="Sequence" rel="Chapter" href="Sequence.html"><link title="Build a sequence" rel="Section" href="#2_Buildasequence">
 <link title="Consume a sequence" rel="Section" href="#2_Consumeasequence">
 <link title="Transform a sequence" rel="Section" href="#2_Transformasequence">
+<link title="Binary sequences" rel="Section" href="#2_Binarysequences">
 <link title="Basic data structures converters" rel="Section" href="#2_Basicdatastructuresconverters">
 <link title="Functorial conversions between sets and sequences" rel="Section" href="#2_Functorialconversionsbetweensetsandsequences">
 <link title="Conversion between maps and sequences." rel="Section" href="#2_Conversionbetweenmapsandsequences">
 <link title="Infinite sequences of random values" rel="Section" href="#2_Infinitesequencesofrandomvalues">
 <link title="Type-classes" rel="Section" href="#2_Typeclasses">
+<link title="Infix functions" rel="Section" href="#2_Infixfunctions">
 <link title="Pretty printing of sequences" rel="Section" href="#2_Prettyprintingofsequences">
 <title>Sequence</title>
 </head>
@@ -25,21 +27,42 @@
 &nbsp;</div>
 <h1>Module <a href="type_Sequence.html">Sequence</a></h1>
 <pre><span class="keyword">module</span> Sequence: <code class="code">sig</code> <a href="Sequence.html">..</a> <code class="code">end</code></pre><div class="info">
-Transient iterators, that abstract on a finite sequence of elements. They
-    are designed to allow easy transfer (mappings) between data structures,
-    without defining n^2 conversions between the n types.<br>
+<h1 id="1_Transientiteratorsthatabstractonafinitesequenceofelements">Transient iterators, that abstract on a finite sequence of elements.</h1><br>
 </div>
 <hr width="100%">
-<pre><span id="TYPEt"><span class="keyword">type</span> <code class="type">+'a</code> t</span> </pre>
+<br>
+The iterators are designed to allow easy transfer (mappings) between data
+    structures, without defining n^2 conversions between the n types. The
+    implementation relies on the assumption that a sequence can be iterated
+    on as many times as needed; this choice allows for high performance
+    of many combinators. However, for transient iterators, the <a href="Sequence.html#VALpersistent"><code class="code">Sequence.persistent</code></a>
+    function is provided, storing elements of a transient iterator
+    in memory; the iterator can then be used several times.
+<p>
+
+    Note that some combinators also return sequences (e.g. <a href="Sequence.html#VALgroup"><code class="code">Sequence.group</code></a>). The
+    transformation is computed on the fly every time one iterates over
+    the resulting sequence. If a transformation performs heavy computation,
+    <a href="Sequence.html#VALpersistent"><code class="code">Sequence.persistent</code></a> can also be used as intermediate storage.<br>
+<pre><span id="TYPEt"><span class="keyword">type</span> <code class="type">'a</code> t</span> = <code class="type">('a -> unit) -> unit</code> </pre>
 <div class="info">
 Sequence abstract iterator type, representing a finite sequence of
       values of type <code class="code">'a</code>.<br>
+</div>
+
+<pre><span id="TYPEt2"><span class="keyword">type</span> <code class="type">('a, 'b)</code> t2</span> = <code class="type">('a -> 'b -> unit) -> unit</code> </pre>
+<div class="info">
+Sequence of pairs of values of type <code class="code">'a</code> and <code class="code">'b</code>.<br>
 </div>
 
 <br>
 <h2 id="2_Buildasequence">Build a sequence</h2><br>
 <pre><span id="VALfrom_iter"><span class="keyword">val</span> from_iter</span> : <code class="type">(('a -> unit) -> unit) -> 'a <a href="Sequence.html#TYPEt">t</a></code></pre><div class="info">
 Build a sequence from a iter function<br>
+</div>
+<pre><span id="VALfrom_fun"><span class="keyword">val</span> from_fun</span> : <code class="type">(unit -> 'a option) -> 'a <a href="Sequence.html#TYPEt">t</a></code></pre><div class="info">
+Call the function repeatedly until it returns None. This
+      sequence is transient, use <a href="Sequence.html#VALpersistent"><code class="code">Sequence.persistent</code></a> if needed!<br>
 </div>
 <pre><span id="VALempty"><span class="keyword">val</span> empty</span> : <code class="type">'a <a href="Sequence.html#TYPEt">t</a></code></pre><div class="info">
 Empty sequence<br>
@@ -57,8 +80,7 @@ Infinite sequence of the same element<br>
 Sequence that calls the given function to produce elements<br>
 </div>
 <pre><span id="VALcycle"><span class="keyword">val</span> cycle</span> : <code class="type">'a <a href="Sequence.html#TYPEt">t</a> -> 'a <a href="Sequence.html#TYPEt">t</a></code></pre><div class="info">
-Cycle forever through the given sequence. Assume the
-      given sequence can be traversed any amount of times (not transient).<br>
+Cycle forever through the given sequence.<br>
 </div>
 <br>
 <h2 id="2_Consumeasequence">Consume a sequence</h2><br>
@@ -103,26 +125,51 @@ Append two sequences<br>
 <pre><span id="VALconcat"><span class="keyword">val</span> concat</span> : <code class="type">'a <a href="Sequence.html#TYPEt">t</a> <a href="Sequence.html#TYPEt">t</a> -> 'a <a href="Sequence.html#TYPEt">t</a></code></pre><div class="info">
 Concatenate a sequence of sequences into one sequence<br>
 </div>
+<pre><span id="VALflatten"><span class="keyword">val</span> flatten</span> : <code class="type">'a <a href="Sequence.html#TYPEt">t</a> <a href="Sequence.html#TYPEt">t</a> -> 'a <a href="Sequence.html#TYPEt">t</a></code></pre><div class="info">
+Alias for <a href="Sequence.html#VALconcat"><code class="code">Sequence.concat</code></a><br>
+</div>
 <pre><span id="VALflatMap"><span class="keyword">val</span> flatMap</span> : <code class="type">('a -> 'b <a href="Sequence.html#TYPEt">t</a>) -> 'a <a href="Sequence.html#TYPEt">t</a> -> 'b <a href="Sequence.html#TYPEt">t</a></code></pre><div class="info">
 Monadic bind. It applies the function to every element of the
       initial sequence, and calls <code class="code">concat</code>.<br>
 </div>
-<pre><span id="VALintersperse"><span class="keyword">val</span> intersperse</span> : <code class="type">'a <a href="Sequence.html#TYPEt">t</a> -> 'a -> 'a <a href="Sequence.html#TYPEt">t</a></code></pre><div class="info">
+<pre><span id="VALintersperse"><span class="keyword">val</span> intersperse</span> : <code class="type">'a -> 'a <a href="Sequence.html#TYPEt">t</a> -> 'a <a href="Sequence.html#TYPEt">t</a></code></pre><div class="info">
 Insert the second element between every element of the sequence<br>
 </div>
 <pre><span id="VALpersistent"><span class="keyword">val</span> persistent</span> : <code class="type">'a <a href="Sequence.html#TYPEt">t</a> -> 'a <a href="Sequence.html#TYPEt">t</a></code></pre><div class="info">
 Iterate on the sequence, storing elements in a data structure.
       The resulting sequence can be iterated on as many times as needed.<br>
 </div>
+<pre><span id="VALsort"><span class="keyword">val</span> sort</span> : <code class="type">?cmp:('a -> 'a -> int) -> 'a <a href="Sequence.html#TYPEt">t</a> -> 'a <a href="Sequence.html#TYPEt">t</a></code></pre><div class="info">
+Sort the sequence. Eager, O(n) ram and O(n ln(n)) time.<br>
+</div>
+<pre><span id="VALsort_uniq"><span class="keyword">val</span> sort_uniq</span> : <code class="type">?cmp:('a -> 'a -> int) -> 'a <a href="Sequence.html#TYPEt">t</a> -> 'a <a href="Sequence.html#TYPEt">t</a></code></pre><div class="info">
+Sort the sequence and remove duplicates. Eager, same as <code class="code">sort</code><br>
+</div>
+<pre><span id="VALgroup"><span class="keyword">val</span> group</span> : <code class="type">?eq:('a -> 'a -> bool) -> 'a <a href="Sequence.html#TYPEt">t</a> -> 'a list <a href="Sequence.html#TYPEt">t</a></code></pre><div class="info">
+Group equal consecutive elements.<br>
+</div>
+<pre><span id="VALuniq"><span class="keyword">val</span> uniq</span> : <code class="type">?eq:('a -> 'a -> bool) -> 'a <a href="Sequence.html#TYPEt">t</a> -> 'a <a href="Sequence.html#TYPEt">t</a></code></pre><div class="info">
+Remove consecutive duplicate elements. Basically this is
+      like <code class="code">fun seq -&gt; map List.hd (group seq)</code>.<br>
+</div>
 <pre><span id="VALproduct"><span class="keyword">val</span> product</span> : <code class="type">'a <a href="Sequence.html#TYPEt">t</a> -> 'b <a href="Sequence.html#TYPEt">t</a> -> ('a * 'b) <a href="Sequence.html#TYPEt">t</a></code></pre><div class="info">
 Cartesian product of the sequences. The first one is transformed
       by calling <code class="code">persistent</code> on it, so that it can be traversed
       several times (outer loop of the product)<br>
 </div>
+<pre><span id="VALjoin"><span class="keyword">val</span> join</span> : <code class="type">join_row:('a -> 'b -> 'c option) -><br>       'a <a href="Sequence.html#TYPEt">t</a> -> 'b <a href="Sequence.html#TYPEt">t</a> -> 'c <a href="Sequence.html#TYPEt">t</a></code></pre><div class="info">
+<code class="code">join ~join_row a b</code> combines every element of <code class="code">a</code> with every
+      element of <code class="code">b</code> using <code class="code">join_row</code>. If <code class="code">join_row</code> returns None, then
+      the two elements do not combine. Assume that <code class="code">b</code> allows for multiple
+      iterations.<br>
+</div>
 <pre><span id="VALunfoldr"><span class="keyword">val</span> unfoldr</span> : <code class="type">('b -> ('a * 'b) option) -> 'b -> 'a <a href="Sequence.html#TYPEt">t</a></code></pre><div class="info">
 <code class="code">unfoldr f b</code> will apply <code class="code">f</code> to <code class="code">b</code>. If it
       yields <code class="code">Some (x,b')</code> then <code class="code">x</code> is returned
       and unfoldr recurses with <code class="code">b'</code>.<br>
+</div>
+<pre><span id="VALscan"><span class="keyword">val</span> scan</span> : <code class="type">('b -> 'a -> 'b) -> 'b -> 'a <a href="Sequence.html#TYPEt">t</a> -> 'b <a href="Sequence.html#TYPEt">t</a></code></pre><div class="info">
+Sequence of intermediate results<br>
 </div>
 <pre><span id="VALmax"><span class="keyword">val</span> max</span> : <code class="type">?lt:('a -> 'a -> bool) -> 'a <a href="Sequence.html#TYPEt">t</a> -> 'a -> 'a</code></pre><div class="info">
 Max element of the sequence, using the given comparison
@@ -141,6 +188,14 @@ Drop the <code class="code">n</code> first elements of the sequence<br>
 Reverse the sequence. O(n) memory and time.<br>
 </div>
 <br>
+<h2 id="2_Binarysequences">Binary sequences</h2><br>
+<pre><span id="VALempty2"><span class="keyword">val</span> empty2</span> : <code class="type">('a, 'b) <a href="Sequence.html#TYPEt2">t2</a></code></pre><pre><span id="VALis_empty2"><span class="keyword">val</span> is_empty2</span> : <code class="type">('a, 'b) <a href="Sequence.html#TYPEt2">t2</a> -> bool</code></pre><pre><span id="VALlength2"><span class="keyword">val</span> length2</span> : <code class="type">('a, 'b) <a href="Sequence.html#TYPEt2">t2</a> -> int</code></pre><pre><span id="VALzip"><span class="keyword">val</span> zip</span> : <code class="type">('a, 'b) <a href="Sequence.html#TYPEt2">t2</a> -> ('a * 'b) <a href="Sequence.html#TYPEt">t</a></code></pre><pre><span id="VALunzip"><span class="keyword">val</span> unzip</span> : <code class="type">('a * 'b) <a href="Sequence.html#TYPEt">t</a> -> ('a, 'b) <a href="Sequence.html#TYPEt2">t2</a></code></pre><pre><span id="VALzip_i"><span class="keyword">val</span> zip_i</span> : <code class="type">'a <a href="Sequence.html#TYPEt">t</a> -> (int, 'a) <a href="Sequence.html#TYPEt2">t2</a></code></pre><div class="info">
+Zip elements of the sequence with their index in the sequence<br>
+</div>
+<pre><span id="VALfold2"><span class="keyword">val</span> fold2</span> : <code class="type">('c -> 'a -> 'b -> 'c) -> 'c -> ('a, 'b) <a href="Sequence.html#TYPEt2">t2</a> -> 'c</code></pre><pre><span id="VALiter2"><span class="keyword">val</span> iter2</span> : <code class="type">('a -> 'b -> unit) -> ('a, 'b) <a href="Sequence.html#TYPEt2">t2</a> -> unit</code></pre><pre><span id="VALmap2"><span class="keyword">val</span> map2</span> : <code class="type">('a -> 'b -> 'c) -> ('a, 'b) <a href="Sequence.html#TYPEt2">t2</a> -> 'c <a href="Sequence.html#TYPEt">t</a></code></pre><pre><span id="VALmap2_2"><span class="keyword">val</span> map2_2</span> : <code class="type">('a -> 'b -> 'c) -><br>       ('a -> 'b -> 'd) -> ('a, 'b) <a href="Sequence.html#TYPEt2">t2</a> -> ('c, 'd) <a href="Sequence.html#TYPEt2">t2</a></code></pre><div class="info">
+<code class="code">map2_2 f g seq2</code> maps each <code class="code">x, y</code> of seq2 into <code class="code">f x y, g x y</code><br>
+</div>
+<br>
 <h2 id="2_Basicdatastructuresconverters">Basic data structures converters</h2><br>
 <pre><span id="VALto_list"><span class="keyword">val</span> to_list</span> : <code class="type">'a <a href="Sequence.html#TYPEt">t</a> -> 'a list</code></pre><pre><span id="VALto_rev_list"><span class="keyword">val</span> to_rev_list</span> : <code class="type">'a <a href="Sequence.html#TYPEt">t</a> -> 'a list</code></pre><div class="info">
 Get the list of the reversed sequence (more efficient)<br>
@@ -152,12 +207,15 @@ Convert to an array. Currently not very efficient because
 <pre><span id="VALof_array"><span class="keyword">val</span> of_array</span> : <code class="type">'a array -> 'a <a href="Sequence.html#TYPEt">t</a></code></pre><pre><span id="VALof_array_i"><span class="keyword">val</span> of_array_i</span> : <code class="type">'a array -> (int * 'a) <a href="Sequence.html#TYPEt">t</a></code></pre><div class="info">
 Elements of the array, with their index<br>
 </div>
-<pre><span id="VALarray_slice"><span class="keyword">val</span> array_slice</span> : <code class="type">'a array -> int -> int -> 'a <a href="Sequence.html#TYPEt">t</a></code></pre><div class="info">
+<pre><span id="VALof_array2"><span class="keyword">val</span> of_array2</span> : <code class="type">'a array -> (int, 'a) <a href="Sequence.html#TYPEt2">t2</a></code></pre><pre><span id="VALarray_slice"><span class="keyword">val</span> array_slice</span> : <code class="type">'a array -> int -> int -> 'a <a href="Sequence.html#TYPEt">t</a></code></pre><div class="info">
 <code class="code">array_slice a i j</code> Sequence of elements whose indexes range
       from <code class="code">i</code> to <code class="code">j</code><br>
 </div>
 <pre><span id="VALof_stream"><span class="keyword">val</span> of_stream</span> : <code class="type">'a Stream.t -> 'a <a href="Sequence.html#TYPEt">t</a></code></pre><div class="info">
-Sequence of elements of a stream<br>
+Sequence of elements of a stream (usable only once)<br>
+</div>
+<pre><span id="VALto_stream"><span class="keyword">val</span> to_stream</span> : <code class="type">'a <a href="Sequence.html#TYPEt">t</a> -> 'a Stream.t</code></pre><div class="info">
+Convert to a stream. linear in memory and time (a copy is made in memory)<br>
 </div>
 <pre><span id="VALto_stack"><span class="keyword">val</span> to_stack</span> : <code class="type">'a Stack.t -> 'a <a href="Sequence.html#TYPEt">t</a> -> unit</code></pre><div class="info">
 Push elements of the sequence on the stack<br>
@@ -182,7 +240,13 @@ Add elements of the sequence to the hashtable, with
 <pre><span id="VALto_hashtbl"><span class="keyword">val</span> to_hashtbl</span> : <code class="type">('a * 'b) <a href="Sequence.html#TYPEt">t</a> -> ('a, 'b) Hashtbl.t</code></pre><div class="info">
 Build a hashtable from a sequence of key/value pairs<br>
 </div>
+<pre><span id="VALto_hashtbl2"><span class="keyword">val</span> to_hashtbl2</span> : <code class="type">('a, 'b) <a href="Sequence.html#TYPEt2">t2</a> -> ('a, 'b) Hashtbl.t</code></pre><div class="info">
+Build a hashtable from a sequence of key/value pairs<br>
+</div>
 <pre><span id="VALof_hashtbl"><span class="keyword">val</span> of_hashtbl</span> : <code class="type">('a, 'b) Hashtbl.t -> ('a * 'b) <a href="Sequence.html#TYPEt">t</a></code></pre><div class="info">
+Sequence of key/value pairs from the hashtable<br>
+</div>
+<pre><span id="VALof_hashtbl2"><span class="keyword">val</span> of_hashtbl2</span> : <code class="type">('a, 'b) Hashtbl.t -> ('a, 'b) <a href="Sequence.html#TYPEt2">t2</a></code></pre><div class="info">
 Sequence of key/value pairs from the hashtable<br>
 </div>
 <pre><span id="VALhashtbl_keys"><span class="keyword">val</span> hashtbl_keys</span> : <code class="type">('a, 'b) Hashtbl.t -> 'a <a href="Sequence.html#TYPEt">t</a></code></pre><pre><span id="VALhashtbl_values"><span class="keyword">val</span> hashtbl_values</span> : <code class="type">('a, 'b) Hashtbl.t -> 'b <a href="Sequence.html#TYPEt">t</a></code></pre><pre><span id="VALof_str"><span class="keyword">val</span> of_str</span> : <code class="type">string -> char <a href="Sequence.html#TYPEt">t</a></code></pre><pre><span id="VALto_str"><span class="keyword">val</span> to_str</span> : <code class="type">char <a href="Sequence.html#TYPEt">t</a> -> string</code></pre><pre><span id="VALof_in_channel"><span class="keyword">val</span> of_in_channel</span> : <code class="type">Pervasives.in_channel -> char <a href="Sequence.html#TYPEt">t</a></code></pre><pre><span id="VALto_buffer"><span class="keyword">val</span> to_buffer</span> : <code class="type">char <a href="Sequence.html#TYPEt">t</a> -> Buffer.t -> unit</code></pre><div class="info">
@@ -209,6 +273,8 @@ Sequence of choices of an element in the array<br>
 <pre><span id="VALrandom_list"><span class="keyword">val</span> random_list</span> : <code class="type">'a list -> 'a <a href="Sequence.html#TYPEt">t</a></code></pre><br>
 <h2 id="2_Typeclasses">Type-classes</h2><br>
 <pre><span class="keyword">module</span> <a href="Sequence.TypeClass.html">TypeClass</a>: <code class="code">sig</code> <a href="Sequence.TypeClass.html">..</a> <code class="code">end</code></pre><br>
+<h2 id="2_Infixfunctions">Infix functions</h2><br>
+<pre><span class="keyword">module</span> <a href="Sequence.Infix.html">Infix</a>: <code class="code">sig</code> <a href="Sequence.Infix.html">..</a> <code class="code">end</code></pre><br>
 <h2 id="2_Prettyprintingofsequences">Pretty printing of sequences</h2><br>
 <pre><span id="VALpp_seq"><span class="keyword">val</span> pp_seq</span> : <code class="type">?sep:string -><br>       (Format.formatter -> 'a -> unit) -> Format.formatter -> 'a <a href="Sequence.html#TYPEt">t</a> -> unit</code></pre><div class="info">
 Pretty print a sequence of <code class="code">'a</code>, using the given pretty printer

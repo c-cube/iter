@@ -14,6 +14,13 @@
 &nbsp;</div>
 <h1>Index of values</h1>
 <table>
+<tr><td align="left"><br></td></tr>
+<tr><td><a href="Sequence.Infix.html#VAL(--)">(--)</a> [<a href="Sequence.Infix.html">Sequence.Infix</a>]</td>
+<td></td></tr>
+<tr><td><a href="Sequence.Infix.html#VAL(@@)">(@@)</a> [<a href="Sequence.Infix.html">Sequence.Infix</a>]</td>
+<td></td></tr>
+<tr><td><a href="Sequence.Infix.html#VAL(|>)">(|&gt;)</a> [<a href="Sequence.Infix.html">Sequence.Infix</a>]</td>
+<td></td></tr>
 <tr><td align="left"><br>A</td></tr>
 <tr><td><a href="Sequence.html#VALappend">append</a> [<a href="Sequence.html">Sequence</a>]</td>
 <td><div class="info">
@@ -49,6 +56,8 @@ Drop the <code class="code">n</code> first elements of the sequence
 Empty sequence
 </div>
 </td></tr>
+<tr><td><a href="Sequence.html#VALempty2">empty2</a> [<a href="Sequence.html">Sequence</a>]</td>
+<td></td></tr>
 <tr><td><a href="Sequence.html#VALexists">exists</a> [<a href="Sequence.html">Sequence</a>]</td>
 <td><div class="info">
 Exists there some element satisfying the predicate?
@@ -65,11 +74,18 @@ Filter on elements of the sequence
 Monadic bind.
 </div>
 </td></tr>
+<tr><td><a href="Sequence.html#VALflatten">flatten</a> [<a href="Sequence.html">Sequence</a>]</td>
+<td><div class="info">
+Alias for <a href="Sequence.html#VALconcat"><code class="code">Sequence.concat</code></a>
+</div>
+</td></tr>
 <tr><td><a href="Sequence.html#VALfold">fold</a> [<a href="Sequence.html">Sequence</a>]</td>
 <td><div class="info">
 Fold over elements of the sequence, consuming it
 </div>
 </td></tr>
+<tr><td><a href="Sequence.html#VALfold2">fold2</a> [<a href="Sequence.html">Sequence</a>]</td>
+<td></td></tr>
 <tr><td><a href="Sequence.html#VALfoldi">foldi</a> [<a href="Sequence.html">Sequence</a>]</td>
 <td><div class="info">
 Fold over elements of the sequence and their index, consuming it
@@ -85,9 +101,20 @@ Do all elements satisfy the predicate?
 Sequence that calls the given function to produce elements
 </div>
 </td></tr>
+<tr><td><a href="Sequence.html#VALfrom_fun">from_fun</a> [<a href="Sequence.html">Sequence</a>]</td>
+<td><div class="info">
+Call the function repeatedly until it returns None.
+</div>
+</td></tr>
 <tr><td><a href="Sequence.html#VALfrom_iter">from_iter</a> [<a href="Sequence.html">Sequence</a>]</td>
 <td><div class="info">
 Build a sequence from a iter function
+</div>
+</td></tr>
+<tr><td align="left"><br>G</td></tr>
+<tr><td><a href="Sequence.html#VALgroup">group</a> [<a href="Sequence.html">Sequence</a>]</td>
+<td><div class="info">
+Group equal consecutive elements.
 </div>
 </td></tr>
 <tr><td align="left"><br>H</td></tr>
@@ -123,11 +150,15 @@ Insert the second element between every element of the sequence
 Is the sequence empty?
 </div>
 </td></tr>
+<tr><td><a href="Sequence.html#VALis_empty2">is_empty2</a> [<a href="Sequence.html">Sequence</a>]</td>
+<td></td></tr>
 <tr><td><a href="Sequence.html#VALiter">iter</a> [<a href="Sequence.html">Sequence</a>]</td>
 <td><div class="info">
 Consume the sequence, passing all its arguments to the function
 </div>
 </td></tr>
+<tr><td><a href="Sequence.html#VALiter2">iter2</a> [<a href="Sequence.html">Sequence</a>]</td>
+<td></td></tr>
 <tr><td><a href="Sequence.TypeClass.html#VALiterable">iterable</a> [<a href="Sequence.TypeClass.html">Sequence.TypeClass</a>]</td>
 <td></td></tr>
 <tr><td><a href="Sequence.html#VALiterate">iterate</a> [<a href="Sequence.html">Sequence</a>]</td>
@@ -140,6 +171,13 @@ Consume the sequence, passing all its arguments to the function
 Iterate on elements and their index in the sequence
 </div>
 </td></tr>
+<tr><td align="left"><br>J</td></tr>
+<tr><td><a href="Sequence.html#VALjoin">join</a> [<a href="Sequence.html">Sequence</a>]</td>
+<td><div class="info">
+<code class="code">join ~join_row a b</code> combines every element of <code class="code">a</code> with every
+      element of <code class="code">b</code> using <code class="code">join_row</code>.
+</div>
+</td></tr>
 <tr><td align="left"><br>K</td></tr>
 <tr><td><a href="Sequence.Map.S.html#VALkeys">keys</a> [<a href="Sequence.Map.S.html">Sequence.Map.S</a>]</td>
 <td></td></tr>
@@ -149,10 +187,19 @@ Iterate on elements and their index in the sequence
 How long is the sequence?
 </div>
 </td></tr>
+<tr><td><a href="Sequence.html#VALlength2">length2</a> [<a href="Sequence.html">Sequence</a>]</td>
+<td></td></tr>
 <tr><td align="left"><br>M</td></tr>
 <tr><td><a href="Sequence.html#VALmap">map</a> [<a href="Sequence.html">Sequence</a>]</td>
 <td><div class="info">
 Map objects of the sequence into other elements, lazily
+</div>
+</td></tr>
+<tr><td><a href="Sequence.html#VALmap2">map2</a> [<a href="Sequence.html">Sequence</a>]</td>
+<td></td></tr>
+<tr><td><a href="Sequence.html#VALmap2_2">map2_2</a> [<a href="Sequence.html">Sequence</a>]</td>
+<td><div class="info">
+<code class="code">map2_2 f g seq2</code> maps each <code class="code">x, y</code> of seq2 into <code class="code">f x y, g x y</code>
 </div>
 </td></tr>
 <tr><td><a href="Sequence.html#VALmapi">mapi</a> [<a href="Sequence.html">Sequence</a>]</td>
@@ -176,12 +223,19 @@ Min element of the sequence, using the given comparison function
 <tr><td align="left"><br>O</td></tr>
 <tr><td><a href="Sequence.html#VALof_array">of_array</a> [<a href="Sequence.html">Sequence</a>]</td>
 <td></td></tr>
+<tr><td><a href="Sequence.html#VALof_array2">of_array2</a> [<a href="Sequence.html">Sequence</a>]</td>
+<td></td></tr>
 <tr><td><a href="Sequence.html#VALof_array_i">of_array_i</a> [<a href="Sequence.html">Sequence</a>]</td>
 <td><div class="info">
 Elements of the array, with their index
 </div>
 </td></tr>
 <tr><td><a href="Sequence.html#VALof_hashtbl">of_hashtbl</a> [<a href="Sequence.html">Sequence</a>]</td>
+<td><div class="info">
+Sequence of key/value pairs from the hashtable
+</div>
+</td></tr>
+<tr><td><a href="Sequence.html#VALof_hashtbl2">of_hashtbl2</a> [<a href="Sequence.html">Sequence</a>]</td>
 <td><div class="info">
 Sequence of key/value pairs from the hashtable
 </div>
@@ -215,7 +269,7 @@ Sequence of elements of the stack (same order as <code class="code">Stack.iter</
 <td></td></tr>
 <tr><td><a href="Sequence.html#VALof_stream">of_stream</a> [<a href="Sequence.html">Sequence</a>]</td>
 <td><div class="info">
-Sequence of elements of a stream
+Sequence of elements of a stream (usable only once)
 </div>
 </td></tr>
 <tr><td align="left"><br>P</td></tr>
@@ -260,11 +314,26 @@ Reverse the sequence.
 </div>
 </td></tr>
 <tr><td align="left"><br>S</td></tr>
+<tr><td><a href="Sequence.html#VALscan">scan</a> [<a href="Sequence.html">Sequence</a>]</td>
+<td><div class="info">
+Sequence of intermediate results
+</div>
+</td></tr>
 <tr><td><a href="Sequence.TypeClass.html#VALsequenceable">sequenceable</a> [<a href="Sequence.TypeClass.html">Sequence.TypeClass</a>]</td>
 <td></td></tr>
 <tr><td><a href="Sequence.html#VALsingleton">singleton</a> [<a href="Sequence.html">Sequence</a>]</td>
 <td><div class="info">
 Singleton sequence
+</div>
+</td></tr>
+<tr><td><a href="Sequence.html#VALsort">sort</a> [<a href="Sequence.html">Sequence</a>]</td>
+<td><div class="info">
+Sort the sequence.
+</div>
+</td></tr>
+<tr><td><a href="Sequence.html#VALsort_uniq">sort_uniq</a> [<a href="Sequence.html">Sequence</a>]</td>
+<td><div class="info">
+Sort the sequence and remove duplicates.
 </div>
 </td></tr>
 <tr><td align="left"><br>T</td></tr>
@@ -286,6 +355,11 @@ Copy content of the sequence into the buffer
 </div>
 </td></tr>
 <tr><td><a href="Sequence.html#VALto_hashtbl">to_hashtbl</a> [<a href="Sequence.html">Sequence</a>]</td>
+<td><div class="info">
+Build a hashtable from a sequence of key/value pairs
+</div>
+</td></tr>
+<tr><td><a href="Sequence.html#VALto_hashtbl2">to_hashtbl2</a> [<a href="Sequence.html">Sequence</a>]</td>
 <td><div class="info">
 Build a hashtable from a sequence of key/value pairs
 </div>
@@ -318,15 +392,35 @@ Push elements of the sequence on the stack
 </td></tr>
 <tr><td><a href="Sequence.html#VALto_str">to_str</a> [<a href="Sequence.html">Sequence</a>]</td>
 <td></td></tr>
+<tr><td><a href="Sequence.html#VALto_stream">to_stream</a> [<a href="Sequence.html">Sequence</a>]</td>
+<td><div class="info">
+Convert to a stream.
+</div>
+</td></tr>
 <tr><td align="left"><br>U</td></tr>
 <tr><td><a href="Sequence.html#VALunfoldr">unfoldr</a> [<a href="Sequence.html">Sequence</a>]</td>
 <td><div class="info">
 <code class="code">unfoldr f b</code> will apply <code class="code">f</code> to <code class="code">b</code>.
 </div>
 </td></tr>
+<tr><td><a href="Sequence.html#VALuniq">uniq</a> [<a href="Sequence.html">Sequence</a>]</td>
+<td><div class="info">
+Remove consecutive duplicate elements.
+</div>
+</td></tr>
+<tr><td><a href="Sequence.html#VALunzip">unzip</a> [<a href="Sequence.html">Sequence</a>]</td>
+<td></td></tr>
 <tr><td align="left"><br>V</td></tr>
 <tr><td><a href="Sequence.Map.S.html#VALvalues">values</a> [<a href="Sequence.Map.S.html">Sequence.Map.S</a>]</td>
 <td></td></tr>
+<tr><td align="left"><br>Z</td></tr>
+<tr><td><a href="Sequence.html#VALzip">zip</a> [<a href="Sequence.html">Sequence</a>]</td>
+<td></td></tr>
+<tr><td><a href="Sequence.html#VALzip_i">zip_i</a> [<a href="Sequence.html">Sequence</a>]</td>
+<td><div class="info">
+Zip elements of the sequence with their index in the sequence
+</div>
+</td></tr>
 </table>
 </body>
 </html>
