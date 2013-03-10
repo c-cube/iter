@@ -11,21 +11,32 @@ form must reproduce the above copyright notice, this list of conditions and the
 following disclaimer in the documentation and/or other materials provided with
 the distribution.
 
-this software is provided by the copyright holders and contributors "as is" and
-any express or implied warranties, including, but not limited to, the implied
-warranties of merchantability and fitness for a particular purpose are
-disclaimed. in no event shall the copyright holder or contributors be liable
-for any direct, indirect, incidental, special, exemplary, or consequential
-  damages (including, but not limited to, procurement of substitute goods or
-  services; loss of use, data, or profits; or business interruption) however
-  caused and on any theory of liability, whether in contract, strict liability,
-  or tort (including negligence or otherwise) arising in any way out of the use
-  of this software, even if advised of the possibility of such damage.
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 *)
 
-(** Transient iterators, that abstract on a finite sequence of elements. They
-    are designed to allow easy transfer (mappings) between data structures,
-    without defining n^2 conversions between the n types. *)
+(** {1 Transient iterators, that abstract on a finite sequence of elements. *)
+
+(** The iterators are designed to allow easy transfer (mappings) between data
+    structures, without defining n^2 conversions between the n types. The
+    implementation relies on the assumption that a sequence can be iterated
+    on as many times as needed; this choice allows for high performance
+    of many combinators. However, for transient iterators, the {!persistent}
+    function is provided, storing elements of a transient iterator
+    in memory; the iterator can then be used several times.
+    
+    Note that some combinators also return sequences (e.g. {!group}). The
+    transformation is computed on the fly every time one iterates over
+    the resulting sequence. If a transformation performs heavy computation,
+    {!persistent} can also be used as intermediate storage. *)
 
 type +'a t = ('a -> unit) -> unit
   (** Sequence abstract iterator type, representing a finite sequence of
