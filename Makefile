@@ -9,7 +9,8 @@ all:
 	ocamlbuild $(TARGETS) $(DOC)
 
 benchs: all
-	ocamlbuild -use-ocamlfind -pkg bench -pkg unix tests/benchs.native
+	ocamlbuild -use-ocamlfind -pkg bench -pkg unix tests/benchs.native \
+		tests/simple_bench.native
 
 tests:
 	ocamlbuild -use-ocamlfind -pkg oUnit tests/run_tests.native

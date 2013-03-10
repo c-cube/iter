@@ -184,7 +184,9 @@ module MList = struct
   let rec push x l =
     if l.len = Array.length l.content
       then begin (* insert in the next block *)
-        (if l.tl == _empty () then l.tl <- make (Array.length l.content));
+        (if l.tl == _empty () then
+          let n = Array.length l.content in
+          l.tl <- make (n + n lsr 1));
         push x l.tl
       end else begin  (* insert in l *)
         l.content.(l.len) <- x;
