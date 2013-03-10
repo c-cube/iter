@@ -95,6 +95,15 @@ let test_persistent () =
   OUnit.assert_equal ~printer [0;1;2;3;4] (seq' |> S.to_list);
   ()
 
+let test_big_persistent () =
+  let printer = pp_ilist in
+  let seq = 0 -- 10_000 in
+  let seq' = S.persistent seq in
+  OUnit.assert_equal 10_001 (S.length seq');
+  OUnit.assert_equal 10_001 (S.length seq');
+  OUnit.assert_equal ~printer [0;1;2;3] (seq' |> S.take 4 |> S.to_list);
+  ()
+
 let test_sort () =
   1 -- 100
     |> S.sort ~cmp:(fun i j -> j - i)
@@ -187,6 +196,7 @@ let suite =
       "test_intersperse" >:: test_intersperse;
       "test_not_persistent" >:: test_not_persistent;
       "test_persistent" >:: test_persistent;
+      "test_big_persistent" >:: test_big_persistent;
       "test_sort" >:: test_sort;
       "test_sort_uniq" >:: test_sort;
       "test_group" >:: test_group;

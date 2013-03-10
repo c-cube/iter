@@ -133,89 +133,101 @@ let intersperse elem seq =
     let first = ref true in
     seq (fun x -> (if !first then first := false else k elem); k x)
 
-(** Mutable unrolled list to serve as intermediate storage *)
+(** Intermediate storage for elements of a sequence. The most important
+    features are:
+    - easy iteration
+    - fast insertion at the end
+    - memory efficiency
+    The actual implementation is currently a kind of 2-3 B-tree. *)
 module MList = struct
-  type 'a t = {
-    content : 'a array;   (* elements of the node *)
-    mutable len : int;    (* number of elements in content *)
-    mutable tl : 'a t;    (* tail *)
-  } (** A list that contains some elements, and may point to another list *)
+  type 'a t =
+  | Node2 of 'a t * 'a t          (** 2 children *)
+  | Node3 of 'a t * 'a t * 'a t   (** 3 children *)
+  | Leaf of int ref * 'a array    (** Leaf (with content) *)
 
-  let _empty () : 'a t = Obj.magic 0
-    (** Empty list, for the tl field *)
-
+  (** Empty list *)
   let make n =
-    assert (n > 0);
-    { content = Array.make n (Obj.magic 0);
-      len = 0;
-      tl = _empty ();
-    }
+    assert (n > 1);
+    Leaf ((ref 0), Array.make n (Obj.magic 0))
 
   let rec is_empty l =
-    l.len = 0 && (l.tl == _empty () || is_empty l.tl)
+    match l with
+    | Node2 (a, b) -> is_empty a && is_empty b
+    | Node3 (a, b, c) -> is_empty a && is_empty b && is_empty c
+    | Leaf (n, content) -> !n = 0
 
+  (** Iterate on the elements, in insertion order *)
   let rec iter f l =
-    for i = 0 to l.len - 1 do f l.content.(i); done;
-    if l.tl != _empty () then iter f l.tl
+    match l with
+    | Node2 (a, b) -> iter f a; iter f b
+    | Node3 (a, b, c) -> iter f a; iter f b; iter f c
+    | Leaf (n, content) -> for i = 0 to !n - 1 do f content.(i); done
 
   let iteri f l =
-    let rec iteri i f l =
-      for j = 0 to l.len - 1 do f (i+j) l.content.(j); done;
-      if l.tl != _empty () then iteri (i+l.len) f l.tl
-    in iteri 0 f l
+    let r = ref 0 in
+    iter (fun x -> f !r x; incr r) l
 
+  (** Iterate on the elements, in reverse insertion order *)
   let rec iter_rev f l =
-    (if l.tl != _empty () then iter_rev f l.tl);
-    for i = l.len - 1 downto 0 do f l.content.(i); done
+    match l with
+    | Node2 (a, b) -> iter_rev f b; iter_rev f a
+    | Node3 (a, b, c) -> iter_rev f c; iter_rev f b; iter_rev f a
+    | Leaf (n, content) -> for i = !n - 1 downto 0 do f content.(i); done
 
+  (** Number of stored elements *)
   let length l =
-    let rec len acc l =
-      if l.tl == _empty () then acc+l.len else len (acc+l.len) l.tl
-    in len 0 l
+    let rec len l = match l with
+    | Node2 (a, b) -> len a + len b
+    | Node3 (a, b, c) -> len a + len b + len c
+    | Leaf (n, _) -> !n
+    in len l
 
-  (** Get element by index *)
-  let rec get l i =
-    if i < l.len then l.content.(i)
-    else if i >= l.len && l.tl == _empty () then raise (Invalid_argument "MList.get")
-    else get l.tl (i - l.len)
-
-  (** Push [x] at the end of the list. It returns the block in which the
-      element is inserted. *)
-  let rec push x l =
-    if l.len = Array.length l.content
-      then begin (* insert in the next block *)
-        (if l.tl == _empty () then l.tl <- make (Array.length l.content));
-        push x l.tl
-      end else begin  (* insert in l *)
-        l.content.(l.len) <- x;
-        l.len <- l.len + 1;
-        l
-      end
-
-  (** Reverse list (in place), and returns the new head *)
-  let rev l =
-    let rec rev prev l =
-      (* reverse array *)
-      for i = 0 to (l.len-1) / 2 do
-        let x = l.content.(i) in
-        l.content.(i) <- l.content.(l.len - i - 1);
-        l.content.(l.len - i - 1) <- x;
-      done;
-      (* reverse next block *)
-      let l' = l.tl in
-      l.tl <- prev;
-      if l' == _empty () then l else rev l l'
+  (** Get element by index, or raise Not_found *)
+  let get l i =
+    let r = ref None in
+    (* return number of elements traversed, or raise Exit *)
+    let rec get l i =
+      match l with
+      | Leaf (n, content) when i < !n ->
+        r := Some (content.(i));
+        raise Exit
+      | Leaf (n, _) -> i - !n
+      | Node2 (a, b) -> let i' = get a i in get b i'
+      | Node3 (a, b, c) -> let i' = get a i in let i'' = get b i' in get c i''
     in
-    rev (_empty ()) l
+    (* traverse, and check whether the element has been found *)
+    ignore (get l i);
+    match !r with
+    | None -> raise Not_found
+    | Some x -> x
+
+  (** Push [x] at the end of the storage. Returns the new tree (may be the
+      same), in other cases this modifies [l] in place. *)
+  let rec push x l =
+    match l with
+    | Node2 (a, b) ->
+      begin
+        match push x b with
+        | Node2 (b1, b2) -> Node3 (a, b1, b2)  (* merge *)
+        | b' -> Node2 (a, b')
+      end
+    | Node3 (a, b, c) ->
+      let c' = push x c in
+      Node3 (a, b, c')  (* insert in rightmost tree *)
+    | Leaf (n, content) ->
+      if !n < Array.length content
+        then (content.(!n) <- x; incr n; l) (* insert in array *)
+        else
+          let len = !n + 2 in  (* increase a bit length *)
+          let l' = Leaf (ref 0, Array.make len (Obj.magic 0)) in
+          Node2 (l, push x l')  (* insert in new leaf *)
 
   (** Build a MList of elements of the Seq. The optional argument indicates
       the size of the blocks *)
   let of_seq ?(size=8) seq =
-    (* read sequence into a MList.t *)
-    let start = make size in
-    let l = ref start in
+    let l = ref (make size) in
     seq (fun x -> l := push x !l);
-    start
+    !l
 end
 
 (** Iterate on the sequence, storing elements in a data structure.
@@ -449,14 +461,9 @@ let of_stream s =
 
 (** Convert to a stream. The sequence is made persistent. *)
 let to_stream seq =
-  let l = ref (MList.of_seq seq) in
-  let i = ref 0 in
-  let rec get_next () =
-    if !l == MList._empty () then None
-    else if (!l).MList.len = !i then (l := (!l).MList.tl; i := 0; get_next ())
-    else let x = (!l).MList.content.(!i) in (incr i; Some x)
-  in
-  Stream.from (fun _ -> get_next ())
+  let l = MList.of_seq seq in
+  Stream.from
+    (fun i -> try Some (MList.get l i) with Not_found -> None)
 
 (** Push elements of the sequence on the stack *)
 let to_stack s seq = iter (fun x -> Stack.push x s) seq
