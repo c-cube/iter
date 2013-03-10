@@ -23,7 +23,7 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 *)
 
-(** {1 Transient iterators, that abstract on a finite sequence of elements. *)
+(** {1 Transient iterators, that abstract on a finite sequence of elements.} *)
 
 (** The iterators are designed to allow easy transfer (mappings) between data
     structures, without defining n^2 conversions between the n types. The
