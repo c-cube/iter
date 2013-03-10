@@ -71,7 +71,7 @@ let test_flatMap () =
 
 let test_intersperse () =
   1 -- 100
-    |> (fun seq -> S.intersperse seq 0)
+    |> (fun seq -> S.intersperse 0 seq)
     |> S.take 10
     |> S.to_list
     |> OUnit.assert_equal [1;0;2;0;3;0;4;0;5;0]

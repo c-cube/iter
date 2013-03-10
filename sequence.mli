@@ -50,6 +50,10 @@ type (+'a, +'b) t2 = ('a -> 'b -> unit) -> unit
 val from_iter : (('a -> unit) -> unit) -> 'a t
   (** Build a sequence from a iter function *)
 
+val from_fun : (unit -> 'a option) -> 'a t
+  (** Call the function repeatedly until it returns None. This
+      sequence is transient, use {!persistent} if needed! *)
+
 val empty : 'a t
   (** Empty sequence *)
 
@@ -66,8 +70,7 @@ val forever : (unit -> 'b) -> 'b t
   (** Sequence that calls the given function to produce elements *)
 
 val cycle : 'a t -> 'a t
-  (** Cycle forever through the given sequence. Assume the
-      given sequence can be traversed any amount of times (not transient). *)
+  (** Cycle forever through the given sequence. *)
 
 (** {2 Consume a sequence} *)
 
@@ -119,7 +122,7 @@ val flatMap : ('a -> 'b t) -> 'a t -> 'b t
   (** Monadic bind. It applies the function to every element of the
       initial sequence, and calls [concat]. *)
 
-val intersperse : 'a t -> 'a -> 'a t
+val intersperse : 'a -> 'a t -> 'a t
   (** Insert the second element between every element of the sequence *)
 
 val persistent : 'a t -> 'a t
