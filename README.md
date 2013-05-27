@@ -1,7 +1,7 @@
 Sequence
 ========
 
-Simple sequence abstract datatype, intented to transfer a finite number of
+Simple sequence abstract datatype, intended to transfer a finite number of
 elements from one data structure to another. Some transformations on sequences,
 like `filter`, `map`, `take`, `drop` and `append` can be performed before the
 sequence is iterated/folded on.
