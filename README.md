@@ -43,7 +43,7 @@ structure used in the monadic parser combinators part of `examples/sexpr.ml`.
 Documentation
 =============
 
-See [the online API](http://c-cube.github.com/sequence/api/).
+See [the online API](http://cedeela.fr/~simon/software/sequence/Sequence.html).
 
 License
 =======

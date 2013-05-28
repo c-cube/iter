@@ -18,7 +18,10 @@ tests:
 install: all
 	ocamlfind install $(NAME) META $(INSTALL)
 
+push_doc: all
+	scp -r sequence.docdir/ cedeela.fr:~/simon/root/software/sequence/
+
 clean:
 	ocamlbuild -clean
 
-.PHONY: all clean tests benchs
+.PHONY: all clean tests benchs push_doc
