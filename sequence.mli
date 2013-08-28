@@ -42,6 +42,8 @@ type +'a t = ('a -> unit) -> unit
   (** Sequence abstract iterator type, representing a finite sequence of
       values of type ['a]. *)
 
+type +'a sequence = 'a t
+
 type (+'a, +'b) t2 = ('a -> 'b -> unit) -> unit
   (** Sequence of pairs of values of type ['a] and ['b]. *)
 
@@ -70,7 +72,8 @@ val forever : (unit -> 'b) -> 'b t
   (** Sequence that calls the given function to produce elements *)
 
 val cycle : 'a t -> 'a t
-  (** Cycle forever through the given sequence. *)
+  (** Cycle forever through the given sequence. Assume the
+      given sequence can be traversed any amount of times (not transient). *)
 
 (** {2 Consume a sequence} *)
 
@@ -286,14 +289,13 @@ val to_set : (module Set.S with type elt = 'a and type t = 'b) -> 'a t -> 'b
 
 module Set : sig
   module type S = sig
-    type set
-    include Set.S with type t := set
-    val of_seq : elt t -> set
-    val to_seq : set -> elt t
+    include Set.S
+    val of_seq : elt sequence -> t
+    val to_seq : t -> elt sequence
   end
 
   (** Create an enriched Set module from the given one *)
-  module Adapt(X : Set.S) : S with type elt = X.elt and type set = X.t
+  module Adapt(X : Set.S) : S with type elt = X.elt and type t = X.t
     
   (** Functor to build an extended Set module from an ordered type *)
   module Make(X : Set.OrderedType) : S with type elt = X.t
@@ -303,16 +305,15 @@ end
 
 module Map : sig
   module type S = sig
-    type +'a map
-    include Map.S with type 'a t := 'a map
-    val to_seq : 'a map -> (key * 'a) t
-    val of_seq : (key * 'a) t -> 'a map
-    val keys : 'a map -> key t
-    val values : 'a map -> 'a t
+    include Map.S
+    val to_seq : 'a t -> (key * 'a) sequence
+    val of_seq : (key * 'a) sequence -> 'a t
+    val keys : 'a t -> key sequence
+    val values : 'a t -> 'a sequence
   end
 
   (** Adapt a pre-existing Map module to make it sequence-aware *)
-  module Adapt(M : Map.S) : S with type key = M.key and type 'a map = 'a M.t
+  module Adapt(M : Map.S) : S with type key = M.key and type 'a t = 'a M.t
 
   (** Create an enriched Map module, with sequence-aware functions *)
   module Make(V : Map.OrderedType) : S with type key = V.t
