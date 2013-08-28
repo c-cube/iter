@@ -125,6 +125,9 @@ val flatMap : ('a -> 'b t) -> 'a t -> 'b t
   (** Monadic bind. It applies the function to every element of the
       initial sequence, and calls [concat]. *)
 
+val fmap : ('a -> 'b option) -> 'a t -> 'b t
+  (** Specialized version of {!flatMap} for options.  *)
+
 val intersperse : 'a -> 'a t -> 'a t
   (** Insert the second element between every element of the sequence *)
 

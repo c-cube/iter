@@ -129,6 +129,13 @@ let flatMap f seq =
   from_iter
     (fun k -> seq (fun x -> (f x) k))
 
+let fmap f seq =
+  from_iter
+    (fun k ->
+      seq (fun x -> match f x with
+          | None -> ()
+          | Some y -> k y))
+
 (** Insert the given element between every element of the sequence *)
 let intersperse elem seq =
   fun k ->
