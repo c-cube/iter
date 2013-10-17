@@ -8,6 +8,10 @@ INSTALL = $(LIB) sequence.mli
 all:
 	ocamlbuild $(TARGETS) $(DOC)
 
+doc: all
+	mkdir -p man/man3/
+	ocamlfind ocamldoc -I _build/ *.ml{,i} -man -d man/man3/
+
 benchs: all
 	ocamlbuild -use-ocamlfind -pkg bench -pkg unix tests/benchs.native \
 		tests/simple_bench.native
@@ -15,10 +19,10 @@ benchs: all
 tests:
 	ocamlbuild -use-ocamlfind -pkg oUnit tests/run_tests.native
 
-install: all
+install: all doc
 	ocamlfind install $(NAME) META $(INSTALL)
 
-push_doc: all
+push_doc: all doc
 	scp -r sequence.docdir/ cedeela.fr:~/simon/root/software/sequence/
 
 clean:
