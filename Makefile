@@ -27,21 +27,6 @@ install_file:
 
 all: bin doc install_file
 
-install_file:
-	@rm sequence.install || true
-	@echo 'doc: [' >> sequence.install
-	@for m in $(wildcard sequence.docdir/*.html) ; do \
-		echo ?"$${m}" >> sequence.install; \
-	done
-	@echo ']' >> sequence.install
-	@echo 'man: [' >> sequence.install
-	@for m in $(wildcard man/man3/[A-Z]*.3o) ; do \
-		echo ?"$${m}" >> sequence.install; \
-	done
-	@echo ']' >> sequence.install
-
-all: bin doc install_file
-
 benchs: all
 	ocamlbuild -use-ocamlfind -pkg bench -pkg unix tests/benchs.native \
 		tests/simple_bench.native
