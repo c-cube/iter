@@ -10,7 +10,7 @@ bin:
 
 doc: bin
 	mkdir -p man/man3/
-	ocamlfind ocamldoc -I _build/ *.ml{,i} -man -d man/man3/
+	ocamlfind ocamldoc -I _build/ sequence.ml sequence.mli -man -d man/man3/
 
 install_file:
 	@rm sequence.install || true
