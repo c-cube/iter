@@ -231,8 +231,9 @@ end
 
 (** Iterate on the sequence, storing elements in a data structure.
     The resulting sequence can be iterated on as many times as needed. *)
-let persistent (seq : 'a t) : 'a t =
-  let l = MList.of_seq seq in
+let persistent ?(blocksize=64) seq =
+  if blocksize < 2 then failwith "Sequence.persistent: blocksize too small";
+  let l = MList.of_seq ~size:blocksize seq in
   from_iter (fun k -> MList.iter k l)
 
 (** Sort the sequence. Eager, O(n) ram and O(n ln(n)) time. *)
