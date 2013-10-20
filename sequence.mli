@@ -31,12 +31,26 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     on as many times as needed; this choice allows for high performance
     of many combinators. However, for transient iterators, the {!persistent}
     function is provided, storing elements of a transient iterator
-    in memory; the iterator can then be used several times.
+    in memory; the iterator can then be used several times (See further).
     
     Note that some combinators also return sequences (e.g. {!group}). The
     transformation is computed on the fly every time one iterates over
     the resulting sequence. If a transformation performs heavy computation,
-    {!persistent} can also be used as intermediate storage. *)
+    {!persistent} can also be used as intermediate storage.
+
+    Most functions are {b lazy}, i.e. they do not actually use their arguments
+    until their result is iterated on. For instance, if one calls {!map}
+    on a sequence, one gets a new sequence, but nothing else happens until
+    this new sequence is used (by folding or iterating on it).
+    
+    If a sequence is built from an iteration function that is {b repeatable}
+    (i.e. calling it several times always iterates on the same set of
+    elements, for instance List.iter or Map.iter), then
+    the resulting {!t} object is also repeatable. For {b one-time iter functions}
+    such as iteration on a file descriptor or a {!Stream},
+    the {!persistent} function can be used to iterate and store elements in
+    a memory structure; the result is a sequence that iterates on the elements
+    of this memory structure, cheaply and repeatably. *)
 
 type +'a t = ('a -> unit) -> unit
   (** Sequence abstract iterator type, representing a finite sequence of
@@ -133,7 +147,9 @@ val intersperse : 'a -> 'a t -> 'a t
 
 val persistent : 'a t -> 'a t
   (** Iterate on the sequence, storing elements in a data structure.
-      The resulting sequence can be iterated on as many times as needed. *)
+      The resulting sequence can be iterated on as many times as needed.
+      {b Note}: calling persistent on an already persistent sequence
+      will still make a new copy of the sequence! *)
 
 val sort : ?cmp:('a -> 'a -> int) -> 'a t -> 'a t
   (** Sort the sequence. Eager, O(n) ram and O(n ln(n)) time. *)
