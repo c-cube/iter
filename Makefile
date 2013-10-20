@@ -38,7 +38,7 @@ install: all doc
 	ocamlfind install $(NAME) META $(INSTALL)
 
 push_doc: all doc
-	scp -r sequence.docdir/ cedeela.fr:~/simon/root/software/sequence/
+	scp -r sequence.docdir/* cedeela.fr:~/simon/root/software/sequence/
 
 clean:
 	ocamlbuild -clean
