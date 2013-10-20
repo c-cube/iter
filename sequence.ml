@@ -435,16 +435,23 @@ let to_array seq =
       a
     end
 
-let of_array a = from_iter (fun k -> Array.iter k a)
+let of_array a =
+  fun k ->
+    for i = 0 to Array.length a - 1 do
+      k (Array.unsafe_get a i)
+    done
 
 let of_array_i a =
-  let seq k =
-    for i = 0 to Array.length a - 1 do k (i, a.(i)) done
-  in from_iter seq
+  fun k ->
+    for i = 0 to Array.length a - 1 do
+      k (i, Array.unsafe_get a i)
+    done
 
 let of_array2 a =
   fun k ->
-    for i = 0 to Array.length a - 1 do k i a.(i) done
+    for i = 0 to Array.length a - 1 do
+      k i (Array.unsafe_get a i)
+    done
 
 (** [array_slice a i j] Sequence of elements whose indexes range
     from [i] to [j] *)
