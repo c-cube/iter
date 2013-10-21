@@ -241,9 +241,12 @@ val map2_2 : ('a -> 'b -> 'c) -> ('a -> 'b -> 'd) -> ('a, 'b) t2 -> ('c, 'd) t2
 (** {2 Basic data structures converters} *)
 
 val to_list : 'a t -> 'a list
+  (** Convert the sequence into a list. Preserves order of elements.
+      This function is tail-recursive, but consumes 2*n memory.
+      If order doesn't matter to you, consider {!to_rev_list}. *)
 
 val to_rev_list : 'a t -> 'a list
-  (** Get the list of the reversed sequence (more efficient) *)
+  (** Get the list of the reversed sequence (more efficient than {!to_list}) *)
 
 val of_list : 'a list -> 'a t
 
