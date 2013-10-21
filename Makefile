@@ -1,8 +1,8 @@
 
 NAME = sequence
 DOC = sequence.docdir/index.html
-TARGETS = sequence.cma sequence.cmxa sequence.cmi sequence.a
-LIB = $(addprefix _build/, $(TARGETS)) 
+TARGETS = sequence.cma sequence.cmxa sequence.cmxs sequence.cmi sequence.a
+LIB = $(addprefix _build/, $(TARGETS))
 INSTALL = $(LIB) sequence.mli
 
 bin:
