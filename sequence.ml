@@ -541,6 +541,10 @@ let int_range ~start ~stop =
   fun k ->
     for i = start to stop do k i done
 
+let int_range_dec ~start ~stop =
+  fun k ->
+    for i = start downto stop do k i done
+
 (** Convert the given set to a sequence. The set module must be provided. *)
 let of_set (type s) (type v) m set =
   let module S = (val m : Set.S with type t = s and type elt = v) in
@@ -681,12 +685,18 @@ end
 module Infix = struct
   let (--) i j = int_range ~start:i ~stop:j
 
+  let (--^) i j = int_range_dec ~start:i ~stop:j
+
   let (|>) x f = f x
 
   let (@@) a b = append a b
 
   let (>>=) x f = flatMap f x
 end
+
+let (--) = Infix.(--)
+
+let (--^) = Infix.(--^)
 
 (** {2 Pretty printing of sequences} *)
 

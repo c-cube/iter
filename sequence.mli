@@ -318,7 +318,12 @@ val to_buffer : char t -> Buffer.t -> unit
   (** Copy content of the sequence into the buffer *)
 
 val int_range : start:int -> stop:int -> int t
-  (** Iterator on integers in [start...stop] by steps 1 *)
+  (** Iterator on integers in [start...stop] by steps 1. Also see
+      {!(--)} for an infix version. *)
+
+val int_range_dec : start:int -> stop:int -> int t
+  (** Iterator on decreasing integers in [stop...start] by steps -1.
+      See {!(--^)} for an infix version *)
 
 val of_set : (module Set.S with type elt = 'a and type t = 'b) -> 'b -> 'a t
   (** Convert the given set to a sequence. The set module must be provided. *)
@@ -414,11 +419,22 @@ end
 
 module Infix : sig
   val (--) : int -> int -> int t
+    (** [a -- b] is the range of integers from [a] to [b], both included,
+        in increasing order. It will therefore be empty if [a > b]. *)
+
+  val (--^) : int -> int -> int t
+    (** [a --^ b] is the range of integers from [b] to [a], both included,
+        in decreasing order (starts from [a]).
+        It will therefore be empty if [a < b]. *)
 
   val (|>) : 'a -> ('a -> 'b) -> 'b
 
   val (@@) : 'a t -> 'a t -> 'a t
 end
+
+val (--) : int -> int -> int t
+
+val (--^) : int -> int -> int t
 
 (** {2 Pretty printing of sequences} *)
 

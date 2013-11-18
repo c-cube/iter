@@ -182,6 +182,13 @@ let test_buff () =
   OUnit.assert_equal "DLROW OLLEH" (Buffer.contents b);
   ()
 
+let test_int_range () =
+  OUnit.assert_equal ~printer:pp_ilist [1;2;3;4] S.(to_list (1--4));
+  OUnit.assert_equal ~printer:pp_ilist [10;9;8;7;6] S.(to_list (10 --^ 6));
+  OUnit.assert_equal ~printer:pp_ilist [] S.(to_list (10--4));
+  OUnit.assert_equal ~printer:pp_ilist [] S.(to_list (10 --^ 60));
+  ()
+
 let suite =
   "test_sequence" >:::
     [ "test_empty" >:: test_empty;
@@ -208,4 +215,5 @@ let suite =
       "test_rev" >:: test_rev;
       "test_unfoldr" >:: test_unfoldr;
       "test_hashtbl" >:: test_hashtbl;
+      "test_int_range" >:: test_int_range;
     ]
