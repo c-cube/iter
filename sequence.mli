@@ -442,3 +442,10 @@ val pp_seq : ?sep:string -> (Format.formatter -> 'a -> unit) ->
              Format.formatter -> 'a t -> unit
   (** Pretty print a sequence of ['a], using the given pretty printer
       to print each elements. An optional separator string can be provided. *)
+
+val pp_buf : ?sep:string -> (Buffer.t -> 'a -> unit) ->
+             Buffer.t -> 'a t -> unit
+  (** Print into a buffer *)
+
+val to_string : ?sep:string -> ('a -> string) -> 'a t -> string
+  (** Print into a string *)

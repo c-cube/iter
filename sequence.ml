@@ -713,3 +713,16 @@ let pp_seq ?(sep=", ") pp_elt formatter seq =
         end);
       pp_elt formatter x)
     seq
+
+let pp_buf ?(sep=", ") pp_elt buf seq =
+  let first = ref true in
+  iter
+    (fun x -> 
+      if !first then first := false else Buffer.add_string buf sep;
+      pp_elt buf x)
+    seq
+
+let to_string ?sep pp_elt seq =
+  let buf = Buffer.create 25 in
+  pp_buf ?sep (fun buf x -> Buffer.add_string buf (pp_elt x)) buf seq;
+  Buffer.contents buf
