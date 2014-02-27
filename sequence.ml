@@ -91,7 +91,7 @@ let foldi f init seq =
     r := f !r !i elt;
     incr i);
   !r
-    
+
 (** Map objects of the sequence into other elements, lazily *)
 let map f seq =
   let seq_fun' k = seq (fun x -> k (f x)) in
@@ -257,7 +257,7 @@ let group ?(eq=fun x y -> x = y) seq =
         cur := [x]);
     (* last list *)
     if !cur <> [] then k !cur
-  
+
 (** Remove consecutive duplicate elements. Basically this is
     like [fun seq -> map List.hd (group seq)]. *)
 let uniq ?(eq=fun x y -> x = y) seq =
@@ -520,7 +520,7 @@ let hashtbl_values h =
   from_iter (fun k -> Hashtbl.iter (fun a b -> k b) h)
 
 let of_str s = from_iter (fun k -> String.iter k s)
-    
+
 let to_str seq =
   let b = Buffer.create 64 in
   iter (fun c -> Buffer.add_char b c) seq;
@@ -575,7 +575,7 @@ module Set = struct
 
     include X
   end
-    
+
   (** Functor to build an extended Set module from an ordered type *)
   module Make(X : Set.OrderedType) = struct
     module MySet = Set.Make(X)

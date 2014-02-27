@@ -28,8 +28,9 @@ install_file:
 all: bin doc install_file
 
 benchs: all
-	ocamlbuild -use-ocamlfind -pkg bench -pkg unix tests/benchs.native \
-		tests/simple_bench.native
+	ocamlbuild -use-ocamlfind -pkg bench -pkg benchmark -pkg unix \
+		bench/benchs.native bench/simple_bench.native \
+		bench/bench_persistent.native
 
 tests:
 	ocamlbuild -use-ocamlfind -pkg oUnit tests/run_tests.native
