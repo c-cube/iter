@@ -93,6 +93,7 @@ let test_persistent () =
   OUnit.assert_equal ~printer [] (seq |> S.to_list);
   OUnit.assert_equal ~printer [0;1;2;3;4] (seq' |> S.to_list);
   OUnit.assert_equal ~printer [0;1;2;3;4] (seq' |> S.to_list);
+  OUnit.assert_equal ~printer [0;1;2;3;4] (seq' |> S.to_stream |> S.of_stream |> S.to_list);
   ()
 
 let test_big_persistent () =
