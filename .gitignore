@@ -5,3 +5,5 @@ _build
 *.html
 man/
 sequence.install
+setup.log
+setup.data

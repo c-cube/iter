@@ -1,31 +1,44 @@
+# OASIS_START
+# DO NOT EDIT (digest: a3c674b4239234cbbe53afe090018954)
 
-NAME = sequence
-DOC = sequence.docdir/index.html
-TARGETS = sequence.cma sequence.cmxa sequence.cmxs sequence.cmi sequence.a
-LIB = $(addprefix _build/, $(TARGETS))
-INSTALL = $(LIB) sequence.mli
+SETUP = ocaml setup.ml
 
-bin:
-	ocamlbuild $(TARGETS) $(DOC)
+build: setup.data
+	$(SETUP) -build $(BUILDFLAGS)
 
-doc: bin
-	mkdir -p man/man3/
-	ocamlfind ocamldoc -I _build/ sequence.ml sequence.mli -man -d man/man3/
+doc: setup.data build
+	$(SETUP) -doc $(DOCFLAGS)
 
-install_file:
-	@rm sequence.install || true
-	@echo 'doc: [' >> sequence.install
-	@for m in $(wildcard sequence.docdir/*.html) ; do \
-		echo "  \"?$${m}\"" >> sequence.install; \
-	done
-	@echo ']' >> sequence.install
-	@echo 'man: [' >> sequence.install
-	@for m in $(wildcard man/man3/[A-Z]*.3o) ; do \
-		echo "  \"?$${m}\"" >> sequence.install; \
-	done
-	@echo ']' >> sequence.install
+test: setup.data build
+	$(SETUP) -test $(TESTFLAGS)
 
-all: bin doc install_file
+all:
+	$(SETUP) -all $(ALLFLAGS)
+
+install: setup.data
+	$(SETUP) -install $(INSTALLFLAGS)
+
+uninstall: setup.data
+	$(SETUP) -uninstall $(UNINSTALLFLAGS)
+
+reinstall: setup.data
+	$(SETUP) -reinstall $(REINSTALLFLAGS)
+
+clean:
+	$(SETUP) -clean $(CLEANFLAGS)
+
+distclean:
+	$(SETUP) -distclean $(DISTCLEANFLAGS)
+
+setup.data:
+	$(SETUP) -configure $(CONFIGUREFLAGS)
+
+configure:
+	$(SETUP) -configure $(CONFIGUREFLAGS)
+
+.PHONY: build doc test all install uninstall reinstall clean distclean configure
+
+# OASIS_STOP
 
 benchs: all
 	ocamlbuild -use-ocamlfind -pkg bench -pkg benchmark -pkg unix \
@@ -35,13 +48,7 @@ benchs: all
 tests:
 	ocamlbuild -use-ocamlfind -pkg oUnit tests/run_tests.native
 
-install: all doc
-	ocamlfind install $(NAME) META $(INSTALL)
-
 push_doc: all doc
 	scp -r sequence.docdir/* cedeela.fr:~/simon/root/software/sequence/
 
-clean:
-	ocamlbuild -clean
-
-.PHONY: all clean tests benchs push_doc
+.PHONY: benchs tests
