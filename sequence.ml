@@ -630,69 +630,15 @@ let random_array a =
 
 let random_list l = random_array (Array.of_list l)
 
-(** {2 Type-classes} *)
-
-module TypeClass = struct
-  (** {3 Classes} *)
-  type ('a,'b) sequenceable = {
-    to_seq : 'b -> 'a t;
-    of_seq : 'a t -> 'b;
-  }
-
-  type ('a,'b) addable = {
-    empty : 'b;
-    add : 'b -> 'a -> 'b;
-  }
-
-  type 'a monoid = ('a,'a) addable
-
-  type ('a,'b) iterable = {
-    iter : ('a -> unit) -> 'b -> unit;
-  }
-
-  (** {3 Instances} *)
-
-  let (sequenceable : ('a,'a t) sequenceable) = {
-    to_seq = (fun seq -> seq);
-    of_seq = (fun seq -> seq);
-  }
-
-  let (iterable : ('a, 'a t) iterable) = {
-    iter = (fun f seq -> iter f seq);
-  }
-
-  let (monoid : 'a t monoid) = {
-    empty = empty;
-    add = (fun s1 s2 -> append s1 s2);
-  }
-
-  (** {3 Conversions} *)
-
-  let of_iterable iterable x =
-    from_iter (fun k -> iterable.iter k x)
-
-
-  let to_addable addable seq =
-    fold addable.add addable.empty seq
-end
-
 (** {2 Infix functions} *)
 
 module Infix = struct
   let (--) i j = int_range ~start:i ~stop:j
 
   let (--^) i j = int_range_dec ~start:i ~stop:j
-
-  let (|>) x f = f x
-
-  let (@@) a b = append a b
-
-  let (>>=) x f = flatMap f x
 end
 
-let (--) = Infix.(--)
-
-let (--^) = Infix.(--^)
+include Infix
 
 (** {2 Pretty printing of sequences} *)
 

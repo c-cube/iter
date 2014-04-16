@@ -27,7 +27,6 @@ let test_concat () =
   let s2 = (6 -- 10) in
   let l = [1;2;3;4;5;6;7;8;9;10] in
   OUnit.assert_equal l (S.to_list (S.append s1 s2));
-  OUnit.assert_equal l (S.to_list (s1 @@ s2));
   ()
 
 let test_fold () =
