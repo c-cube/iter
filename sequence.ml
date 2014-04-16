@@ -313,14 +313,19 @@ let scan f acc seq =
       let acc = ref acc in
       seq (fun elt -> let acc' = f !acc elt in k acc'; acc := acc'))
 
-(** Max element of the sequence, using the given comparison
-    function. A default element has to be provided. *)
-let max ?(lt=fun x y -> x < y) seq m =
-  fold (fun m x -> if lt m x then x else m) m seq
+let max ?(lt=fun x y -> x < y) seq =
+  let ret = ref None in
+  seq (fun x -> match !ret with
+    | None -> ret := Some x
+    | Some y -> if lt y x then ret := Some x);
+  !ret
 
-(** Min element of the sequence, using the given comparison function *)
-let min ?(lt=fun x y -> x < y) seq m =
-  fold (fun m x -> if lt x m then x else m) m seq
+let min ?(lt=fun x y -> x < y) seq =
+  let ret = ref None in
+  seq (fun x -> match !ret with
+    | None -> ret := Some x
+    | Some y -> if lt x y then ret := Some x);
+  !ret
 
 exception ExitSequence
 

@@ -191,12 +191,14 @@ val unfoldr : ('b -> ('a * 'b) option) -> 'b -> 'a t
 val scan : ('b -> 'a -> 'b) -> 'b -> 'a t -> 'b t
   (** Sequence of intermediate results *)
 
-val max : ?lt:('a -> 'a -> bool) -> 'a t -> 'a -> 'a
-  (** Max element of the sequence, using the given comparison
-      function. A default element has to be provided. *)
+val max : ?lt:('a -> 'a -> bool) -> 'a t -> 'a option
+  (** Max element of the sequence, using the given comparison function.
+      @return None if the sequence is empty, Some [m] where [m] is the maximal
+      element otherwise *)
 
-val min : ?lt:('a -> 'a -> bool) -> 'a t -> 'a -> 'a
-  (** Min element of the sequence, using the given comparison function *)
+val min : ?lt:('a -> 'a -> bool) -> 'a t -> 'a option
+  (** Min element of the sequence, using the given comparison function.
+      see {!max} for more details. *)
 
 val take : int -> 'a t -> 'a t
   (** Take at most [n] elements from the sequence. Works on infinite
