@@ -329,6 +329,14 @@ val of_set : (module Set.S with type elt = 'a and type t = 'b) -> 'b -> 'a t
 val to_set : (module Set.S with type elt = 'a and type t = 'b) -> 'a t -> 'b
   (** Convert the sequence to a set, given the proper set module *)
 
+type 'a gen = unit -> 'a option
+
+val of_gen : 'a gen -> 'a t
+  (** Traverse eagerly the generator and build a sequence from it *)
+
+val to_gen : 'a t -> 'a gen
+  (** Make the sequence persistent (O(n)) and then iterate on it. Eager. *)
+
 (** {2 Functorial conversions between sets and sequences} *)
 
 module Set : sig

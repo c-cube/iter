@@ -210,7 +210,7 @@ module MList = struct
 
   let to_seq l k = iter k l
 
-  let to_stream l =
+  let _to_next arg l =
     let cur = ref l in
     let i = ref 0 in (* offset in cons *)
     let rec get_next _ = match !cur with
@@ -218,13 +218,17 @@ module MList = struct
       | Cons (_, n, tl) when !i = !n ->
           cur := !tl;
           i := 0;
-          get_next 42 (* any value would do *)
+          get_next arg
       | Cons (a, n, _) ->
           let x = a.(!i) in
           incr i;
           Some x
-    in
-    Stream.from get_next
+    in get_next
+
+  let to_gen l = _to_next () l
+
+  let to_stream l =
+    Stream.from (_to_next 42 l)  (* 42=magic cookiiiiiie *)
 end
 
 (** Iterate on the sequence, storing elements in a data structure.
@@ -553,6 +557,21 @@ let to_set (type s) (type v) m seq =
   fold
     (fun set x -> S.add x set)
     S.empty seq
+
+type 'a gen = unit -> 'a option
+
+let of_gen g =
+  (* consume the generator to build a MList *)
+  let rec iter1 k = match g () with
+    | None -> ()
+    | Some x -> k x; iter1 k
+  in
+  let l = MList.of_seq iter1 in
+  MList.to_seq l
+
+let to_gen seq =
+  let l = MList.of_seq seq in
+  MList.to_gen l
 
 (** {2 Functorial conversions between sets and sequences} *)
 
