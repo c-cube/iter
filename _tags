@@ -16,3 +16,4 @@
 # Library sequence
 "sequence.cmxs": use_sequence
 # OASIS_STOP
+true: bin_annot
