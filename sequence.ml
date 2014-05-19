@@ -148,13 +148,16 @@ module MList = struct
     | Nil
     | Cons of 'a array * int ref * 'a node ref
 
-  let of_seq seq =
+  (* build and call callback on every element *)
+  let of_seq_with seq k =
     let start = ref Nil in
     let chunk_size = ref 8 in
     (* fill the list. prev: tail-reference from previous node *)
     let prev, cur = ref start, ref Nil in
     seq
-      (fun x -> match !cur with
+      (fun x ->
+        k x;  (* callback *)
+        match !cur with
         | Nil ->
           let n = !chunk_size in
           if n < 4096 then chunk_size := 2 * !chunk_size;
@@ -171,6 +174,9 @@ module MList = struct
       );
     !prev := !cur;
     !start
+
+  let of_seq seq =
+    of_seq_with seq (fun _ -> ())
 
   let is_empty = function
     | Nil -> true
@@ -236,6 +242,18 @@ end
 let persistent seq =
   let l = MList.of_seq seq in
   MList.to_seq l
+
+type 'a lazy_seq = [`Suspend | `Cached of 'a t] ref
+
+let persistent_lazy (seq:'a t) =
+  let (r:'a lazy_seq) = ref `Suspend in
+  fun k ->
+    match !r with
+    | `Cached seq' -> seq' k
+    | `Suspend ->
+        (* here if this traversal is interruted, no caching occurs *)
+        let seq' = MList.of_seq_with seq k in
+        r := `Cached (MList.to_seq seq')
 
 (** Sort the sequence. Eager, O(n) ram and O(n ln(n)) time. *)
 let sort ?(cmp=Pervasives.compare) seq =

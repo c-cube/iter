@@ -157,6 +157,17 @@ val persistent : 'a t -> 'a t
       {b Note}: calling persistent on an already persistent sequence
       will still make a new copy of the sequence! *)
 
+val persistent_lazy : 'a t -> 'a t
+  (** Lazy version of {!persistent}. When calling [persistent_lazy s],
+      a new sequence [s'] is immediately returned (without actually consuming
+      [s]) in constant time; the first time [s'] is iterated on,
+      it also consumes [s] and caches its content into a inner data
+      structure that will back [s'] for future iterations.
+
+      {b warning}: on the first traversal of [s'], if the traversal
+      is interrupted prematurely ({!take}, etc.) then [s'] will not be
+      memorized, and the next call to [s'] will traverse [s] again. *)
+
 val sort : ?cmp:('a -> 'a -> int) -> 'a t -> 'a t
   (** Sort the sequence. Eager, O(n) ram and O(n ln(n)) time.
       It iterates on elements of the argument sequence immediately,
