@@ -243,17 +243,19 @@ let persistent seq =
   let l = MList.of_seq seq in
   MList.to_seq l
 
-type 'a lazy_seq = [`Suspend | `Cached of 'a t] ref
+type 'a lazy_state =
+  | LazySuspend
+  | LazyCached of 'a t
 
 let persistent_lazy (seq:'a t) =
-  let (r:'a lazy_seq) = ref `Suspend in
+  let r = ref LazySuspend in
   fun k ->
     match !r with
-    | `Cached seq' -> seq' k
-    | `Suspend ->
+    | LazyCached seq' -> seq' k
+    | LazySuspend ->
         (* here if this traversal is interruted, no caching occurs *)
         let seq' = MList.of_seq_with seq k in
-        r := `Cached (MList.to_seq seq')
+        r := LazyCached (MList.to_seq seq')
 
 (** Sort the sequence. Eager, O(n) ram and O(n ln(n)) time. *)
 let sort ?(cmp=Pervasives.compare) seq =
