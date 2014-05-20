@@ -151,13 +151,16 @@ val fmap : ('a -> 'b option) -> 'a t -> 'b t
 val intersperse : 'a -> 'a t -> 'a t
   (** Insert the single element between every element of the sequence *)
 
-val persistent : 'a t -> 'a t
+val persistent : ?init_size:int -> 'a t -> 'a t
   (** Iterate on the sequence, storing elements in a data structure.
       The resulting sequence can be iterated on as many times as needed.
       {b Note}: calling persistent on an already persistent sequence
-      will still make a new copy of the sequence! *)
+      will still make a new copy of the sequence!
 
-val persistent_lazy : 'a t -> 'a t
+      The optional argument [init_size] control the initial size of the underlying data structure. For very small sequences, it is more efficient to have [init_size] bigger than the length of your sequence.
+  *)
+
+val persistent_lazy : ?init_size:int -> 'a t -> 'a t
   (** Lazy version of {!persistent}. When calling [persistent_lazy s],
       a new sequence [s'] is immediately returned (without actually consuming
       [s]) in constant time; the first time [s'] is iterated on,
@@ -166,7 +169,10 @@ val persistent_lazy : 'a t -> 'a t
 
       {b warning}: on the first traversal of [s'], if the traversal
       is interrupted prematurely ({!take}, etc.) then [s'] will not be
-      memorized, and the next call to [s'] will traverse [s] again. *)
+      memorized, and the next call to [s'] will traverse [s] again.
+
+      The optional argument [init_size] control the initial size of the underlying data structure. For very small sequences, it is more efficient to have [init_size] bigger than the length of your sequence.
+  *)
 
 val sort : ?cmp:('a -> 'a -> int) -> 'a t -> 'a t
   (** Sort the sequence. Eager, O(n) ram and O(n ln(n)) time.
