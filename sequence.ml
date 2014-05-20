@@ -149,9 +149,9 @@ module MList = struct
     | Cons of 'a array * int ref * 'a node ref
 
   (* build and call callback on every element *)
-  let of_seq_with seq k =
+  let of_seq_with ?(init_size=8) seq k =
     let start = ref Nil in
-    let chunk_size = ref 8 in
+    let chunk_size = ref init_size in
     (* fill the list. prev: tail-reference from previous node *)
     let prev, cur = ref start, ref Nil in
     seq
@@ -175,8 +175,8 @@ module MList = struct
     !prev := !cur;
     !start
 
-  let of_seq seq =
-    of_seq_with seq (fun _ -> ())
+  let of_seq ?init_size seq =
+    of_seq_with seq ?init_size (fun _ -> ())
 
   let is_empty = function
     | Nil -> true
@@ -239,22 +239,22 @@ end
 
 (** Iterate on the sequence, storing elements in a data structure.
     The resulting sequence can be iterated on as many times as needed. *)
-let persistent seq =
-  let l = MList.of_seq seq in
+let persistent ?init_size seq =
+  let l = MList.of_seq ?init_size seq in
   MList.to_seq l
 
 type 'a lazy_state =
   | LazySuspend
   | LazyCached of 'a t
 
-let persistent_lazy (seq:'a t) =
+let persistent_lazy ?init_size (seq:'a t) =
   let r = ref LazySuspend in
   fun k ->
     match !r with
     | LazyCached seq' -> seq' k
     | LazySuspend ->
         (* here if this traversal is interruted, no caching occurs *)
-        let seq' = MList.of_seq_with seq k in
+        let seq' = MList.of_seq_with ?init_size seq k in
         r := LazyCached (MList.to_seq seq')
 
 (** Sort the sequence. Eager, O(n) ram and O(n ln(n)) time. *)
@@ -686,7 +686,7 @@ include Infix
 let pp_seq ?(sep=", ") pp_elt formatter seq =
   let first = ref true in
   iter
-    (fun x -> 
+    (fun x ->
       (if !first then first := false
         else begin
           Format.pp_print_string formatter sep;
@@ -698,7 +698,7 @@ let pp_seq ?(sep=", ") pp_elt formatter seq =
 let pp_buf ?(sep=", ") pp_elt buf seq =
   let first = ref true in
   iter
-    (fun x -> 
+    (fun x ->
       if !first then first := false else Buffer.add_string buf sep;
       pp_elt buf x)
     seq
