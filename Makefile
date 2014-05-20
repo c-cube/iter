@@ -40,12 +40,6 @@ configure:
 
 # OASIS_STOP
 
-benchs: all
-	ocamlbuild -use-ocamlfind -pkg benchmark -pkg unix \
-		bench/benchs.native bench/simple_bench.native \
-		bench/bench_persistent.native \
-		bench/bench_persistent_read.native
-
 tests:
 	ocamlbuild -use-ocamlfind -pkg oUnit tests/run_tests.native
 

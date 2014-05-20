@@ -15,6 +15,10 @@ Description:
     like `filter`, `map`, `take`, `drop` and `append` can be performed before the
     sequence is iterated/folded on.
 
+Flag bench
+    Description: enable benchmarks (require library Benchmark)
+    Default: false
+
 Library "sequence"
   Path:             .
   Modules:          Sequence 
@@ -30,6 +34,30 @@ Document sequence
 Test all
   Type:         custom
   Command:      make tests
+
+Executable benchs
+  Path:             bench
+  Install:          false
+  CompiledObject:   native
+  Build$:           flag(bench)
+  BuildDepends:     sequence,benchmark
+  MainIs:           benchs.ml
+
+Executable bench_persistent
+  Path:             bench
+  Install:          false
+  CompiledObject:   native
+  Build$:           flag(bench)
+  BuildDepends:     sequence,benchmark
+  MainIs:           bench_persistent.ml
+
+Executable bench_persistent_read
+  Path:             bench
+  Install:          false
+  CompiledObject:   native
+  Build$:           flag(bench)
+  BuildDepends:     sequence,benchmark
+  MainIs:           bench_persistent_read.ml
 
 SourceRepository head
   Type: git
