@@ -111,10 +111,8 @@ let bench_array n =
   let a = Sequence.to_array Sequence.(1 -- n) in
   Sequence.of_array a
 
-let read s n =
-  for i = 0 to n do
-    Sequence.map (fun x -> x + 1) s
-  done
+let read s =
+  Sequence.map (fun x -> x + 1) s
 
 let () =
   let bench_n n =
@@ -126,11 +124,11 @@ let () =
       let array = bench_current n in
       let naive = bench_naive n in
       Benchmark.throughputN 5
-        [ "mlist", read mlist, 1
-        ; "list", read list, 1
-        ; "current", read current, 1
-        ; "array", read array, 1
-        ; "naive", read naive, 1
+        [ "mlist",   read, mlist
+        ; "list",    read, list
+        ; "current", read, current
+        ; "array",   read, array
+        ; "naive",   read, naive
         ]
     in Benchmark.tabulate res
   in
