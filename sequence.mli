@@ -32,7 +32,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     of many combinators. However, for transient iterators, the {!persistent}
     function is provided, storing elements of a transient iterator
     in memory; the iterator can then be used several times (See further).
-    
+
     Note that some combinators also return sequences (e.g. {!group}). The
     transformation is computed on the fly every time one iterates over
     the resulting sequence. If a transformation performs heavy computation,
@@ -42,7 +42,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     until their result is iterated on. For instance, if one calls {!map}
     on a sequence, one gets a new sequence, but nothing else happens until
     this new sequence is used (by folding or iterating on it).
-    
+
     If a sequence is built from an iteration function that is {b repeatable}
     (i.e. calling it several times always iterates on the same set of
     elements, for instance List.iter or Map.iter), then
@@ -200,7 +200,7 @@ val join : join_row:('a -> 'b -> 'c option) -> 'a t -> 'b t -> 'c t
       the two elements do not combine. Assume that [b] allows for multiple
       iterations. *)
 
-val unfoldr : ('b -> ('a * 'b) option) -> 'b -> 'a t 
+val unfoldr : ('b -> ('a * 'b) option) -> 'b -> 'a t
   (** [unfoldr f b] will apply [f] to [b]. If it
       yields [Some (x,b')] then [x] is returned
       and unfoldr recurses with [b']. *)
@@ -365,7 +365,7 @@ module Set : sig
 
   (** Create an enriched Set module from the given one *)
   module Adapt(X : Set.S) : S with type elt = X.elt and type t = X.t
-    
+
   (** Functor to build an extended Set module from an ordered type *)
   module Make(X : Set.OrderedType) : S with type elt = X.t
 end
