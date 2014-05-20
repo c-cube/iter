@@ -16,14 +16,19 @@ let bench_product n =
   S.product (0 -- n) (0 -- n) (fun (i,j) -> ())
 
 let _ =
-  let _ = List.map
-    (fun (name,bench) ->
+  List.iter
+    (fun (name,bench,sizes) ->
       Format.printf "-------------------------------------------------------@.";
       Format.printf "bench %s@." name;
-      bench ();)
-    [ "fold", (fun () -> Bench.bench_throughput bench_fold big) ;
-      "flatmap", (fun () -> Bench.bench_throughput bench_flatmap medium) ;
-      "product", (fun () -> Bench.bench_throughput bench_product small) ;
-    ]
-  in
+      List.iter
+        (fun n ->
+          let name = name ^ " on " ^ string_of_int n in
+          let res = Benchmark.throughput1 2 ~name bench n in
+          Benchmark.tabulate res;
+        ) sizes
+    )
+    [ "fold", bench_fold, big
+    ; "flatmap", bench_flatmap, medium
+    ; "product", bench_product, small
+    ];
   ()
