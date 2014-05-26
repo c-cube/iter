@@ -43,7 +43,10 @@ configure:
 tests:
 	ocamlbuild -use-ocamlfind -pkg oUnit tests/run_tests.native
 
+examples:
+	ocamlbuild examples/test_sexpr.native
+
 push_doc: all doc
 	scp -r sequence.docdir/* cedeela.fr:~/simon/root/software/sequence/
 
-.PHONY: benchs tests
+.PHONY: benchs tests examples
