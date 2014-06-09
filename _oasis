@@ -1,6 +1,6 @@
 OASISFormat: 0.4
 Name:        sequence
-Version:     0.3.7
+Version:     0.4.1
 Homepage:    https://github.com/c-cube/sequence
 Authors:     Simon Cruanes
 License:     BSD-2-clause
@@ -19,9 +19,22 @@ Flag bench
     Description: enable benchmarks (require library Benchmark)
     Default: false
 
+Flag invert
+    Description: build sequence.invert (requires Delimcc)
+    Default: false
+
 Library "sequence"
   Path:             .
   Modules:          Sequence 
+
+Library "invert"
+  Path:             invert
+  Build$:           flag(invert)
+  Install$:         flag(invert)
+  Modules:          SequenceInvert
+  FindlibName:      invert
+  FindlibParent:    sequence
+  BuildDepends:     sequence,delimcc
 
 Document sequence
   Title:                Sequence docs

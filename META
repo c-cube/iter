@@ -1,6 +1,6 @@
 # OASIS_START
-# DO NOT EDIT (digest: 8fe7646cd958ccfd4ec565a95fe6b68c)
-version = "0.3.7"
+# DO NOT EDIT (digest: 1e28d93f3671e8db9acf63b73cdbca82)
+version = "0.4.1"
 description = "Simple sequence (iterator) datatype and combinators"
 archive(byte) = "sequence.cma"
 archive(byte, plugin) = "sequence.cma"
