@@ -120,6 +120,15 @@ val for_all : ('a -> bool) -> 'a t -> bool
 val exists : ('a -> bool) -> 'a t -> bool
   (** Exists there some element satisfying the predicate? *)
 
+val mem : ?eq:('a -> 'a -> bool) -> 'a -> 'a t -> bool
+  (** Is the value a member of the sequence?
+      @param eq the equality predicate to use (default [(=)])
+      @since NEXT_VERSION *)
+
+val find : ('a -> 'b option) -> 'a t -> 'b option
+  (** Find the first element on which the function doesn't return [None]
+      @since NEXT_VERSION *)
+
 val length : 'a t -> int
   (** How long is the sequence? Forces the sequence. *)
 
@@ -192,9 +201,14 @@ val uniq : ?eq:('a -> 'a -> bool) -> 'a t -> 'a t
       like [fun seq -> map List.hd (group seq)]. *)
 
 val product : 'a t -> 'b t -> ('a * 'b) t
-  (** Cartesian product of the sequences. The first one is transformed
-      by calling [persistent] on it, so that it can be traversed
-      several times (outer loop of the product) *)
+  (** Cartesian product of the sequences. When calling [product a b],
+      the caller {b MUST} ensure that [b] can be traversed as many times
+      as required (several times), possibly by calling {!persistent} on it
+      beforehand. *)
+
+val product2 : 'a t -> 'b t -> ('a, 'b) t2
+  (** Binary version of {!product}. Same requirements.
+      @since NEXT_VERSION *)
 
 val join : join_row:('a -> 'b -> 'c option) -> 'a t -> 'b t -> 'c t
   (** [join ~join_row a b] combines every element of [a] with every

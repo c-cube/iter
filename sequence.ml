@@ -304,12 +304,15 @@ let sort_uniq ?(cmp=Pervasives.compare) seq =
   uniq ~eq:(fun x y -> cmp x y = 0) seq'
 
 (** Cartesian product of the sequences. *)
-let product outer inner =
-  let inner = persistent inner in
-  from_iter
-    (fun k ->
-      outer (fun x ->
-        inner (fun y -> k (x,y))))
+let product outer inner k =
+  outer (fun x ->
+    inner (fun y -> k (x,y))
+  )
+
+let product2 outer inner k =
+  outer (fun x ->
+    inner (fun y -> k x y)
+  )
 
 (** [join ~join_row a b] combines every element of [a] with every
     element of [b] using [join_row]. If [join_row] returns None, then
@@ -393,6 +396,19 @@ let exists p seq =
     seq (fun x -> if p x then raise ExitSequence);
     false
   with ExitSequence -> true
+
+let mem ?(eq=(=)) x seq = exists (eq x) seq
+
+let find f seq =
+  let r = ref None in
+  begin try
+    seq (fun x -> match f x with
+      | None -> ()
+      | Some _ as res -> r := res
+    );
+  with ExitSequence -> ()
+  end;
+  !r
 
 (** How long is the sequence? *)
 let length seq =
