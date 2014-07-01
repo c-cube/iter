@@ -145,8 +145,16 @@ val flatMap : ('a -> 'b t) -> 'a t -> 'b t
   (** Monadic bind. Intuitively, it applies the function to every element of the
       initial sequence, and calls {!concat}. *)
 
+val flat_map : ('a -> 'b t) -> 'a t -> 'b t
+  (** Alias to {!flatMap} with a more explicit name
+      @since NEXT_VERSION *)
+
 val fmap : ('a -> 'b option) -> 'a t -> 'b t
   (** Specialized version of {!flatMap} for options.  *)
+
+val filter_map : ('a -> 'b option) -> 'a t -> 'b t
+  (** Alias to {!fmap} with a more explicit name
+      @since NEXT_VERSION *)
 
 val intersperse : 'a -> 'a t -> 'a t
   (** Insert the single element between every element of the sequence *)
