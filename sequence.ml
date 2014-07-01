@@ -690,7 +690,7 @@ include Infix
 let pp_seq ?(sep=", ") pp_elt formatter seq =
   let first = ref true in
   iter
-    (fun x -> 
+    (fun x ->
       (if !first then first := false
         else begin
           Format.pp_print_string formatter sep;
@@ -702,7 +702,7 @@ let pp_seq ?(sep=", ") pp_elt formatter seq =
 let pp_buf ?(sep=", ") pp_elt buf seq =
   let first = ref true in
   iter
-    (fun x -> 
+    (fun x ->
       if !first then first := false else Buffer.add_string buf sep;
       pp_elt buf x)
     seq
