@@ -371,6 +371,10 @@ val concat_str : string t -> string
       Also see {!intersperse} to add a separator.
       @since NEXT_VERSION *)
 
+exception OneShotSequence
+  (** Raised when the user tries to iterate several times on
+      a transient iterator *)
+
 val of_in_channel : in_channel -> char t
   (** Iterates on characters of the input (can block when one
       iterates over the sequence). If you need to iterate
