@@ -241,6 +241,13 @@ module MList = struct
 
   let to_stream l =
     Stream.from (_to_next 42 l)  (* 42=magic cookiiiiiie *)
+
+  let to_klist l =
+    let rec make (l,i) () = match l with
+      | Nil -> `Nil
+      | Cons (_, n, tl) when i = !n -> make (!tl,0) ()
+      | Cons (a, n, _) -> `Cons (a.(i), make (l,i+1))
+    in make (l,0)
 end
 
 (** Iterate on the sequence, storing elements in a data structure.
@@ -601,6 +608,7 @@ let to_set (type s) (type v) m seq =
     S.empty seq
 
 type 'a gen = unit -> 'a option
+type 'a klist = unit -> [`Nil | `Cons of 'a * 'a klist]
 
 let of_gen g =
   (* consume the generator to build a MList *)
@@ -614,6 +622,14 @@ let of_gen g =
 let to_gen seq =
   let l = MList.of_seq seq in
   MList.to_gen l
+
+let rec of_klist l k = match l() with
+  | `Nil -> ()
+  | `Cons (x,tl) -> k x; of_klist tl k
+
+let to_klist seq =
+  let l = MList.of_seq seq in
+  MList.to_klist l
 
 (** {2 Functorial conversions between sets and sequences} *)
 

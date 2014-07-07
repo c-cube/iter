@@ -174,8 +174,10 @@ val filter_map : ('a -> 'b option) -> 'a t -> 'b t
 val intersperse : 'a -> 'a t -> 'a t
   (** Insert the single element between every element of the sequence *)
 
+(** {2 Caching} *)
+
 val persistent : 'a t -> 'a t
-  (** Iterate on the sequence, storing elements in a data structure.
+  (** Iterate on the sequence, storing elements in an efficient internal structure..
       The resulting sequence can be iterated on as many times as needed.
       {b Note}: calling persistent on an already persistent sequence
       will still make a new copy of the sequence! *)
@@ -190,6 +192,8 @@ val persistent_lazy : 'a t -> 'a t
       {b warning}: on the first traversal of [s'], if the traversal
       is interrupted prematurely ({!take}, etc.) then [s'] will not be
       memorized, and the next call to [s'] will traverse [s] again. *)
+
+(** {2 Misc} *)
 
 val sort : ?cmp:('a -> 'a -> int) -> 'a t -> 'a t
   (** Sort the sequence. Eager, O(n) ram and O(n ln(n)) time.
@@ -369,12 +373,19 @@ val to_set : (module Set.S with type elt = 'a and type t = 'b) -> 'a t -> 'b
   (** Convert the sequence to a set, given the proper set module *)
 
 type 'a gen = unit -> 'a option
+type 'a klist = unit -> [`Nil | `Cons of 'a * 'a klist]
 
 val of_gen : 'a gen -> 'a t
   (** Traverse eagerly the generator and build a sequence from it *)
 
 val to_gen : 'a t -> 'a gen
   (** Make the sequence persistent (O(n)) and then iterate on it. Eager. *)
+
+val of_klist : 'a klist -> 'a t
+  (** Iterate on the lazy list *)
+
+val to_klist : 'a t -> 'a klist
+  (** Make the sequence persistent and then iterate on it. Eager. *)
 
 (** {2 Functorial conversions between sets and sequences} *)
 
