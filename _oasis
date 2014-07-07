@@ -47,6 +47,7 @@ Document sequence
 Test all
   Type:         custom
   Command:      make run-tests
+  TestTools:    run_tests
   Run$:         flag(tests)
 
 Executable run_tests

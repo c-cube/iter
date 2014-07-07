@@ -378,7 +378,8 @@ exception OneShotSequence
 val of_in_channel : in_channel -> char t
   (** Iterates on characters of the input (can block when one
       iterates over the sequence). If you need to iterate
-      several times on this sequence, use {!persistent}. *)
+      several times on this sequence, use {!persistent}.
+      @raise OneShotSequence when used more than once. *)
 
 val to_buffer : char t -> Buffer.t -> unit
   (** Copy content of the sequence into the buffer *)
@@ -419,6 +420,8 @@ module Set : sig
     include Set.S
     val of_seq : elt sequence -> t
     val to_seq : t -> elt sequence
+    val to_list : t -> elt list
+    val of_list : elt list -> t
   end
 
   (** Create an enriched Set module from the given one *)
@@ -437,6 +440,8 @@ module Map : sig
     val of_seq : (key * 'a) sequence -> 'a t
     val keys : 'a t -> key sequence
     val values : 'a t -> 'a sequence
+    val to_list : 'a t -> (key * 'a) list
+    val of_list : (key * 'a) list -> 'a t
   end
 
   (** Adapt a pre-existing Map module to make it sequence-aware *)
