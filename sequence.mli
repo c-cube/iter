@@ -76,6 +76,16 @@ val empty : 'a t
 val singleton : 'a -> 'a t
   (** Singleton sequence, with exactly one element. *)
 
+val doubleton : 'a -> 'a -> 'a t
+  (** Sequence with exactly two elements *)
+
+val cons : 'a -> 'a t -> 'a t
+  (** [cons x l] yields [x], then yields from [l].
+      Same as [append (singleton x) l] *)
+
+val snoc : 'a t -> 'a -> 'a t
+  (** Same as {!cons} but yields the element after iterating on [l] *)
+
 val return : 'a -> 'a t
   (** Synonym to {!singleton} *)
 
@@ -84,7 +94,7 @@ val pure : 'a -> 'a t
 
 val repeat : 'a -> 'a t
   (** Infinite sequence of the same element. You may want to look
-      at {!take} if you iterate on it. *)
+      at {!take} and the likes if you iterate on it. *)
 
 val iterate : ('a -> 'a) -> 'a -> 'a t
   (** [iterate f x] is the infinite sequence (x, f(x), f(f(x)), ...) *)
@@ -247,8 +257,14 @@ val take : int -> 'a t -> 'a t
   (** Take at most [n] elements from the sequence. Works on infinite
       sequences. *)
 
+val take_while : ('a -> bool) -> 'a t -> 'a t
+  (** Take elements while they satisfy the predicate, then stops iterating *)
+
 val drop : int -> 'a t -> 'a t
   (** Drop the [n] first elements of the sequence. Lazy. *)
+
+val drop_while : ('a -> bool) -> 'a t -> 'a t
+  (** Predicate version of {!drop} *)
 
 val rev : 'a t -> 'a t
   (** Reverse the sequence. O(n) memory and time, needs the

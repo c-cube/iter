@@ -52,6 +52,11 @@ let singleton x k = k x
 let return x k = k x
 let pure f k = k f
 
+let doubleton x y k = k x; k y
+
+let cons x l k = k x; l k
+let snoc l x k = l k; k x
+
 (** Infinite sequence of the same element *)
 let repeat x = fun k -> while true do k x done
 
@@ -381,11 +386,23 @@ let take n seq =
           if !count = n then raise ExitSequence)
       with ExitSequence -> ()
 
+let take_while p seq k =
+  try
+    seq (fun x -> if p x then k x else raise ExitSequence)
+  with ExitSequence -> ()
+
 (** Drop the [n] first elements of the sequence *)
 let drop n seq =
   let count = ref 0 in
   fun k -> seq
     (fun x -> if !count >= n then k x else incr count)
+
+let drop_while p seq k =
+  let drop = ref true in
+  seq (fun x ->
+    if !drop
+    then if p x then () else (drop := false; k x)
+    else k x)
 
 (** Reverse the sequence. O(n) memory. *)
 let rev seq =
@@ -476,7 +493,6 @@ let map2_2 f g seq2 =
 let to_list seq = List.rev (fold (fun y x -> x::y) [] seq)
 
 let to_rev_list seq = fold (fun y x -> x :: y) [] seq
-  (** Get the list of the reversed sequence (more efficient) *)
 
 let of_list l = from_iter (fun k -> List.iter k l)
 
