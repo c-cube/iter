@@ -139,11 +139,11 @@ val exists : ('a -> bool) -> 'a t -> bool
 val mem : ?eq:('a -> 'a -> bool) -> 'a -> 'a t -> bool
   (** Is the value a member of the sequence?
       @param eq the equality predicate to use (default [(=)])
-      @since NEXT_VERSION *)
+      @since 0.5 *)
 
 val find : ('a -> 'b option) -> 'a t -> 'b option
   (** Find the first element on which the function doesn't return [None]
-      @since NEXT_VERSION *)
+      @since 0.5 *)
 
 val length : 'a t -> int
   (** How long is the sequence? Forces the sequence. *)
@@ -172,14 +172,14 @@ val flatMap : ('a -> 'b t) -> 'a t -> 'b t
 
 val flat_map : ('a -> 'b t) -> 'a t -> 'b t
   (** Alias to {!flatMap} with a more explicit name
-      @since NEXT_VERSION *)
+      @since 0.5 *)
 
 val fmap : ('a -> 'b option) -> 'a t -> 'b t
   (** Specialized version of {!flatMap} for options.  *)
 
 val filter_map : ('a -> 'b option) -> 'a t -> 'b t
   (** Alias to {!fmap} with a more explicit name
-      @since NEXT_VERSION *)
+      @since 0.5 *)
 
 val intersperse : 'a -> 'a t -> 'a t
   (** Insert the single element between every element of the sequence *)
@@ -228,7 +228,7 @@ val product : 'a t -> 'b t -> ('a * 'b) t
 
 val product2 : 'a t -> 'b t -> ('a, 'b) t2
   (** Binary version of {!product}. Same requirements.
-      @since NEXT_VERSION *)
+      @since 0.5 *)
 
 val join : join_row:('a -> 'b -> 'c option) -> 'a t -> 'b t -> 'c t
   (** [join ~join_row a b] combines every element of [a] with every
@@ -369,7 +369,7 @@ val to_str :  char t -> string
 val concat_str : string t -> string
   (** Concatenate strings together, eagerly.
       Also see {!intersperse} to add a separator.
-      @since NEXT_VERSION *)
+      @since 0.5 *)
 
 exception OneShotSequence
   (** Raised when the user tries to iterate several times on
