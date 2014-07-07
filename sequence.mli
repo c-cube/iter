@@ -76,6 +76,9 @@ val empty : 'a t
 val singleton : 'a -> 'a t
   (** Singleton sequence, with exactly one element. *)
 
+val return : 'a -> 'a t
+  (** Synonym to {!singleton} *)
+
 val repeat : 'a -> 'a t
   (** Infinite sequence of the same element. You may want to look
       at {!take} if you iterate on it. *)
@@ -433,9 +436,16 @@ module Infix : sig
     (** [a --^ b] is the range of integers from [b] to [a], both included,
         in decreasing order (starts from [a]).
         It will therefore be empty if [a < b]. *)
+
+  val (>>=) : 'a t -> ('a -> 'b t) -> 'b t
+    (** Monadic bind (infix version of {!flat_map} *)
+
+  val (>|=) : 'a t -> ('a -> 'b) -> 'b t
+    (** Infix version of {!map} *)
 end
 
 include module type of Infix
+
 
 (** {2 Pretty printing of sequences} *)
 
