@@ -366,6 +366,11 @@ val hashtbl_values : ('a, 'b) Hashtbl.t -> 'b t
 val of_str : string -> char t
 val to_str :  char t -> string
 
+val concat_str : string t -> string
+  (** Concatenate strings together, eagerly.
+      Also see {!intersperse} to add a separator.
+      @since NEXT_VERSION *)
+
 val of_in_channel : in_channel -> char t
   (** Iterates on characters of the input (can block when one
       iterates over the sequence). If you need to iterate

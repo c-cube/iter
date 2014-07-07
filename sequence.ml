@@ -591,6 +591,11 @@ let to_str seq =
   iter (fun c -> Buffer.add_char b c) seq;
   Buffer.contents b
 
+let concat_str seq =
+  let b = Buffer.create 64 in
+  iter (Buffer.add_string b) seq;
+  Buffer.contents b
+
 let of_in_channel ic =
   from_iter (fun k ->
     try while true do
