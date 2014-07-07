@@ -79,6 +79,9 @@ val singleton : 'a -> 'a t
 val return : 'a -> 'a t
   (** Synonym to {!singleton} *)
 
+val pure : 'a -> 'a t
+  (** Synonym to {!singleton} *)
+
 val repeat : 'a -> 'a t
   (** Infinite sequence of the same element. You may want to look
       at {!take} if you iterate on it. *)
@@ -442,6 +445,12 @@ module Infix : sig
 
   val (>|=) : 'a t -> ('a -> 'b) -> 'b t
     (** Infix version of {!map} *)
+
+  val (<*>) : ('a -> 'b) t -> 'a t -> 'b t
+    (** Applicative operator (product+application) *)
+
+  val (<+>) : 'a t -> 'a t -> 'a t
+    (** Concatenation of sequences *)
 end
 
 include module type of Infix

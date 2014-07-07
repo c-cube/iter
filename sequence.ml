@@ -49,8 +49,8 @@ let from_fun f =
 let empty = fun k -> ()
 
 let singleton x k = k x
-
 let return x k = k x
+let pure f k = k f
 
 (** Infinite sequence of the same element *)
 let repeat x = fun k -> while true do k x done
@@ -701,6 +701,11 @@ module Infix = struct
   let (>>=) x f = flat_map f x
 
   let (>|=) x f = map f x
+
+  let (<*>) funs args k =
+    funs (fun f -> args (fun x -> k (f x)))
+
+  let (<+>) = append
 end
 
 include Infix
