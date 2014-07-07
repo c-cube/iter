@@ -49,10 +49,18 @@ examples:
 push_doc: all doc
 	scp -r sequence.docdir/* cedeela.fr:~/simon/root/software/sequence/
 
+push_stable: all
+	git checkout stable
+	git merge master -m 'merge from master'
+	oasis setup
+	git commit -a -m 'oasis files'
+	git push origin
+	git checkout master
+
 VERSION=$(shell awk '/Version:/ {print $$2}' _oasis)
 
 update_next_tag:
 	@echo "update version to $(VERSION)..."
 	sed -i "s/NEXT_VERSION/$(VERSION)/g" *.ml *.mli
 
-.PHONY: benchs tests examples update_next_tag push_doc
+.PHONY: benchs tests examples update_next_tag push_doc push_stable
