@@ -1,5 +1,5 @@
 # OASIS_START
-# DO NOT EDIT (digest: ffd3fbaf00b431777fea1b8279203bf9)
+# DO NOT EDIT (digest: e8d5fe31ff471d3c0ec54943fe50d011)
 # Ignore VCS directories, you can use the same kind of rule outside
 # OASIS_START/STOP if you want to exclude directories that contains
 # useless stuff for the build process
@@ -15,6 +15,15 @@
 "_darcs": not_hygienic
 # Library sequence
 "sequence.cmxs": use_sequence
+# Library invert
+"invert/invert.cmxs": use_invert
+<invert/*.ml{,i}>: pkg_delimcc
+<invert/*.ml{,i}>: use_sequence
+# Executable run_tests
+"tests/run_tests.native": pkg_oUnit
+"tests/run_tests.native": use_sequence
+<tests/*.ml{,i}>: pkg_oUnit
+<tests/*.ml{,i}>: use_sequence
 # Executable benchs
 "bench/benchs.native": pkg_benchmark
 "bench/benchs.native": use_sequence
