@@ -40,8 +40,8 @@ configure:
 
 # OASIS_STOP
 
-tests:
-	ocamlbuild -use-ocamlfind -pkg oUnit tests/run_tests.native
+run-tests:
+	./run_tests.native
 
 examples:
 	ocamlbuild examples/test_sexpr.native

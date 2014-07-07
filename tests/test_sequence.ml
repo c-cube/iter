@@ -130,9 +130,10 @@ let test_uniq () =
 
 let test_product () =
   let stream = Stream.from (fun i -> if i < 3 then Some i else None) in
-  let inner = S.of_stream stream in
-  let outer = S.of_list ["a";"b";"c"] in
-  let s = S.product outer inner |> S.to_list in
+  let a = S.of_stream stream in
+  let b = S.of_list ["a";"b";"c"] in
+  let s = S.product a b |> S.map (fun (x,y) -> y,x)
+    |> S.to_list |> List.sort compare in
   OUnit.assert_equal ["a",0; "a", 1; "a", 2;
                       "b",0; "b", 1; "b", 2;
                       "c",0; "c", 1; "c", 2;] s

@@ -9,7 +9,7 @@ Plugins:     META (0.3), DevFiles (0.3)
 BuildTools:  ocamlbuild
 
 Synopsis:    Simple sequence (iterator) datatype and combinators
-Description: 
+Description:
     Simple sequence datatype, intended to transfer a finite number of
     elements from one data structure to another. Some transformations on sequences,
     like `filter`, `map`, `take`, `drop` and `append` can be performed before the
@@ -25,7 +25,7 @@ Flag invert
 
 Library "sequence"
   Path:             .
-  Modules:          Sequence 
+  Modules:          Sequence
 
 Library "invert"
   Path:             invert
@@ -46,7 +46,16 @@ Document sequence
 
 Test all
   Type:         custom
-  Command:      make tests
+  Command:      make run-tests
+  Run$:         flag(tests)
+
+Executable run_tests
+  Path:             tests/
+  Install:          false
+  CompiledObject:   native
+  MainIs:           run_tests.ml
+  Build$:           flag(tests)
+  BuildDepends:     sequence,oUnit
 
 Executable benchs
   Path:             bench
