@@ -23,10 +23,10 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 *)
 
-(** {1 Transient iterators, that abstract on a finite sequence of elements.} *)
+(** {1 Simple and Efficient Iterators} *)
 
 (** The iterators are designed to allow easy transfer (mappings) between data
-    structures, without defining n^2 conversions between the n types. The
+    structures, without defining [n^2] conversions between the [n] types. The
     implementation relies on the assumption that a sequence can be iterated
     on as many times as needed; this choice allows for high performance
     of many combinators. However, for transient iterators, the {!persistent}
@@ -53,8 +53,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     of this memory structure, cheaply and repeatably. *)
 
 type +'a t = ('a -> unit) -> unit
-  (** Sequence abstract iterator type, representing a finite sequence of
-      values of type ['a]. *)
+  (** A sequence of values of type ['a]. If you give it a function ['a -> unit]
+      it will be applied to every element of the sequence successively. *)
 
 type +'a sequence = 'a t
 
@@ -97,7 +97,7 @@ val repeat : 'a -> 'a t
       at {!take} and the likes if you iterate on it. *)
 
 val iterate : ('a -> 'a) -> 'a -> 'a t
-  (** [iterate f x] is the infinite sequence (x, f(x), f(f(x)), ...) *)
+  (** [iterate f x] is the infinite sequence [x, f(x), f(f(x)), ...] *)
 
 val forever : (unit -> 'b) -> 'b t
   (** Sequence that calls the given function to produce elements.
@@ -113,7 +113,8 @@ val cycle : 'a t -> 'a t
 (** {2 Consume a sequence} *)
 
 val iter : ('a -> unit) -> 'a t -> unit
-  (** Consume the sequence, passing all its arguments to the function *)
+  (** Consume the sequence, passing all its arguments to the function.
+      Basically [iter f seq] is just [seq f]. *)
 
 val iteri : (int -> 'a -> unit) -> 'a t -> unit
   (** Iterate on elements and their index in the sequence *)
@@ -258,7 +259,9 @@ val take : int -> 'a t -> 'a t
       sequences. *)
 
 val take_while : ('a -> bool) -> 'a t -> 'a t
-  (** Take elements while they satisfy the predicate, then stops iterating *)
+  (** Take elements while they satisfy the predicate, then stops iterating.
+      Will work on an infinite sequence [s] if the predicate is false for at
+      least one element of [s]. *)
 
 val drop : int -> 'a t -> 'a t
   (** Drop the [n] first elements of the sequence. Lazy. *)
@@ -309,7 +312,7 @@ val of_list : 'a list -> 'a t
 
 val to_array : 'a t -> 'a array
   (** Convert to an array. Currently not very efficient because
-      and intermediate list is used. *)
+      an intermediate list is used. *)
 
 val of_array : 'a array -> 'a t
 
@@ -482,16 +485,20 @@ module Infix : sig
         It will therefore be empty if [a < b]. *)
 
   val (>>=) : 'a t -> ('a -> 'b t) -> 'b t
-    (** Monadic bind (infix version of {!flat_map} *)
+    (** Monadic bind (infix version of {!flat_map}
+        @since 0.5 *)
 
   val (>|=) : 'a t -> ('a -> 'b) -> 'b t
-    (** Infix version of {!map} *)
+    (** Infix version of {!map}
+        @since 0.5 *)
 
   val (<*>) : ('a -> 'b) t -> 'a t -> 'b t
-    (** Applicative operator (product+application) *)
+    (** Applicative operator (product+application)
+        @since 0.5 *)
 
   val (<+>) : 'a t -> 'a t -> 'a t
-    (** Concatenation of sequences *)
+    (** Concatenation of sequences
+        @since 0.5 *)
 end
 
 include module type of Infix
