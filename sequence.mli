@@ -254,6 +254,15 @@ val min : ?lt:('a -> 'a -> bool) -> 'a t -> 'a option
   (** Min element of the sequence, using the given comparison function.
       see {!max} for more details. *)
 
+val head : 'a t -> 'a option
+  (** First element, if any, otherwise [None]
+      @since NEXT_RELEASE *)
+
+val head_exn : 'a t -> 'a
+  (** First element, if any, fails
+      @raise Invalid_argument if the sequence is empty
+      @since NEXT_RELEASE *)
+
 val take : int -> 'a t -> 'a t
   (** Take at most [n] elements from the sequence. Works on infinite
       sequences. *)
@@ -310,6 +319,10 @@ val to_rev_list : 'a t -> 'a list
 
 val of_list : 'a list -> 'a t
 
+val to_opt : 'a t -> 'a option
+  (** Alias to {!head}
+      @since NEXT_RELEASE *)
+
 val to_array : 'a t -> 'a array
   (** Convert to an array. Currently not very efficient because
       an intermediate list is used. *)
@@ -324,6 +337,10 @@ val of_array2 : 'a array -> (int, 'a) t2
 val array_slice : 'a array -> int -> int -> 'a t
   (** [array_slice a i j] Sequence of elements whose indexes range
       from [i] to [j] *)
+
+val of_opt : 'a option -> 'a t
+  (** Iterate on 0 or 1 values.
+      @since NEXT_RELEASE *)
 
 val of_stream : 'a Stream.t -> 'a t
   (** Sequence of elements of a stream (usable only once) *)

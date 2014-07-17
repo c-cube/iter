@@ -321,6 +321,17 @@ let min ?(lt=fun x y -> x < y) seq =
 
 exception ExitSequence
 
+let head seq =
+  let r = ref None in
+  try
+    seq (fun x -> r := Some x; raise ExitSequence); None
+  with ExitSequence -> !r
+
+let head_exn seq =
+  match head seq with
+  | None -> invalid_arg "Sequence.head_exn"
+  | Some x -> x
+
 let take n seq k =
   let count = ref 0 in
   try
@@ -424,6 +435,12 @@ let map2_2 f g seq2 k =
 let to_list seq = List.rev (fold (fun y x -> x::y) [] seq)
 
 let to_rev_list seq = fold (fun y x -> x :: y) [] seq
+
+let to_opt = head
+
+let of_opt o k = match o with
+  | None -> ()
+  | Some x -> k x
 
 let of_list l k = List.iter k l
 
