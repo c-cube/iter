@@ -534,3 +534,54 @@ val pp_buf : ?sep:string -> (Buffer.t -> 'a -> unit) ->
 
 val to_string : ?sep:string -> ('a -> string) -> 'a t -> string
   (** Print into a string *)
+
+(** {2 Basic IO}
+
+Very basic interface to manipulate files as sequence of chunks/lines. The
+sequences take care of opening and closing files properly; every time
+one iterates over a sequence, the file is opened/closed again.
+
+Example: copy a file ["a"] into file ["b"], removing blank lines:
+
+{[
+  Sequence.(IO.lines_of "a" |> filter (fun l-> l<> "") |> IO.write_lines "b");;
+]}
+
+By chunks of [4096] bytes:
+
+{[
+  Sequence.IO.(chunks_of ~size:4096 "a" |> write_to "b");;
+]}
+
+@since NEXT_RELEASE *)
+
+module IO : sig
+  val lines_of : ?mode:int -> ?flags:open_flag list ->
+                string -> string t
+  (** [lines_of filename] reads all lines of the given file. It raises the
+      same exception as would opening the file and read from it, except
+      from [End_of_file] (which is caught). The file is {b always} properly
+      closed.
+      Every time the sequence is iterated on, the file is opened again, so
+      different iterations might return different results
+      @param mode default [0o644]
+      @param flags default: [[Open_rdonly]] *)
+
+  val chunks_of : ?mode:int -> ?flags:open_flag list -> ?size:int ->
+                  string -> string t
+  (** Read chunks of the given [size] from the file. The last chunk might be
+      smaller. Behaves like {!lines_of} regarding errors and options.
+      Every time the sequence is iterated on, the file is opened again, so
+      different iterations might return different results *)
+
+  val write_to : ?mode:int -> ?flags:open_flag list ->
+                 string -> string t -> unit
+  (** [write_to filename seq] writes all strings from [seq] into the given
+      file. It takes care of opening and closing the file.
+      @param mode default [0o644]
+      @param flags used by [open_out_gen]. Default: [[Open_creat;Open_wronly]]. *)
+
+  val write_lines : ?mode:int -> ?flags:open_flag list ->
+                    string -> string t -> unit
+  (** Same as {!write_to}, but intercales ['\n'] between each string *)
+end
