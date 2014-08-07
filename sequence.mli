@@ -256,12 +256,12 @@ val min : ?lt:('a -> 'a -> bool) -> 'a t -> 'a option
 
 val head : 'a t -> 'a option
   (** First element, if any, otherwise [None]
-      @since NEXT_RELEASE *)
+      @since 0.5.1 *)
 
 val head_exn : 'a t -> 'a
   (** First element, if any, fails
       @raise Invalid_argument if the sequence is empty
-      @since NEXT_RELEASE *)
+      @since 0.5.1 *)
 
 val take : int -> 'a t -> 'a t
   (** Take at most [n] elements from the sequence. Works on infinite
@@ -321,12 +321,12 @@ val of_list : 'a list -> 'a t
 
 val on_list : ('a t -> 'b t) -> 'a list -> 'b list
 (** [on_list f l] is equivalent to [to_list @@ f @@ of_list l].
-    @since NEXT_RELEASE
+    @since 0.5.2
 *)
 
 val to_opt : 'a t -> 'a option
   (** Alias to {!head}
-      @since NEXT_RELEASE *)
+      @since 0.5.1 *)
 
 val to_array : 'a t -> 'a array
   (** Convert to an array. Currently not very efficient because
@@ -345,7 +345,7 @@ val array_slice : 'a array -> int -> int -> 'a t
 
 val of_opt : 'a option -> 'a t
   (** Iterate on 0 or 1 values.
-      @since NEXT_RELEASE *)
+      @since 0.5.1 *)
 
 val of_stream : 'a Stream.t -> 'a t
   (** Sequence of elements of a stream (usable only once) *)
@@ -558,7 +558,13 @@ By chunks of [4096] bytes:
   Sequence.IO.(chunks_of ~size:4096 "a" |> write_to "b");;
 ]}
 
-@since NEXT_RELEASE *)
+Read the lines of a file into a list:
+
+{[
+  Sequence.IO.lines "a" |> Sequence.to_list
+]}
+
+@since 0.5.1 *)
 
 module IO : sig
   val lines_of : ?mode:int -> ?flags:open_flag list ->
