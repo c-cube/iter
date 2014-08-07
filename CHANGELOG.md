@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.5.1
+
+- `Sequence.IO` module, a very very simple way to read/write files
+- options: `to_opt/of_opt/head/head_exn`
+
 ## 0.5
 
 - conversion with `klist`

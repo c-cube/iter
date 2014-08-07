@@ -321,6 +321,17 @@ let min ?(lt=fun x y -> x < y) seq =
 
 exception ExitSequence
 
+let head seq =
+  let r = ref None in
+  try
+    seq (fun x -> r := Some x; raise ExitSequence); None
+  with ExitSequence -> !r
+
+let head_exn seq =
+  match head seq with
+  | None -> invalid_arg "Sequence.head_exn"
+  | Some x -> x
+
 let take n seq k =
   let count = ref 0 in
   try
@@ -424,6 +435,12 @@ let map2_2 f g seq2 k =
 let to_list seq = List.rev (fold (fun y x -> x::y) [] seq)
 
 let to_rev_list seq = fold (fun y x -> x :: y) [] seq
+
+let to_opt = head
+
+let of_opt o k = match o with
+  | None -> ()
+  | Some x -> k x
 
 let of_list l k = List.iter k l
 
@@ -699,3 +716,56 @@ let to_string ?sep pp_elt seq =
   let buf = Buffer.create 25 in
   pp_buf ?sep (fun buf x -> Buffer.add_string buf (pp_elt x)) buf seq;
   Buffer.contents buf
+
+(** {2 Basic IO} *)
+
+module IO = struct
+  let lines_of ?(mode=0o644) ?(flags=[Open_rdonly]) filename =
+    fun k ->
+      let ic = open_in_gen flags mode filename in
+      try
+        while true do
+          let line = input_line ic in
+          k line
+        done
+      with
+      | End_of_file -> close_in ic
+      | e -> close_in_noerr ic; raise e
+
+  let chunks_of ?(mode=0o644) ?(flags=[]) ?(size=1024) filename =
+    fun k ->
+      let ic = open_in_gen flags mode filename in
+      try
+        let buf = String.create size in
+        let n = ref 0 in
+        let stop = ref false in
+        while not !stop do
+          n := 0;
+          (* try to read [size] chars. If [input] returns [0] it means
+              the end of file, so we stop, but first we yield the current chunk *)
+          while !n < size && not !stop do
+            let n' = input ic buf !n (size - !n) in
+            if n' = 0 then stop := true else n := !n + n';
+          done;
+          if !n > 0
+            then k (String.sub buf 0 !n)
+        done;
+        close_in ic
+      with e ->
+        close_in_noerr ic;
+        raise e
+
+  let write_to ?(mode=0o644) ?(flags=[Open_creat;Open_wronly]) filename seq =
+    let oc = open_out_gen flags mode filename in
+    try
+      seq (fun s -> output oc s 0 (String.length s));
+      close_out oc
+    with e ->
+      close_out oc;
+      raise e
+
+  let write_lines ?mode ?flags filename seq =
+    write_to ?mode ?flags filename (snoc (intersperse "\n" seq) "\n")
+end
+
+

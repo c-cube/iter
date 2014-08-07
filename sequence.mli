@@ -23,10 +23,10 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 *)
 
-(** {1 Transient iterators, that abstract on a finite sequence of elements.} *)
+(** {1 Simple and Efficient Iterators} *)
 
 (** The iterators are designed to allow easy transfer (mappings) between data
-    structures, without defining n^2 conversions between the n types. The
+    structures, without defining [n^2] conversions between the [n] types. The
     implementation relies on the assumption that a sequence can be iterated
     on as many times as needed; this choice allows for high performance
     of many combinators. However, for transient iterators, the {!persistent}
@@ -53,8 +53,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     of this memory structure, cheaply and repeatably. *)
 
 type +'a t = ('a -> unit) -> unit
-  (** Sequence abstract iterator type, representing a finite sequence of
-      values of type ['a]. *)
+  (** A sequence of values of type ['a]. If you give it a function ['a -> unit]
+      it will be applied to every element of the sequence successively. *)
 
 type +'a sequence = 'a t
 
@@ -97,7 +97,7 @@ val repeat : 'a -> 'a t
       at {!take} and the likes if you iterate on it. *)
 
 val iterate : ('a -> 'a) -> 'a -> 'a t
-  (** [iterate f x] is the infinite sequence (x, f(x), f(f(x)), ...) *)
+  (** [iterate f x] is the infinite sequence [x, f(x), f(f(x)), ...] *)
 
 val forever : (unit -> 'b) -> 'b t
   (** Sequence that calls the given function to produce elements.
@@ -113,7 +113,8 @@ val cycle : 'a t -> 'a t
 (** {2 Consume a sequence} *)
 
 val iter : ('a -> unit) -> 'a t -> unit
-  (** Consume the sequence, passing all its arguments to the function *)
+  (** Consume the sequence, passing all its arguments to the function.
+      Basically [iter f seq] is just [seq f]. *)
 
 val iteri : (int -> 'a -> unit) -> 'a t -> unit
   (** Iterate on elements and their index in the sequence *)
@@ -253,12 +254,23 @@ val min : ?lt:('a -> 'a -> bool) -> 'a t -> 'a option
   (** Min element of the sequence, using the given comparison function.
       see {!max} for more details. *)
 
+val head : 'a t -> 'a option
+  (** First element, if any, otherwise [None]
+      @since 0.5.1 *)
+
+val head_exn : 'a t -> 'a
+  (** First element, if any, fails
+      @raise Invalid_argument if the sequence is empty
+      @since 0.5.1 *)
+
 val take : int -> 'a t -> 'a t
   (** Take at most [n] elements from the sequence. Works on infinite
       sequences. *)
 
 val take_while : ('a -> bool) -> 'a t -> 'a t
-  (** Take elements while they satisfy the predicate, then stops iterating *)
+  (** Take elements while they satisfy the predicate, then stops iterating.
+      Will work on an infinite sequence [s] if the predicate is false for at
+      least one element of [s]. *)
 
 val drop : int -> 'a t -> 'a t
   (** Drop the [n] first elements of the sequence. Lazy. *)
@@ -307,9 +319,13 @@ val to_rev_list : 'a t -> 'a list
 
 val of_list : 'a list -> 'a t
 
+val to_opt : 'a t -> 'a option
+  (** Alias to {!head}
+      @since 0.5.1 *)
+
 val to_array : 'a t -> 'a array
   (** Convert to an array. Currently not very efficient because
-      and intermediate list is used. *)
+      an intermediate list is used. *)
 
 val of_array : 'a array -> 'a t
 
@@ -321,6 +337,10 @@ val of_array2 : 'a array -> (int, 'a) t2
 val array_slice : 'a array -> int -> int -> 'a t
   (** [array_slice a i j] Sequence of elements whose indexes range
       from [i] to [j] *)
+
+val of_opt : 'a option -> 'a t
+  (** Iterate on 0 or 1 values.
+      @since 0.5.1 *)
 
 val of_stream : 'a Stream.t -> 'a t
   (** Sequence of elements of a stream (usable only once) *)
@@ -482,16 +502,20 @@ module Infix : sig
         It will therefore be empty if [a < b]. *)
 
   val (>>=) : 'a t -> ('a -> 'b t) -> 'b t
-    (** Monadic bind (infix version of {!flat_map} *)
+    (** Monadic bind (infix version of {!flat_map}
+        @since 0.5 *)
 
   val (>|=) : 'a t -> ('a -> 'b) -> 'b t
-    (** Infix version of {!map} *)
+    (** Infix version of {!map}
+        @since 0.5 *)
 
   val (<*>) : ('a -> 'b) t -> 'a t -> 'b t
-    (** Applicative operator (product+application) *)
+    (** Applicative operator (product+application)
+        @since 0.5 *)
 
   val (<+>) : 'a t -> 'a t -> 'a t
-    (** Concatenation of sequences *)
+    (** Concatenation of sequences
+        @since 0.5 *)
 end
 
 include module type of Infix
@@ -510,3 +534,54 @@ val pp_buf : ?sep:string -> (Buffer.t -> 'a -> unit) ->
 
 val to_string : ?sep:string -> ('a -> string) -> 'a t -> string
   (** Print into a string *)
+
+(** {2 Basic IO}
+
+Very basic interface to manipulate files as sequence of chunks/lines. The
+sequences take care of opening and closing files properly; every time
+one iterates over a sequence, the file is opened/closed again.
+
+Example: copy a file ["a"] into file ["b"], removing blank lines:
+
+{[
+  Sequence.(IO.lines_of "a" |> filter (fun l-> l<> "") |> IO.write_lines "b");;
+]}
+
+By chunks of [4096] bytes:
+
+{[
+  Sequence.IO.(chunks_of ~size:4096 "a" |> write_to "b");;
+]}
+
+@since 0.5.1 *)
+
+module IO : sig
+  val lines_of : ?mode:int -> ?flags:open_flag list ->
+                string -> string t
+  (** [lines_of filename] reads all lines of the given file. It raises the
+      same exception as would opening the file and read from it, except
+      from [End_of_file] (which is caught). The file is {b always} properly
+      closed.
+      Every time the sequence is iterated on, the file is opened again, so
+      different iterations might return different results
+      @param mode default [0o644]
+      @param flags default: [[Open_rdonly]] *)
+
+  val chunks_of : ?mode:int -> ?flags:open_flag list -> ?size:int ->
+                  string -> string t
+  (** Read chunks of the given [size] from the file. The last chunk might be
+      smaller. Behaves like {!lines_of} regarding errors and options.
+      Every time the sequence is iterated on, the file is opened again, so
+      different iterations might return different results *)
+
+  val write_to : ?mode:int -> ?flags:open_flag list ->
+                 string -> string t -> unit
+  (** [write_to filename seq] writes all strings from [seq] into the given
+      file. It takes care of opening and closing the file.
+      @param mode default [0o644]
+      @param flags used by [open_out_gen]. Default: [[Open_creat;Open_wronly]]. *)
+
+  val write_lines : ?mode:int -> ?flags:open_flag list ->
+                    string -> string t -> unit
+  (** Same as {!write_to}, but intercales ['\n'] between each string *)
+end
