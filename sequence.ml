@@ -336,9 +336,9 @@ let take n seq k =
   let count = ref 0 in
   try
     seq (fun x ->
+      if !count = n then raise ExitSequence;
       incr count;
       k x;
-      if !count = n then raise ExitSequence
     )
   with ExitSequence -> ()
 
