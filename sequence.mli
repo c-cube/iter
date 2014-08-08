@@ -321,7 +321,7 @@ val of_list : 'a list -> 'a t
 
 val on_list : ('a t -> 'b t) -> 'a list -> 'b list
 (** [on_list f l] is equivalent to [to_list @@ f @@ of_list l].
-    @since NEXT_RELEASE
+    @since 0.5.2
 *)
 
 val to_opt : 'a t -> 'a option
