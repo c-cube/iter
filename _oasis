@@ -23,6 +23,10 @@ Flag invert
     Description: build sequence.invert (requires Delimcc)
     Default: false
 
+Flag bigarray
+    Description: build sequence.bigarray (requires bigarray)
+    Default: true
+
 Library "sequence"
   Path:             .
   Modules:          Sequence
@@ -35,6 +39,15 @@ Library "invert"
   FindlibName:      invert
   FindlibParent:    sequence
   BuildDepends:     sequence,delimcc
+
+Library "bigarray"
+  Path:             bigarray
+  Build$:           flag(bigarray)
+  Install$:         flag(bigarray)
+  Modules:          SequenceBigarray
+  FindlibName:      bigarray
+  FindlibParent:    sequence
+  BuildDepends:     sequence,bigarray
 
 Document sequence
   Title:                Sequence docs
