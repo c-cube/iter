@@ -56,7 +56,7 @@ let test_exists () =
 let test_length () =
   (1 -- 1000) |> S.length |> OUnit.assert_equal 1000
 
-let test_concat () =
+let test_concat2 () =
   1 -- 1000
     |> S.map (fun i -> (i -- (i+1)))
     |> S.concat
@@ -208,6 +208,7 @@ let suite =
     [ "test_empty" >:: test_empty;
       "test_repeat" >:: test_repeat;
       "test_concat" >:: test_concat;
+      "test_concat2" >:: test_concat2;
       "test_fold" >:: test_fold;
       "test_foldi" >:: test_foldi;
       "test_exists" >:: test_exists;
@@ -231,5 +232,5 @@ let suite =
       "test_hashtbl" >:: test_hashtbl;
       "test_int_range" >:: test_int_range;
       "test_take" >:: test_take;
-      "test_regression1" >:: test_regression1
+      "test_regression1" >:: test_regression1;
     ]

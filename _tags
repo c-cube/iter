@@ -28,3 +28,4 @@
 <bench/*.ml{,i}>: use_sequence
 # OASIS_STOP
 true: bin_annot
+<**/*.ml>: warn_K, warn_Y, warn_X

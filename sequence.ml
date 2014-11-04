@@ -152,10 +152,6 @@ module MList = struct
   let of_seq seq =
     of_seq_with seq (fun _ -> ())
 
-  let is_empty = function
-    | Nil -> true
-    | Cons _ -> false
-
   let rec iter f l = match l with
     | Nil -> ()
     | Cons (a, n, tl) ->
@@ -617,8 +613,6 @@ module Set = struct
     let to_seq set k = X.iter k set
 
     let of_seq seq = fold (fun set x -> X.add x set) X.empty seq
-
-    let of_list l = of_seq (of_list l)
 
     let to_list set = to_list (to_seq set)
 
