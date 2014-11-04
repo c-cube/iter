@@ -770,7 +770,7 @@ module IO = struct
         close_in_noerr ic;
         raise e
 
-  let write_to ?(mode=0o644) ?(flags=[Open_creat;Open_wronly]) filename seq =
+  let write_bytes_to ?(mode=0o644) ?(flags=[Open_creat;Open_wronly]) filename seq =
     let oc = open_out_gen flags mode filename in
     try
       seq (fun s -> output oc s 0 (Bytes.length s));
@@ -779,13 +779,13 @@ module IO = struct
       close_out oc;
       raise e
 
-  let write_str_to ?mode ?flags filename seq =
-    write_to ?mode ?flags filename (map Bytes.unsafe_of_string seq)
+  let write_to ?mode ?flags filename seq =
+    write_bytes_to ?mode ?flags filename (map Bytes.unsafe_of_string seq)
+
+  let write_bytes_lines ?mode ?flags filename seq =
+    let ret = Bytes.unsafe_of_string "\n" in
+    write_bytes_to ?mode ?flags filename (snoc (intersperse ret seq) ret)
 
   let write_lines ?mode ?flags filename seq =
-    let ret = Bytes.unsafe_of_string "\n" in
-    write_to ?mode ?flags filename (snoc (intersperse ret seq) ret)
-
-  let write_str_lines ?mode ?flags filename seq =
-    write_lines ?mode ?flags filename (map Bytes.unsafe_of_string seq)
+    write_bytes_lines ?mode ?flags filename (map Bytes.unsafe_of_string seq)
 end

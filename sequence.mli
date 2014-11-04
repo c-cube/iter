@@ -586,19 +586,21 @@ module IO : sig
       different iterations might return different results *)
 
   val write_to : ?mode:int -> ?flags:open_flag list ->
-                 string -> Bytes.t t -> unit
+                     string -> string t -> unit
   (** [write_to filename seq] writes all strings from [seq] into the given
       file. It takes care of opening and closing the file.
       @param mode default [0o644]
       @param flags used by [open_out_gen]. Default: [[Open_creat;Open_wronly]]. *)
 
-  val write_str_to : ?mode:int -> ?flags:open_flag list ->
-                     string -> string t -> unit
+  val write_bytes_to : ?mode:int -> ?flags:open_flag list ->
+                       string -> Bytes.t t -> unit
+  (** @since 0.5.4 *)
 
   val write_lines : ?mode:int -> ?flags:open_flag list ->
-                    string -> Bytes.t t -> unit
+                        string -> string t -> unit
   (** Same as {!write_to}, but intercales ['\n'] between each string *)
 
-  val write_str_lines : ?mode:int -> ?flags:open_flag list ->
-                        string -> string t -> unit
+  val write_bytes_lines : ?mode:int -> ?flags:open_flag list ->
+                    string -> Bytes.t t -> unit
+  (** @since 0.5.4 *)
 end

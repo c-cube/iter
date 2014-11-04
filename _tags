@@ -28,4 +28,3 @@
 <bench/*.ml{,i}>: use_sequence
 # OASIS_STOP
 true: bin_annot
-true: safe_string

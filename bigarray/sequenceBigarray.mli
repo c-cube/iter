@@ -25,7 +25,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 (** {1 Interface and Helpers for bigarrays}
 
-@since NEXT_RELEASE *)
+@since 0.5.4 *)
 
 val of_bigarray : ('a, _, _) Bigarray.Array1.t -> 'a Sequence.t
 (** Iterate on the elements of a 1-D array *)
