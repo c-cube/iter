@@ -40,7 +40,7 @@ let rec from_fun f k = match f () with
   | None -> ()
   | Some x -> k x; from_fun f k
 
-let empty k = ()
+let empty _ = ()
 
 let singleton x k = k x
 let return x k = k x
@@ -195,7 +195,7 @@ module MList = struct
           cur := !tl;
           i := 0;
           get_next arg
-      | Cons (a, n, _) ->
+      | Cons (a, _, _) ->
           let x = a.(!i) in
           incr i;
           Some x
@@ -210,7 +210,7 @@ module MList = struct
     let rec make (l,i) () = match l with
       | Nil -> `Nil
       | Cons (_, n, tl) when i = !n -> make (!tl,0) ()
-      | Cons (a, n, _) -> `Cons (a.(i), make (l,i+1))
+      | Cons (a, _, _) -> `Cons (a.(i), make (l,i+1))
     in make (l,0)
 end
 
@@ -407,7 +407,7 @@ let is_empty seq =
 
 (** {2 Transform a sequence} *)
 
-let empty2 k = ()
+let empty2 _ = ()
 
 let is_empty2 seq2 =
   try ignore (seq2 (fun _ _ -> raise ExitIsEmpty)); true
@@ -521,9 +521,9 @@ let of_hashtbl h k = Hashtbl.iter (fun a b -> k (a, b)) h
 
 let of_hashtbl2 h k = Hashtbl.iter k h
 
-let hashtbl_keys h k = Hashtbl.iter (fun a b -> k a) h
+let hashtbl_keys h k = Hashtbl.iter (fun a _ -> k a) h
 
-let hashtbl_values h k = Hashtbl.iter (fun a b -> k b) h
+let hashtbl_values h k = Hashtbl.iter (fun _ b -> k b) h
 
 let of_str s k = String.iter k s
 
