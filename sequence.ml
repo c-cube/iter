@@ -609,7 +609,7 @@ module Set = struct
   end
 
   (** Create an enriched Set module from the given one *)
-  module Adapt(X : Set.S) = struct
+  module Adapt(X : Set.S) : S with type elt = X.elt and type t = X.t = struct
     let to_seq set k = X.iter k set
 
     let of_seq seq = fold (fun set x -> X.add x set) X.empty seq
@@ -617,6 +617,8 @@ module Set = struct
     let to_list set = to_list (to_seq set)
 
     include X
+
+    let of_list l = List.fold_left (fun set x -> add x set) empty l
   end
 
   (** Functor to build an extended Set module from an ordered type *)
