@@ -42,6 +42,12 @@ let test_foldi () =
   OUnit.assert_equal [1, "world"; 0, "hello"] l;
   ()
 
+let test_fold_while () =
+  let n = S.of_list [true;true;false;true]
+    |> S.fold_while (fun acc b -> if b then acc+1, `Continue else acc, `Stop) 0 in
+  OUnit.assert_equal 2 n;
+  ()
+
 let test_exists () =
   S.(1 -- 100)
     |> S.exists (fun x -> x = 59)
