@@ -122,7 +122,7 @@ val iteri : (int -> 'a -> unit) -> 'a t -> unit
 val fold : ('a -> 'b -> 'a) -> 'a -> 'b t -> 'a
   (** Fold over elements of the sequence, consuming it *)
 
-val foldi : ('b -> int -> 'a -> 'b) -> 'b -> 'a t -> 'b
+val foldi : ('a -> int -> 'b -> 'a) -> 'a -> 'b t -> 'a
   (** Fold over elements of the sequence and their index, consuming it *)
 
 val map : ('a -> 'b) -> 'a t -> 'b t
