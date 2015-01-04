@@ -119,10 +119,10 @@ val iter : ('a -> unit) -> 'a t -> unit
 val iteri : (int -> 'a -> unit) -> 'a t -> unit
   (** Iterate on elements and their index in the sequence *)
 
-val fold : ('b -> 'a -> 'b) -> 'b -> 'a t -> 'b
+val fold : ('a -> 'b -> 'a) -> 'a -> 'b t -> 'a
   (** Fold over elements of the sequence, consuming it *)
 
-val foldi : ('b -> int -> 'a -> 'b) -> 'b -> 'a t -> 'b
+val foldi : ('a -> int -> 'b -> 'a) -> 'a -> 'b t -> 'a
   (** Fold over elements of the sequence and their index, consuming it *)
 
 val map : ('a -> 'b) -> 'a t -> 'b t
@@ -271,6 +271,11 @@ val take_while : ('a -> bool) -> 'a t -> 'a t
   (** Take elements while they satisfy the predicate, then stops iterating.
       Will work on an infinite sequence [s] if the predicate is false for at
       least one element of [s]. *)
+
+val fold_while : ('a -> 'b -> 'a * [`Stop | `Continue]) -> 'a -> 'b t -> 'a
+  (** Folds over elements of the sequence, stopping early if the accumulator
+      returns [('a, `Stop)]
+      @since NEXT_RELEASE *)
 
 val drop : int -> 'a t -> 'a t
   (** Drop the [n] first elements of the sequence. Lazy. *)

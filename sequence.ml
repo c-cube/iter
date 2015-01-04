@@ -347,6 +347,21 @@ let take_while p seq k =
     seq (fun x -> if p x then k x else raise ExitTakeWhile)
   with ExitTakeWhile -> ()
 
+exception ExitFoldWhile
+
+let fold_while f s seq =
+  let state = ref s in
+  let consume x =
+      let acc, cont = f (!state) x in
+      state := acc;
+      match cont with
+      | `Stop -> raise ExitFoldWhile
+      | `Continue -> ()
+  in
+  try
+    seq consume; !state
+  with ExitFoldWhile -> !state
+
 let drop n seq k =
   let count = ref 0 in
   seq (fun x -> if !count >= n then k x else incr count)
