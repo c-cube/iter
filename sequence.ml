@@ -63,21 +63,21 @@ let rec forever f k =
 
 let cycle s k = while true do s k; done
 
-let iter f seq = seq f
+let iter ~(f:'a -> unit) seq = seq f
 
-let iteri f seq =
+let iteri ~f seq =
   let r = ref 0 in
   seq
     (fun x ->
       f !r x;
       incr r)
 
-let fold f init seq =
+let fold ~f ~init seq =
   let r = ref init in
   seq (fun elt -> r := f !r elt);
   !r
 
-let foldi f init seq =
+let foldi ~f ~init seq =
   let i = ref 0 in
   let r = ref init in
   seq
@@ -86,13 +86,13 @@ let foldi f init seq =
       incr i);
   !r
 
-let map f seq k = seq (fun x -> k (f x))
+let map ~f seq k = seq (fun x -> k (f x))
 
-let mapi f seq k =
+let mapi ~f seq k =
   let i = ref 0 in
   seq (fun x -> k (f !i x); incr i)
 
-let filter p seq k = seq (fun x -> if p x then k x)
+let filter ~f seq k = seq (fun x -> if f x then k x)
 
 let append s1 s2 k = s1 k; s2 k
 
@@ -100,11 +100,11 @@ let concat s k = s (fun s' -> s' k)
 
 let flatten s = concat s
 
-let flatMap f seq k = seq (fun x -> f x k)
+let flatMap ~f seq k = seq (fun x -> f x k)
 
 let flat_map = flatMap
 
-let fmap f seq k =
+let fmap ~f seq k =
   seq (fun x -> match f x with
       | None -> ()
       | Some y -> k y
@@ -112,9 +112,9 @@ let fmap f seq k =
 
 let filter_map = fmap
 
-let intersperse elem seq k =
+let intersperse ~x seq k =
   let first = ref true in
-  seq (fun x -> (if !first then first := false else k elem); k x)
+  seq (fun y -> (if !first then first := false else k x); k y)
 
 (** Mutable unrolled list to serve as intermediate storage *)
 module MList = struct
@@ -234,7 +234,7 @@ let persistent_lazy (seq:'a t) =
 
 let sort ?(cmp=Pervasives.compare) seq =
   (* use an intermediate list, then sort the list *)
-  let l = fold (fun l x -> x::l) [] seq in
+  let l = fold ~f:(fun l x -> x::l) ~init:[] seq in
   let l = List.fast_sort cmp l in
   fun k -> List.iter k l
 
@@ -268,7 +268,7 @@ let sort_uniq (type elt) ?(cmp=Pervasives.compare) seq =
     type t = elt
     let compare = cmp
   end) in
-  let set = fold (fun acc x -> S.add x acc) S.empty seq in
+  let set = fold ~f:(fun acc x -> S.add x acc) ~init:S.empty seq in
   fun k -> S.iter k set
 
 let product outer inner k =
@@ -342,15 +342,15 @@ let take n seq k =
 
 exception ExitTakeWhile
 
-let take_while p seq k =
+let take_while ~f seq k =
   try
-    seq (fun x -> if p x then k x else raise ExitTakeWhile)
+    seq (fun x -> if f x then k x else raise ExitTakeWhile)
   with ExitTakeWhile -> ()
 
 exception ExitFoldWhile
 
-let fold_while f s seq =
-  let state = ref s in
+let fold_while ~f ~init seq =
+  let state = ref init in
   let consume x =
       let acc, cont = f (!state) x in
       state := acc;
@@ -366,11 +366,11 @@ let drop n seq k =
   let count = ref 0 in
   seq (fun x -> if !count >= n then k x else incr count)
 
-let drop_while p seq k =
+let drop_while ~f seq k =
   let drop = ref true in
   seq (fun x ->
     if !drop
-    then if p x then () else (drop := false; k x)
+    then if f x then () else (drop := false; k x)
     else k x)
 
 let rev seq =
@@ -379,26 +379,26 @@ let rev seq =
 
 exception ExitForall
 
-let for_all p seq =
+let for_all ~f seq =
   try
-    seq (fun x -> if not (p x) then raise ExitForall);
+    seq (fun x -> if not (f x) then raise ExitForall);
     true
   with ExitForall -> false
 
 exception ExitExists
 
 (** Exists there some element satisfying the predicate? *)
-let exists p seq =
+let exists ~f seq =
   try
-    seq (fun x -> if p x then raise ExitExists);
+    seq (fun x -> if f x then raise ExitExists);
     false
   with ExitExists -> true
 
-let mem ?(eq=(=)) x seq = exists (eq x) seq
+let mem ?(eq=(=)) ~x seq = exists ~f:(eq x) seq
 
 exception ExitFind
 
-let find f seq =
+let find ~f seq =
   let r = ref None in
   begin try
     seq (fun x -> match f x with
@@ -441,23 +441,23 @@ let zip_i seq k =
   let r = ref 0 in
   seq (fun x -> let n = !r in incr r; k n x)
 
-let fold2 f acc seq2 =
-  let acc = ref acc in
+let fold2 ~f ~init seq2 =
+  let acc = ref init in
   seq2 (fun x y -> acc := f !acc x y);
   !acc
 
-let iter2 f seq2 = seq2 f
+let iter2 ~f seq2 = seq2 f
 
-let map2 f seq2 k = seq2 (fun x y -> k (f x y))
+let map2 ~f seq2 k = seq2 (fun x y -> k (f x y))
 
 let map2_2 f g seq2 k =
   seq2 (fun x y -> k (f x y) (g x y))
 
 (** {2 Basic data structures converters} *)
 
-let to_list seq = List.rev (fold (fun y x -> x::y) [] seq)
+let to_list seq = List.rev (fold ~f:(fun y x -> x::y) ~init:[] seq)
 
-let to_rev_list seq = fold (fun y x -> x :: y) [] seq
+let to_rev_list seq = fold ~f:(fun y x -> x :: y) ~init:[] seq
 
 let of_list l k = List.iter k l
 
@@ -508,7 +508,7 @@ let to_stream seq =
   let l = MList.of_seq seq in
   MList.to_stream l
 
-let to_stack s seq = iter (fun x -> Stack.push x s) seq
+let to_stack s seq = iter ~f:(fun x -> Stack.push x s) seq
 
 let of_stack s k = Stack.iter k s
 
@@ -544,12 +544,12 @@ let of_str s k = String.iter k s
 
 let to_str seq =
   let b = Buffer.create 64 in
-  iter (fun c -> Buffer.add_char b c) seq;
+  iter ~f:(fun c -> Buffer.add_char b c) seq;
   Buffer.contents b
 
 let concat_str seq =
   let b = Buffer.create 64 in
-  iter (Buffer.add_string b) seq;
+  iter ~f:(Buffer.add_string b) seq;
   Buffer.contents b
 
 exception OneShotSequence
@@ -585,8 +585,8 @@ let of_set (type s) (type v) m set =
 let to_set (type s) (type v) m seq =
   let module S = (val m : Set.S with type t = s and type elt = v) in
   fold
-    (fun set x -> S.add x set)
-    S.empty seq
+    ~f:(fun set x -> S.add x set)
+    ~init:S.empty seq
 
 type 'a gen = unit -> 'a option
 type 'a klist = unit -> [`Nil | `Cons of 'a * 'a klist]
@@ -627,7 +627,7 @@ module Set = struct
   module Adapt(X : Set.S) : S with type elt = X.elt and type t = X.t = struct
     let to_seq set k = X.iter k set
 
-    let of_seq seq = fold (fun set x -> X.add x set) X.empty seq
+    let of_seq seq = fold ~f:(fun set x -> X.add x set) ~init:X.empty seq
 
     let to_list set = to_list (to_seq set)
 
@@ -660,7 +660,7 @@ module Map = struct
   module Adapt(M : Map.S) = struct
     let to_seq m = from_iter (fun k -> M.iter (fun x y -> k (x,y)) m)
 
-    let of_seq seq = fold (fun m (k,v) -> M.add k v m) M.empty seq
+    let of_seq seq = fold ~f:(fun m (k,v) -> M.add k v m) ~init:M.empty seq
 
     let keys m = from_iter (fun k -> M.iter (fun x _ -> k x) m)
 
@@ -704,9 +704,9 @@ module Infix = struct
 
   let (--^) i j = int_range_dec ~start:i ~stop:j
 
-  let (>>=) x f = flat_map f x
+  let (>>=) x f = flat_map ~f x
 
-  let (>|=) x f = map f x
+  let (>|=) x f = map ~f x
 
   let (<*>) funs args k =
     funs (fun f -> args (fun x -> k (f x)))
@@ -791,12 +791,12 @@ module IO = struct
       raise e
 
   let write_to ?mode ?flags filename seq =
-    write_bytes_to ?mode ?flags filename (map Bytes.unsafe_of_string seq)
+    write_bytes_to ?mode ?flags filename (map ~f:Bytes.unsafe_of_string seq)
 
   let write_bytes_lines ?mode ?flags filename seq =
     let ret = Bytes.unsafe_of_string "\n" in
-    write_bytes_to ?mode ?flags filename (snoc (intersperse ret seq) ret)
+    write_bytes_to ?mode ?flags filename (snoc (intersperse ~x:ret seq) ret)
 
   let write_lines ?mode ?flags filename seq =
-    write_bytes_lines ?mode ?flags filename (map Bytes.unsafe_of_string seq)
+    write_bytes_lines ?mode ?flags filename (map ~f:Bytes.unsafe_of_string seq)
 end

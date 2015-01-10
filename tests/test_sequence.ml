@@ -13,7 +13,7 @@ let test_empty () =
   let seq = S.empty in
   OUnit.assert_bool "empty" (S.is_empty seq);
   OUnit.assert_bool "empty"
-    (try S.iter (fun _ -> raise Exit) seq; true with Exit -> false);
+    (try S.iter ~f:(fun _ -> raise Exit) seq; true with Exit -> false);
   ()
 
 let test_repeat () =
@@ -31,29 +31,29 @@ let test_concat () =
 
 let test_fold () =
   let n = S.(1 -- 10)
-    |> S.fold (+) 0 in
+    |> S.fold ~f:(+) ~init:0 in
   OUnit.assert_equal 55 n;
   ()
 
 let test_foldi () =
   let l = ["hello"; "world"]
     |> S.of_list
-    |> S.foldi (fun acc i x -> (i,x) :: acc) [] in
+    |> S.foldi ~f:(fun acc i x -> (i,x) :: acc) ~init:[] in
   OUnit.assert_equal [1, "world"; 0, "hello"] l;
   ()
 
 let test_fold_while () =
   let n = S.of_list [true;true;false;true]
-    |> S.fold_while (fun acc b -> if b then acc+1, `Continue else acc, `Stop) 0 in
+    |> S.fold_while ~f:(fun acc b -> if b then acc+1, `Continue else acc, `Stop) ~init:0 in
   OUnit.assert_equal 2 n;
   ()
 
 let test_exists () =
   S.(1 -- 100)
-    |> S.exists (fun x -> x = 59)
+    |> S.exists ~f:(fun x -> x = 59)
     |> OUnit.assert_bool "exists";
   S.(1 -- 100)
-    |> S.exists (fun x -> x < 0)
+    |> S.exists ~f:(fun x -> x < 0)
     |> (fun x -> not x)
     |> OUnit.assert_bool "not exists";
   ()
@@ -63,20 +63,20 @@ let test_length () =
 
 let test_concat2 () =
   S.(1 -- 1000)
-    |> S.map (fun i -> S.(i -- (i+1)))
+    |> S.map ~f:(fun i -> S.(i -- (i+1)))
     |> S.concat
     |> S.length
     |> OUnit.assert_equal 2000
 
 let test_flatMap () =
   S.(1 -- 1000)
-    |> S.flatMap (fun i -> S.(i -- (i+1)))
+    |> S.flat_map ~f:(fun i -> S.(i -- (i+1)))
     |> S.length
     |> OUnit.assert_equal 2000
 
 let test_intersperse () =
   S.(1 -- 100)
-    |> (fun seq -> S.intersperse 0 seq)
+    |> (fun seq -> S.intersperse ~x:0 seq)
     |> S.take 10
     |> S.to_list
     |> OUnit.assert_equal [1;0;2;0;3;0;4;0;5;0]
@@ -138,7 +138,7 @@ let test_product () =
   let stream = Stream.from (fun i -> if i < 3 then Some i else None) in
   let a = S.of_stream stream in
   let b = S.of_list ["a";"b";"c"] in
-  let s = S.product a b |> S.map (fun (x,y) -> y,x)
+  let s = S.product a b |> S.map ~f:(fun (x,y) -> y,x)
     |> S.to_list |> List.sort compare in
   OUnit.assert_equal ["a",0; "a", 1; "a", 2;
                       "b",0; "b", 1; "b", 2;
@@ -177,14 +177,14 @@ let test_hashtbl () =
     |> S.zip_i
     |> S.to_hashtbl2 in
   S.(0 -- 4)
-    |> S.iter (fun i -> OUnit.assert_equal (i+1) (Hashtbl.find h i));
+    |> S.iter ~f:(fun i -> OUnit.assert_equal (i+1) (Hashtbl.find h i));
   OUnit.assert_equal [0;1;2;3;4] (S.hashtbl_keys h |> S.sort ?cmp:None |> S.to_list);
   ()
 
 let test_buff () =
   let b = Buffer.create 4 in
   "hello world"
-    |> S.of_str |> S.rev |> S.map Char.uppercase
+    |> S.of_str |> S.rev |> S.map ~f:Char.uppercase
     |> (fun seq -> S.to_buffer seq b);
   OUnit.assert_equal "DLROW OLLEH" (Buffer.contents b);
   ()

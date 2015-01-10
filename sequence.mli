@@ -112,37 +112,37 @@ val cycle : 'a t -> 'a t
 
 (** {2 Consume a sequence} *)
 
-val iter : ('a -> unit) -> 'a t -> unit
+val iter : f:('a -> unit) -> 'a t -> unit
   (** Consume the sequence, passing all its arguments to the function.
       Basically [iter f seq] is just [seq f]. *)
 
-val iteri : (int -> 'a -> unit) -> 'a t -> unit
+val iteri : f:(int -> 'a -> unit) -> 'a t -> unit
   (** Iterate on elements and their index in the sequence *)
 
-val fold : ('a -> 'b -> 'a) -> 'a -> 'b t -> 'a
+val fold : f:('a -> 'b -> 'a) -> init:'a -> 'b t -> 'a
   (** Fold over elements of the sequence, consuming it *)
 
-val foldi : ('a -> int -> 'b -> 'a) -> 'a -> 'b t -> 'a
+val foldi : f:('a -> int -> 'b -> 'a) -> init:'a -> 'b t -> 'a
   (** Fold over elements of the sequence and their index, consuming it *)
 
-val map : ('a -> 'b) -> 'a t -> 'b t
+val map : f:('a -> 'b) -> 'a t -> 'b t
   (** Map objects of the sequence into other elements, lazily *)
 
-val mapi : (int -> 'a -> 'b) -> 'a t -> 'b t
+val mapi : f:(int -> 'a -> 'b) -> 'a t -> 'b t
   (** Map objects, along with their index in the sequence *)
 
-val for_all : ('a -> bool) -> 'a t -> bool
+val for_all : f:('a -> bool) -> 'a t -> bool
   (** Do all elements satisfy the predicate? *)
 
-val exists : ('a -> bool) -> 'a t -> bool
+val exists : f:('a -> bool) -> 'a t -> bool
   (** Exists there some element satisfying the predicate? *)
 
-val mem : ?eq:('a -> 'a -> bool) -> 'a -> 'a t -> bool
+val mem : ?eq:('a -> 'a -> bool) -> x:'a -> 'a t -> bool
   (** Is the value a member of the sequence?
       @param eq the equality predicate to use (default [(=)])
       @since 0.5 *)
 
-val find : ('a -> 'b option) -> 'a t -> 'b option
+val find : f:('a -> 'b option) -> 'a t -> 'b option
   (** Find the first element on which the function doesn't return [None]
       @since 0.5 *)
 
@@ -154,7 +154,7 @@ val is_empty : 'a t -> bool
 
 (** {2 Transform a sequence} *)
 
-val filter : ('a -> bool) -> 'a t -> 'a t
+val filter : f:('a -> bool) -> 'a t -> 'a t
   (** Filter on elements of the sequence *)
 
 val append : 'a t -> 'a t -> 'a t
@@ -167,22 +167,24 @@ val concat : 'a t t -> 'a t
 val flatten : 'a t t -> 'a t
   (** Alias for {!concat} *)
 
-val flatMap : ('a -> 'b t) -> 'a t -> 'b t
+val flatMap : f:('a -> 'b t) -> 'a t -> 'b t
   (** Monadic bind. Intuitively, it applies the function to every element of the
-      initial sequence, and calls {!concat}. *)
+      initial sequence, and calls {!concat}.
+      @deprecated use {!flat_map} *)
 
-val flat_map : ('a -> 'b t) -> 'a t -> 'b t
+val flat_map : f:('a -> 'b t) -> 'a t -> 'b t
   (** Alias to {!flatMap} with a more explicit name
       @since 0.5 *)
 
-val fmap : ('a -> 'b option) -> 'a t -> 'b t
-  (** Specialized version of {!flatMap} for options.  *)
+val fmap : f:('a -> 'b option) -> 'a t -> 'b t
+  (** Specialized version of {!flatMap} for options.
+      @deprecated use {!filter_map} *)
 
-val filter_map : ('a -> 'b option) -> 'a t -> 'b t
+val filter_map : f:('a -> 'b option) -> 'a t -> 'b t
   (** Alias to {!fmap} with a more explicit name
       @since 0.5 *)
 
-val intersperse : 'a -> 'a t -> 'a t
+val intersperse : x:'a -> 'a t -> 'a t
   (** Insert the single element between every element of the sequence *)
 
 (** {2 Caching} *)
@@ -267,12 +269,12 @@ val take : int -> 'a t -> 'a t
   (** Take at most [n] elements from the sequence. Works on infinite
       sequences. *)
 
-val take_while : ('a -> bool) -> 'a t -> 'a t
+val take_while : f:('a -> bool) -> 'a t -> 'a t
   (** Take elements while they satisfy the predicate, then stops iterating.
       Will work on an infinite sequence [s] if the predicate is false for at
       least one element of [s]. *)
 
-val fold_while : ('a -> 'b -> 'a * [`Stop | `Continue]) -> 'a -> 'b t -> 'a
+val fold_while : f:('a -> 'b -> 'a * [`Stop | `Continue]) -> init:'a -> 'b t -> 'a
   (** Folds over elements of the sequence, stopping early if the accumulator
       returns [('a, `Stop)]
       @since NEXT_RELEASE *)
@@ -280,7 +282,7 @@ val fold_while : ('a -> 'b -> 'a * [`Stop | `Continue]) -> 'a -> 'b t -> 'a
 val drop : int -> 'a t -> 'a t
   (** Drop the [n] first elements of the sequence. Lazy. *)
 
-val drop_while : ('a -> bool) -> 'a t -> 'a t
+val drop_while : f:('a -> bool) -> 'a t -> 'a t
   (** Predicate version of {!drop} *)
 
 val rev : 'a t -> 'a t
@@ -303,11 +305,11 @@ val unzip : ('a * 'b) t -> ('a, 'b) t2
 val zip_i : 'a t -> (int, 'a) t2
   (** Zip elements of the sequence with their index in the sequence *)
 
-val fold2 : ('c -> 'a -> 'b -> 'c) -> 'c -> ('a, 'b) t2 -> 'c
+val fold2 : f:('c -> 'a -> 'b -> 'c) -> init:'c -> ('a, 'b) t2 -> 'c
 
-val iter2 : ('a -> 'b -> unit) -> ('a, 'b) t2 -> unit
+val iter2 : f:('a -> 'b -> unit) -> ('a, 'b) t2 -> unit
 
-val map2 : ('a -> 'b -> 'c) -> ('a, 'b) t2 -> 'c t
+val map2 : f:('a -> 'b -> 'c) -> ('a, 'b) t2 -> 'c t
 
 val map2_2 : ('a -> 'b -> 'c) -> ('a -> 'b -> 'd) -> ('a, 'b) t2 -> ('c, 'd) t2
   (** [map2_2 f g seq2] maps each [x, y] of seq2 into [f x y, g x y] *)
