@@ -29,7 +29,7 @@ Flag bigarray
 
 Library "sequence"
   Path:             .
-  Modules:          Sequence
+  Modules:          Sequence, SequenceLabels
   BuildDepends:     bytes
 
 Library "invert"
