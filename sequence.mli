@@ -275,7 +275,7 @@ val take_while : ('a -> bool) -> 'a t -> 'a t
 val fold_while : ('a -> 'b -> 'a * [`Stop | `Continue]) -> 'a -> 'b t -> 'a
   (** Folds over elements of the sequence, stopping early if the accumulator
       returns [('a, `Stop)]
-      @since  *)
+      @since 0.5.5 *)
 
 val drop : int -> 'a t -> 'a t
   (** Drop the [n] first elements of the sequence. Lazy. *)
@@ -529,7 +529,6 @@ module Infix : sig
 end
 
 include module type of Infix
-
 
 (** {2 Pretty printing of sequences} *)
 
