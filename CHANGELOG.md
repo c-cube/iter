@@ -1,5 +1,33 @@
 # Changelog
 
+## 0.5.5
+
+- new module `SequenceLabels`
+- `fold_while` fun
+- implement `Set.Adapt.of_list` for `< 4.02`
+- removed many warnings, fix tests
+- change name of `IO` functions (keep compat)
+
+## 0.5.4
+
+- depend on `bytes`
+- compliance with `-safe-string`
+- `sequence.bigarray`
+
+## 0.5.3
+
+- bugfix: interaction between `take` and `is_empty`
+
+## 0.5.2
+
+- bugfix in `take`
+- `on_list` for mapping lists through sequences
+
+## 0.5.1
+
+- `Sequence.IO` module, a very very simple way to read/write files
+- options: `to_opt/of_opt/head/head_exn`
+
 ## 0.5
 
 - conversion with `klist`
@@ -20,7 +48,7 @@
 ## 0.4.1
 
 - `persistent_lazy`
-- use bin_annot
+- use `bin_annot`
 
 ## 0.4
 
@@ -62,4 +90,4 @@
 - `zip`, `unzip` and `zip_i` to convert between `t` and `t2`
 - added `scan` combinator
 
-note: git log --no-merges previous_version..HEAD --pretty=%s
+note: `git log --no-merges previous_version..HEAD --pretty=%s`

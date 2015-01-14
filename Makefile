@@ -57,11 +57,23 @@ push_stable: all
 	git push origin
 	git checkout master
 
-VERSION=$(shell awk '^/Version:/ {print $$2}' _oasis)
+VERSION=$(shell awk '/^Version:/ {print $$2}' _oasis)
 
 update_next_tag:
 	@echo "update version to $(VERSION)..."
 	sed -i "s/NEXT_VERSION/$(VERSION)/g" *.ml *.mli
 	sed -i "s/NEXT_RELEASE/$(VERSION)/g" *.ml *.mli
+
+NAME_VERSION := sequence.$(VERSION)
+URL := https://github.com/c-cube/sequence/archive/$(VERSION).tar.gz
+
+release:
+	git tag -a $(VERSION) -m "Version $(VERSION)."
+	git push origin $(VERSION)
+	opam publish prepare $(NAME_VERSION) $(URL)
+	cp descr $(NAME_VERSION)
+	echo "submit?"
+	@read
+	opam publish submit $(NAME_VERSION)
 
 .PHONY: benchs tests examples update_next_tag push_doc push_stable

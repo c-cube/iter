@@ -27,7 +27,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 Version of {!Sequence} with labels
 
-@since NEXT_RELEASE *)
+@since 0.5.5 *)
 
 type +'a t = ('a -> unit) -> unit
   (** A sequence of values of type ['a]. If you give it a function ['a -> unit]
