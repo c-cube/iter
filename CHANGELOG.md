@@ -90,10 +90,4 @@
 - `zip`, `unzip` and `zip_i` to convert between `t` and `t2`
 - added `scan` combinator
 
-<<<<<<< HEAD
-note: git log --no-merges --pretty=%s previous_version..HEAD
-||||||| merged common ancestors
-note: git log --no-merges previous_version..HEAD --pretty=%s
-=======
 note: `git log --no-merges previous_version..HEAD --pretty=%s`
->>>>>>> master
