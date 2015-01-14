@@ -530,7 +530,6 @@ end
 
 include module type of Infix
 
-
 (** {2 Pretty printing of sequences} *)
 
 val pp_seq : ?sep:string -> (Format.formatter -> 'a -> unit) ->
