@@ -66,4 +66,16 @@ update_next_tag:
 	sed -i "s/NEXT_VERSION/$(VERSION)/g" $(SOURCE)
 	sed -i "s/NEXT_RELEASE/$(VERSION)/g" $(SOURCE)
 
+NAME_VERSION := sequence.$(VERSION)
+URL := https://github.com/c-cube/sequence/archive/$(VERSION).tar.gz
+
+release:
+	git tag -a $(VERSION) -m "Version $(VERSION)."
+	git push origin $(VERSION)
+	opam publish prepare $(NAME_VERSION) $(URL)
+	cp descr $(NAME_VERSION)
+	echo "submit?"
+	@read
+	opam publish submit $(NAME_VERSION)
+
 .PHONY: benchs tests examples update_next_tag push_doc push_stable

@@ -23,34 +23,11 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 *)
 
-(** {1 Simple and Efficient Iterators} *)
+(** {1 Simple and Efficient Iterators}
 
-(** The iterators are designed to allow easy transfer (mappings) between data
-    structures, without defining [n^2] conversions between the [n] types. The
-    implementation relies on the assumption that a sequence can be iterated
-    on as many times as needed; this choice allows for high performance
-    of many combinators. However, for transient iterators, the {!persistent}
-    function is provided, storing elements of a transient iterator
-    in memory; the iterator can then be used several times (See further).
+Version of {!Sequence} with labels
 
-    Note that some combinators also return sequences (e.g. {!group}). The
-    transformation is computed on the fly every time one iterates over
-    the resulting sequence. If a transformation performs heavy computation,
-    {!persistent} can also be used as intermediate storage.
-
-    Most functions are {b lazy}, i.e. they do not actually use their arguments
-    until their result is iterated on. For instance, if one calls {!map}
-    on a sequence, one gets a new sequence, but nothing else happens until
-    this new sequence is used (by folding or iterating on it).
-
-    If a sequence is built from an iteration function that is {b repeatable}
-    (i.e. calling it several times always iterates on the same set of
-    elements, for instance List.iter or Map.iter), then
-    the resulting {!t} object is also repeatable. For {b one-time iter functions}
-    such as iteration on a file descriptor or a {!Stream},
-    the {!persistent} function can be used to iterate and store elements in
-    a memory structure; the result is a sequence that iterates on the elements
-    of this memory structure, cheaply and repeatably. *)
+@since NEXT_RELEASE *)
 
 type +'a t = ('a -> unit) -> unit
   (** A sequence of values of type ['a]. If you give it a function ['a -> unit]
@@ -112,39 +89,37 @@ val cycle : 'a t -> 'a t
 
 (** {2 Consume a sequence} *)
 
-val iter : ('a -> unit) -> 'a t -> unit
+val iter : f:('a -> unit) -> 'a t -> unit
   (** Consume the sequence, passing all its arguments to the function.
       Basically [iter f seq] is just [seq f]. *)
 
-val iteri : (int -> 'a -> unit) -> 'a t -> unit
+val iteri : f:(int -> 'a -> unit) -> 'a t -> unit
   (** Iterate on elements and their index in the sequence *)
 
-val fold : ('a -> 'b -> 'a) -> 'a -> 'b t -> 'a
+val fold : f:('a -> 'b -> 'a) -> init:'a -> 'b t -> 'a
   (** Fold over elements of the sequence, consuming it *)
 
-val foldi : ('a -> int -> 'b -> 'a) -> 'a -> 'b t -> 'a
+val foldi : f:('a -> int -> 'b -> 'a) -> init:'a -> 'b t -> 'a
   (** Fold over elements of the sequence and their index, consuming it *)
 
-val map : ('a -> 'b) -> 'a t -> 'b t
+val map : f:('a -> 'b) -> 'a t -> 'b t
   (** Map objects of the sequence into other elements, lazily *)
 
-val mapi : (int -> 'a -> 'b) -> 'a t -> 'b t
+val mapi : f:(int -> 'a -> 'b) -> 'a t -> 'b t
   (** Map objects, along with their index in the sequence *)
 
-val for_all : ('a -> bool) -> 'a t -> bool
+val for_all : f:('a -> bool) -> 'a t -> bool
   (** Do all elements satisfy the predicate? *)
 
-val exists : ('a -> bool) -> 'a t -> bool
+val exists : f:('a -> bool) -> 'a t -> bool
   (** Exists there some element satisfying the predicate? *)
 
-val mem : ?eq:('a -> 'a -> bool) -> 'a -> 'a t -> bool
+val mem : ?eq:('a -> 'a -> bool) -> x:'a -> 'a t -> bool
   (** Is the value a member of the sequence?
-      @param eq the equality predicate to use (default [(=)])
-      @since 0.5 *)
+      @param eq the equality predicate to use (default [(=)]) *)
 
-val find : ('a -> 'b option) -> 'a t -> 'b option
-  (** Find the first element on which the function doesn't return [None]
-      @since 0.5 *)
+val find : f:('a -> 'b option) -> 'a t -> 'b option
+  (** Find the first element on which the function doesn't return [None] *)
 
 val length : 'a t -> int
   (** How long is the sequence? Forces the sequence. *)
@@ -154,7 +129,7 @@ val is_empty : 'a t -> bool
 
 (** {2 Transform a sequence} *)
 
-val filter : ('a -> bool) -> 'a t -> 'a t
+val filter : f:('a -> bool) -> 'a t -> 'a t
   (** Filter on elements of the sequence *)
 
 val append : 'a t -> 'a t -> 'a t
@@ -167,22 +142,22 @@ val concat : 'a t t -> 'a t
 val flatten : 'a t t -> 'a t
   (** Alias for {!concat} *)
 
-val flatMap : ('a -> 'b t) -> 'a t -> 'b t
+val flatMap : f:('a -> 'b t) -> 'a t -> 'b t
   (** Monadic bind. Intuitively, it applies the function to every element of the
-      initial sequence, and calls {!concat}. *)
+      initial sequence, and calls {!concat}.
+      @deprecated use {!flat_map} *)
 
-val flat_map : ('a -> 'b t) -> 'a t -> 'b t
-  (** Alias to {!flatMap} with a more explicit name
-      @since 0.5 *)
+val flat_map : f:('a -> 'b t) -> 'a t -> 'b t
+  (** Alias to {!flatMap} with a more explicit name *)
 
-val fmap : ('a -> 'b option) -> 'a t -> 'b t
-  (** Specialized version of {!flatMap} for options.  *)
+val fmap : f:('a -> 'b option) -> 'a t -> 'b t
+  (** Specialized version of {!flatMap} for options.
+      @deprecated use {!filter_map} *)
 
-val filter_map : ('a -> 'b option) -> 'a t -> 'b t
-  (** Alias to {!fmap} with a more explicit name
-      @since 0.5 *)
+val filter_map : f:('a -> 'b option) -> 'a t -> 'b t
+  (** Alias to {!fmap} with a more explicit name *)
 
-val intersperse : 'a -> 'a t -> 'a t
+val intersperse : x:'a -> 'a t -> 'a t
   (** Insert the single element between every element of the sequence *)
 
 (** {2 Caching} *)
@@ -228,8 +203,7 @@ val product : 'a t -> 'b t -> ('a * 'b) t
       beforehand. *)
 
 val product2 : 'a t -> 'b t -> ('a, 'b) t2
-  (** Binary version of {!product}. Same requirements.
-      @since 0.5 *)
+  (** Binary version of {!product}. Same requirements. *)
 
 val join : join_row:('a -> 'b -> 'c option) -> 'a t -> 'b t -> 'c t
   (** [join ~join_row a b] combines every element of [a] with every
@@ -255,32 +229,29 @@ val min : ?lt:('a -> 'a -> bool) -> 'a t -> 'a option
       see {!max} for more details. *)
 
 val head : 'a t -> 'a option
-  (** First element, if any, otherwise [None]
-      @since 0.5.1 *)
+  (** First element, if any, otherwise [None] *)
 
 val head_exn : 'a t -> 'a
   (** First element, if any, fails
-      @raise Invalid_argument if the sequence is empty
-      @since 0.5.1 *)
+      @raise Invalid_argument if the sequence is empty *)
 
 val take : int -> 'a t -> 'a t
   (** Take at most [n] elements from the sequence. Works on infinite
       sequences. *)
 
-val take_while : ('a -> bool) -> 'a t -> 'a t
+val take_while : f:('a -> bool) -> 'a t -> 'a t
   (** Take elements while they satisfy the predicate, then stops iterating.
       Will work on an infinite sequence [s] if the predicate is false for at
       least one element of [s]. *)
 
-val fold_while : ('a -> 'b -> 'a * [`Stop | `Continue]) -> 'a -> 'b t -> 'a
+val fold_while : f:('a -> 'b -> 'a * [`Stop | `Continue]) -> init:'a -> 'b t -> 'a
   (** Folds over elements of the sequence, stopping early if the accumulator
-      returns [('a, `Stop)]
-      @since NEXT_RELEASE *)
+      returns [('a, `Stop)] *)
 
 val drop : int -> 'a t -> 'a t
   (** Drop the [n] first elements of the sequence. Lazy. *)
 
-val drop_while : ('a -> bool) -> 'a t -> 'a t
+val drop_while : f:('a -> bool) -> 'a t -> 'a t
   (** Predicate version of {!drop} *)
 
 val rev : 'a t -> 'a t
@@ -303,11 +274,11 @@ val unzip : ('a * 'b) t -> ('a, 'b) t2
 val zip_i : 'a t -> (int, 'a) t2
   (** Zip elements of the sequence with their index in the sequence *)
 
-val fold2 : ('c -> 'a -> 'b -> 'c) -> 'c -> ('a, 'b) t2 -> 'c
+val fold2 : f:('c -> 'a -> 'b -> 'c) -> init:'c -> ('a, 'b) t2 -> 'c
 
-val iter2 : ('a -> 'b -> unit) -> ('a, 'b) t2 -> unit
+val iter2 : f:('a -> 'b -> unit) -> ('a, 'b) t2 -> unit
 
-val map2 : ('a -> 'b -> 'c) -> ('a, 'b) t2 -> 'c t
+val map2 : f:('a -> 'b -> 'c) -> ('a, 'b) t2 -> 'c t
 
 val map2_2 : ('a -> 'b -> 'c) -> ('a -> 'b -> 'd) -> ('a, 'b) t2 -> ('c, 'd) t2
   (** [map2_2 f g seq2] maps each [x, y] of seq2 into [f x y, g x y] *)
@@ -325,13 +296,10 @@ val to_rev_list : 'a t -> 'a list
 val of_list : 'a list -> 'a t
 
 val on_list : ('a t -> 'b t) -> 'a list -> 'b list
-(** [on_list f l] is equivalent to [to_list @@ f @@ of_list l].
-    @since 0.5.2
-*)
+(** [on_list f l] is equivalent to [to_list @@ f @@ of_list l]. *)
 
 val to_opt : 'a t -> 'a option
-  (** Alias to {!head}
-      @since 0.5.1 *)
+  (** Alias to {!head} *)
 
 val to_array : 'a t -> 'a array
   (** Convert to an array. Currently not very efficient because
@@ -349,8 +317,7 @@ val array_slice : 'a array -> int -> int -> 'a t
       from [i] to [j] *)
 
 val of_opt : 'a option -> 'a t
-  (** Iterate on 0 or 1 values.
-      @since 0.5.1 *)
+  (** Iterate on 0 or 1 values. *)
 
 val of_stream : 'a Stream.t -> 'a t
   (** Sequence of elements of a stream (usable only once) *)
@@ -398,8 +365,7 @@ val to_str :  char t -> string
 
 val concat_str : string t -> string
   (** Concatenate strings together, eagerly.
-      Also see {!intersperse} to add a separator.
-      @since 0.5 *)
+      Also see {!intersperse} to add a separator. *)
 
 exception OneShotSequence
   (** Raised when the user tries to iterate several times on
@@ -512,20 +478,16 @@ module Infix : sig
         It will therefore be empty if [a < b]. *)
 
   val (>>=) : 'a t -> ('a -> 'b t) -> 'b t
-    (** Monadic bind (infix version of {!flat_map}
-        @since 0.5 *)
+    (** Monadic bind (infix version of {!flat_map} *)
 
   val (>|=) : 'a t -> ('a -> 'b) -> 'b t
-    (** Infix version of {!map}
-        @since 0.5 *)
+    (** Infix version of {!map} *)
 
   val (<*>) : ('a -> 'b) t -> 'a t -> 'b t
-    (** Applicative operator (product+application)
-        @since 0.5 *)
+    (** Applicative operator (product+application) *)
 
   val (<+>) : 'a t -> 'a t -> 'a t
-    (** Concatenation of sequences
-        @since 0.5 *)
+    (** Concatenation of sequences *)
 end
 
 include module type of Infix
@@ -569,7 +531,7 @@ Read the lines of a file into a list:
   Sequence.IO.lines "a" |> Sequence.to_list
 ]}
 
-@since 0.5.1 *)
+*)
 
 module IO : sig
   val lines_of : ?mode:int -> ?flags:open_flag list ->
@@ -599,7 +561,7 @@ module IO : sig
 
   val write_bytes_to : ?mode:int -> ?flags:open_flag list ->
                        string -> Bytes.t t -> unit
-  (** @since 0.5.4 *)
+  (** *)
 
   val write_lines : ?mode:int -> ?flags:open_flag list ->
                         string -> string t -> unit
@@ -607,5 +569,4 @@ module IO : sig
 
   val write_bytes_lines : ?mode:int -> ?flags:open_flag list ->
                     string -> Bytes.t t -> unit
-  (** @since 0.5.4 *)
 end

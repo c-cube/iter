@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.5.5
+
+- new module `SequenceLabels`
+- `fold_while` fun
+- implement `Set.Adapt.of_list` for `< 4.02`
+- removed many warnings, fix tests
+- change name of `IO` functions (keep compat)
+
 ## 0.5.4
 
 - depend on `bytes`
@@ -40,7 +48,7 @@
 ## 0.4.1
 
 - `persistent_lazy`
-- use bin_annot
+- use `bin_annot`
 
 ## 0.4
 
@@ -82,4 +90,10 @@
 - `zip`, `unzip` and `zip_i` to convert between `t` and `t2`
 - added `scan` combinator
 
+<<<<<<< HEAD
 note: git log --no-merges --pretty=%s previous_version..HEAD
+||||||| merged common ancestors
+note: git log --no-merges previous_version..HEAD --pretty=%s
+=======
+note: `git log --no-merges previous_version..HEAD --pretty=%s`
+>>>>>>> master

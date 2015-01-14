@@ -1,6 +1,6 @@
 OASISFormat: 0.4
 Name:        sequence
-Version:     0.5.4
+Version:     0.5.5
 Homepage:    https://github.com/c-cube/sequence
 Authors:     Simon Cruanes
 License:     BSD-2-clause
@@ -29,7 +29,7 @@ Flag bigarray
 
 Library "sequence"
   Path:             .
-  Modules:          Sequence
+  Modules:          Sequence, SequenceLabels
   BuildDepends:     bytes
 
 Library "invert"

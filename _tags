@@ -51,3 +51,6 @@ true: annot, bin_annot
 <bench/*.ml{,i,y}>: use_sequence
 # OASIS_STOP
 true: bin_annot
+<**/*.ml>: warn_A, warn(-4)
+true: mark_tag_used
+<sequenceLabels.cm*>: nolabels
