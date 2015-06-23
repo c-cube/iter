@@ -25,6 +25,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 (** {1 Interface and Helpers for bigarrays} *)
 
+open Bigarray
+
 let of_bigarray b yield =
   let len = Bigarray.Array1.dim b in
   for i=0 to len-1 do
