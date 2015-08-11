@@ -578,6 +578,8 @@ let int_range ~start ~stop k =
 let int_range_dec ~start ~stop k =
   for i = start downto stop do k i done
 
+let bools k = k false; k true
+
 let of_set (type s) (type v) m set =
   let module S = (val m : Set.S with type t = s and type elt = v) in
   fun k -> S.iter k set

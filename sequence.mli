@@ -422,6 +422,10 @@ val int_range_dec : start:int -> stop:int -> int t
   (** Iterator on decreasing integers in [stop...start] by steps -1.
       See {!(--^)} for an infix version *)
 
+val bools : bool t
+  (** Iterates on [true] and [false]
+      @since NEXT_RELEASE *)
+
 val of_set : (module Set.S with type elt = 'a and type t = 'b) -> 'b -> 'a t
   (** Convert the given set to a sequence. The set module must be provided. *)
 
