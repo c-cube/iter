@@ -223,6 +223,11 @@ val group_succ_by : ?eq:('a -> 'a -> bool) -> 'a t -> 'a list t
       Synonym to {!group}.
       @since NEXT_RELEASE *)
 
+val group_by : ?hash:('a -> int) -> ?eq:('a -> 'a -> bool) ->
+               'a t -> 'a list t
+  (** Group equal elements, disregarding their order of appearance.
+      The result sequence is traversable as many times as required.
+      @since NEXT_RELEASE *)
 
 val uniq : ?eq:('a -> 'a -> bool) -> 'a t -> 'a t
   (** Remove consecutive duplicate elements. Basically this is

@@ -253,6 +253,22 @@ let group_succ_by ?(eq=fun x y -> x = y) seq k =
 
 let group = group_succ_by
 
+let group_by (type k) ?(hash=Hashtbl.hash) ?(eq=(=)) seq =
+  let module Tbl = Hashtbl.Make(struct
+    type t = k
+    let equal = eq
+    let hash = hash
+  end) in
+  (* compute group table *)
+  let tbl = Tbl.create 32 in
+  seq
+    (fun x ->
+      let l = try Tbl.find tbl x with Not_found -> [] in
+      Tbl.replace tbl x (x::l)
+    );
+  fun yield ->
+    Tbl.iter (fun _ l -> yield l) tbl
+
 let uniq ?(eq=fun x y -> x = y) seq k =
   let has_prev = ref false
   and prev = ref (Obj.magic 0) in  (* avoid option type, costly *)

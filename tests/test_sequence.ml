@@ -124,10 +124,15 @@ let test_sort_uniq () =
     |> S.to_list
     |> OUnit.assert_equal [1;2;3;4;5;42]
 
-let test_group () =
+let test_group_succ () =
   [1;2;3;3;2;2;3;4]
-    |> S.of_list |> S.group ?eq:None |> S.to_list
+    |> S.of_list |> S.group_succ_by ?eq:None |> S.to_list
     |> OUnit.assert_equal [[1];[2];[3;3];[2;2];[3];[4]]
+
+let test_group_by () =
+  [1;2;3;3;2;2;3;4]
+    |> S.of_list |> S.group_by ?eq:None ?hash:None |> S.sort ?cmp:None |> S.to_list
+    |> OUnit.assert_equal [[1];[2;2;2];[3;3;3];[4]]
 
 let test_uniq () =
   [1;2;2;3;4;4;4;3;3]
@@ -226,7 +231,8 @@ let suite =
       "test_big_persistent" >:: test_big_persistent;
       "test_sort" >:: test_sort;
       "test_sort_uniq" >:: test_sort;
-      "test_group" >:: test_group;
+      "test_group_succ_by" >:: test_group_succ;
+      "test_group_by" >:: test_group_by;
       "test_uniq" >:: test_uniq;
       "test_product" >:: test_product;
       "test_join" >:: test_join;
