@@ -238,7 +238,7 @@ let sort ?(cmp=Pervasives.compare) seq =
   let l = List.fast_sort cmp l in
   fun k -> List.iter k l
 
-let group ?(eq=fun x y -> x = y) seq k =
+let group_succ_by ?(eq=fun x y -> x = y) seq k =
   let cur = ref [] in
   seq (fun x ->
     match !cur with
@@ -250,6 +250,8 @@ let group ?(eq=fun x y -> x = y) seq k =
       cur := [x]);
   (* last list *)
   if !cur <> [] then k !cur
+
+let group = group_succ_by
 
 let uniq ?(eq=fun x y -> x = y) seq k =
   let has_prev = ref false

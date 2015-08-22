@@ -215,7 +215,14 @@ val sort_uniq : ?cmp:('a -> 'a -> int) -> 'a t -> 'a t
   (** Sort the sequence and remove duplicates. Eager, same as [sort] *)
 
 val group : ?eq:('a -> 'a -> bool) -> 'a t -> 'a list t
-  (** Group equal consecutive elements. *)
+  (** Group equal consecutive elements.
+      @deprecated use {!group_succ_by} *)
+
+val group_succ_by : ?eq:('a -> 'a -> bool) -> 'a t -> 'a list t
+  (** Group equal consecutive elements.
+      Synonym to {!group}.
+      @since NEXT_RELEASE *)
+
 
 val uniq : ?eq:('a -> 'a -> bool) -> 'a t -> 'a t
   (** Remove consecutive duplicate elements. Basically this is
