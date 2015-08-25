@@ -243,5 +243,7 @@ let suite =
       "test_hashtbl" >:: test_hashtbl;
       "test_int_range" >:: test_int_range;
       "test_take" >:: test_take;
+      "test_fold_while" >:: test_fold_while;
+      "test_buff" >:: test_buff;
       "test_regression1" >:: test_regression1;
     ]
