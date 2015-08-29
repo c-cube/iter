@@ -230,7 +230,7 @@ let suite =
       "test_persistent" >:: test_persistent;
       "test_big_persistent" >:: test_big_persistent;
       "test_sort" >:: test_sort;
-      "test_sort_uniq" >:: test_sort;
+      "test_sort_uniq" >:: test_sort_uniq;
       "test_group_succ_by" >:: test_group_succ;
       "test_group_by" >:: test_group_by;
       "test_uniq" >:: test_uniq;
