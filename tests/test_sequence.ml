@@ -208,6 +208,19 @@ let test_take () =
   OUnit.assert_equal ~printer:pp_ilist [1;2;3;4;5] l;
   ()
 
+let test_for_all () =
+  OUnit.assert_bool "true" S.(for_all (fun x -> x < 10) (1--9));
+  OUnit.assert_bool "false" S.(not (for_all (fun x -> x < 10) (2--11)));
+  OUnit.assert_bool "true" S.(for_all (fun _ -> false) empty);
+  OUnit.assert_bool "nested"
+    S.(
+      for_all
+        (fun seq ->
+           not (for_all (fun x -> x < 8) seq)
+        ) (1 -- 10 >|= fun x -> x--20)
+    );
+  ()
+
 let test_regression1 () =
   let s = S.(take 10 (repeat 1)) in
   OUnit.assert_bool "not empty" (not (S.is_empty s));
@@ -245,5 +258,6 @@ let suite =
       "test_take" >:: test_take;
       "test_fold_while" >:: test_fold_while;
       "test_buff" >:: test_buff;
+      "test_for_all" >:: test_for_all;
       "test_regression1" >:: test_regression1;
     ]
