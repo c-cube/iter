@@ -1,29 +1,7 @@
-(*
-Copyright (c) 2013, Simon Cruanes
-All rights reserved.
 
-Redistribution and use in source and binary forms, with or without
-modification, are permitted provided that the following conditions are met:
+(* This file is free software, part of sequence. See file "license" for more details. *)
 
-Redistributions of source code must retain the above copyright notice, this
-list of conditions and the following disclaimer.  Redistributions in binary
-form must reproduce the above copyright notice, this list of conditions and the
-following disclaimer in the documentation and/or other materials provided with
-the distribution.
-
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
-FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*)
-
-(** {1 Transient iterators, that abstract on a finite sequence of elements.} *)
+(** {1 Simple and Efficient Iterators} *)
 
 (** Sequence abstract iterator type *)
 type 'a t = ('a -> unit) -> unit
@@ -31,7 +9,7 @@ type 'a t = ('a -> unit) -> unit
 type 'a sequence = 'a t
 
 type (+'a, +'b) t2 = ('a -> 'b -> unit) -> unit
-  (** Sequence of pairs of values of type ['a] and ['b]. *)
+(** Sequence of pairs of values of type ['a] and ['b]. *)
 
 (** Build a sequence from a iter function *)
 let from_iter f = f
@@ -69,8 +47,8 @@ let iteri f seq =
   let r = ref 0 in
   seq
     (fun x ->
-      f !r x;
-      incr r)
+       f !r x;
+       incr r)
 
 let fold f init seq =
   let r = ref init in
@@ -82,8 +60,8 @@ let foldi f init seq =
   let r = ref init in
   seq
     (fun elt ->
-      r := f !r !i elt;
-      incr i);
+       r := f !r !i elt;
+       incr i);
   !r
 
 let map f seq k = seq (fun x -> k (f x))
@@ -108,7 +86,7 @@ let fmap f seq k =
   seq (fun x -> match f x with
       | None -> ()
       | Some y -> k y
-      )
+    )
 
 let filter_map = fmap
 
@@ -130,22 +108,20 @@ module MList = struct
     let prev, cur = ref start, ref Nil in
     seq
       (fun x ->
-        k x;  (* callback *)
-        match !cur with
-        | Nil ->
-          let n = !chunk_size in
-          if n < 4096 then chunk_size := 2 * !chunk_size;
-          cur := Cons (Array.make n x, ref 1, ref Nil)
-        | Cons (a,n,next) ->
-          assert (!n < Array.length a);
-          a.(!n) <- x;
-          incr n;
-          if !n = Array.length a then begin
-            !prev := !cur;
-            prev := next;
-            cur := Nil
-          end
-      );
+         k x;  (* callback *)
+         match !cur with
+         | Nil ->
+           let n = !chunk_size in
+           if n < 4096 then chunk_size := 2 * !chunk_size;
+           cur := Cons (Array.make n x, ref 1, ref Nil)
+         | Cons (a,n,next) ->
+           assert (!n < Array.length a);
+           a.(!n) <- x;
+           incr n;
+           if !n = Array.length a then (
+             !prev := !cur;
+             prev := next;
+             cur := Nil));
     !prev := !cur;
     !start
 
@@ -155,13 +131,13 @@ module MList = struct
   let rec iter f l = match l with
     | Nil -> ()
     | Cons (a, n, tl) ->
-        for i=0 to !n - 1 do f a.(i) done;
-        iter f !tl
+      for i=0 to !n - 1 do f a.(i) done;
+      iter f !tl
 
   let iteri f l =
     let rec iteri i f l = match l with
-    | Nil -> ()
-    | Cons (a, n, tl) ->
+      | Nil -> ()
+      | Cons (a, n, tl) ->
         for j=0 to !n - 1 do f (i+j) a.(j) done;
         iteri (i+ !n) f !tl
     in iteri 0 f l
@@ -169,8 +145,8 @@ module MList = struct
   let rec iter_rev f l = match l with
     | Nil -> ()
     | Cons (a, n, tl) ->
-        iter_rev f !tl;
-        for i = !n-1 downto 0 do f a.(i) done
+      iter_rev f !tl;
+      for i = !n-1 downto 0 do f a.(i) done
 
   let length l =
     let rec len acc l = match l with
@@ -192,13 +168,13 @@ module MList = struct
     let rec get_next _ = match !cur with
       | Nil -> None
       | Cons (_, n, tl) when !i = !n ->
-          cur := !tl;
-          i := 0;
-          get_next arg
+        cur := !tl;
+        i := 0;
+        get_next arg
       | Cons (a, _, _) ->
-          let x = a.(!i) in
-          incr i;
-          Some x
+        let x = a.(!i) in
+        incr i;
+        Some x
     in get_next
 
   let to_gen l = _to_next () l
@@ -228,9 +204,9 @@ let persistent_lazy (seq:'a t) =
     match !r with
     | LazyCached seq' -> seq' k
     | LazySuspend ->
-        (* here if this traversal is interruted, no caching occurs *)
-        let seq' = MList.of_seq_with seq k in
-        r := LazyCached (MList.to_seq seq')
+      (* here if this traversal is interruted, no caching occurs *)
+      let seq' = MList.of_seq_with seq k in
+      r := LazyCached (MList.to_seq seq')
 
 let sort ?(cmp=Pervasives.compare) seq =
   (* use an intermediate list, then sort the list *)
@@ -241,13 +217,13 @@ let sort ?(cmp=Pervasives.compare) seq =
 let group_succ_by ?(eq=fun x y -> x = y) seq k =
   let cur = ref [] in
   seq (fun x ->
-    match !cur with
-    | [] -> cur := [x]
-    | (y::_) as l when eq x y ->
-      cur := x::l  (* [x] belongs to the group *)
-    | (_::_) as l ->
-      k l; (* yield group, and start another one *)
-      cur := [x]);
+      match !cur with
+      | [] -> cur := [x]
+      | (y::_) as l when eq x y ->
+        cur := x::l  (* [x] belongs to the group *)
+      | (_::_) as l ->
+        k l; (* yield group, and start another one *)
+        cur := [x]);
   (* last list *)
   if !cur <> [] then k !cur
 
@@ -255,16 +231,16 @@ let group = group_succ_by
 
 let group_by (type k) ?(hash=Hashtbl.hash) ?(eq=(=)) seq =
   let module Tbl = Hashtbl.Make(struct
-    type t = k
-    let equal = eq
-    let hash = hash
-  end) in
+      type t = k
+      let equal = eq
+      let hash = hash
+    end) in
   (* compute group table *)
   let tbl = Tbl.create 32 in
   seq
     (fun x ->
-      let l = try Tbl.find tbl x with Not_found -> [] in
-      Tbl.replace tbl x (x::l)
+       let l = try Tbl.find tbl x with Not_found -> [] in
+       Tbl.replace tbl x (x::l)
     );
   fun yield ->
     Tbl.iter (fun _ l -> yield l) tbl
@@ -272,47 +248,42 @@ let group_by (type k) ?(hash=Hashtbl.hash) ?(eq=(=)) seq =
 let uniq ?(eq=fun x y -> x = y) seq k =
   let has_prev = ref false
   and prev = ref (Obj.magic 0) in  (* avoid option type, costly *)
-  seq (fun x ->
-    if !has_prev && eq !prev x
+  seq
+    (fun x ->
+      if !has_prev && eq !prev x
       then ()  (* duplicate *)
-      else begin
+      else (
         has_prev := true;
         prev := x;
         k x
-      end)
+      ))
 
 let sort_uniq (type elt) ?(cmp=Pervasives.compare) seq =
   let module S = Set.Make(struct
-    type t = elt
-    let compare = cmp
-  end) in
+      type t = elt
+      let compare = cmp
+    end) in
   let set = fold (fun acc x -> S.add x acc) S.empty seq in
   fun k -> S.iter k set
 
 let product outer inner k =
-  outer (fun x ->
-    inner (fun y -> k (x,y))
-  )
+  outer (fun x -> inner (fun y -> k (x,y)))
 
 let product2 outer inner k =
-  outer (fun x ->
-    inner (fun y -> k x y)
-  )
+  outer (fun x -> inner (fun y -> k x y))
 
 let join ~join_row s1 s2 k =
   s1 (fun a ->
-    s2 (fun b ->
-      match join_row a b with
-      | None -> ()
-      | Some c -> k c
-      )
-    )  (* yield the combination of [a] and [b] *)
+      s2 (fun b ->
+          match join_row a b with
+          | None -> ()
+          | Some c -> k c))
 
 let rec unfoldr f b k = match f b with
   | None -> ()
   | Some (x, b') ->
-      k x;
-      unfoldr f b' k
+    k x;
+    unfoldr f b' k
 
 let scan f acc seq k =
   k acc;
@@ -321,16 +292,18 @@ let scan f acc seq k =
 
 let max ?(lt=fun x y -> x < y) seq =
   let ret = ref None in
-  seq (fun x -> match !ret with
-    | None -> ret := Some x
-    | Some y -> if lt y x then ret := Some x);
+  seq
+    (fun x -> match !ret with
+      | None -> ret := Some x
+      | Some y -> if lt y x then ret := Some x);
   !ret
 
 let min ?(lt=fun x y -> x < y) seq =
   let ret = ref None in
-  seq (fun x -> match !ret with
-    | None -> ret := Some x
-    | Some y -> if lt x y then ret := Some x);
+  seq
+    (fun x -> match !ret with
+      | None -> ret := Some x
+      | Some y -> if lt x y then ret := Some x);
   !ret
 
 exception ExitHead
@@ -351,11 +324,11 @@ exception ExitTake
 let take n seq k =
   let count = ref 0 in
   try
-    seq (fun x ->
-      if !count = n then raise ExitTake;
-      incr count;
-      k x;
-    )
+    seq
+      (fun x ->
+        if !count = n then raise ExitTake;
+        incr count;
+        k x)
   with ExitTake -> ()
 
 exception ExitTakeWhile
@@ -370,11 +343,11 @@ exception ExitFoldWhile
 let fold_while f s seq =
   let state = ref s in
   let consume x =
-      let acc, cont = f (!state) x in
-      state := acc;
-      match cont with
-      | `Stop -> raise ExitFoldWhile
-      | `Continue -> ()
+    let acc, cont = f (!state) x in
+    state := acc;
+    match cont with
+    | `Stop -> raise ExitFoldWhile
+    | `Continue -> ()
   in
   try
     seq consume; !state
@@ -386,10 +359,11 @@ let drop n seq k =
 
 let drop_while p seq k =
   let drop = ref true in
-  seq (fun x ->
-    if !drop
-    then if p x then () else (drop := false; k x)
-    else k x)
+  seq
+    (fun x ->
+      if !drop
+      then if p x then () else (drop := false; k x)
+      else k x)
 
 let rev seq =
   let l = MList.of_seq seq in
@@ -418,12 +392,13 @@ exception ExitFind
 
 let find f seq =
   let r = ref None in
-  begin try
-    seq (fun x -> match f x with
-      | None -> ()
-      | Some _ as res -> r := res; raise ExitFind
-    );
-  with ExitFind -> ()
+  begin
+    try
+      seq
+        (fun x -> match f x with
+          | None -> ()
+          | Some _ as res -> r := res; raise ExitFind);
+    with ExitFind -> ()
   end;
   !r
 
@@ -492,17 +467,14 @@ let to_array seq =
   let l = MList.of_seq seq in
   let n = MList.length l in
   if n = 0
-    then [||]
-    else begin
-      let a = Array.make n (MList.get l 0) in
-      MList.iteri (fun i x -> a.(i) <- x) l;
-      a
-    end
+  then [||]
+  else (
+    let a = Array.make n (MList.get l 0) in
+    MList.iteri (fun i x -> a.(i) <- x) l;
+    a
+  )
 
-let of_array a k =
-  for i = 0 to Array.length a - 1 do
-    k (Array.unsafe_get a i)
-  done
+let of_array a k = Array.iter k a
 
 let of_array_i a k =
   for i = 0 to Array.length a - 1 do
@@ -583,8 +555,7 @@ let of_in_channel ic =
         while true do
           let c = input_char ic in k c
         done
-      with End_of_file -> ()
-    )
+      with End_of_file -> ())
 
 let to_buffer seq buf =
   seq (fun c -> Buffer.add_char buf c)
@@ -744,19 +715,19 @@ let pp_seq ?(sep=", ") pp_elt formatter seq =
   let first = ref true in
   seq
     (fun x ->
-      (if !first then first := false
-        else begin
+       (if !first then first := false
+        else (
           Format.pp_print_string formatter sep;
           Format.pp_print_cut formatter ();
-        end);
-      pp_elt formatter x)
+        ));
+       pp_elt formatter x)
 
 let pp_buf ?(sep=", ") pp_elt buf seq =
   let first = ref true in
   seq
     (fun x ->
-      if !first then first := false else Buffer.add_string buf sep;
-      pp_elt buf x)
+       if !first then first := false else Buffer.add_string buf sep;
+       pp_elt buf x)
 
 let to_string ?sep pp_elt seq =
   let buf = Buffer.create 25 in
@@ -794,7 +765,7 @@ module IO = struct
             if n' = 0 then stop := true else n := !n + n';
           done;
           if !n > 0
-            then k (Bytes.sub_string buf 0 !n)
+          then k (Bytes.sub_string buf 0 !n)
         done;
         close_in ic
       with e ->
