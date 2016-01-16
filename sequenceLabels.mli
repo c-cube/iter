@@ -446,6 +446,11 @@ val random_list : 'a list -> 'a t
 (** Infinite sequence of random elements of the list. Basically the
     same as {!random_array}. *)
 
+val shuffle : 'a t -> 'a t
+(** [shuffle seq] returns a perfect shuffle of [seq].
+    Uses O(length seq) memory and time. Eager.
+    @since NEXT_RELEASE *)
+
 val shuffle_buffer : n:int -> 'a t -> 'a t
 (** [shuffle_buffer n seq] returns a sequence of element of [seq] in random
     order. The shuffling is not uniform. Uses O(n) memory.

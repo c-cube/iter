@@ -707,6 +707,11 @@ let shuffle_array a =
     a.(k) <- tmp;
   done
 
+let shuffle seq =
+  let a = to_array seq in
+  shuffle_array a ;
+  of_array a
+
 let shuffle_buffer n seq k =
   let seq_front = take n seq in
   let a = to_array seq_front in
