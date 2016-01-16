@@ -87,6 +87,11 @@ val map : f:('a -> 'b) -> 'a t -> 'b t
 val mapi : f:(int -> 'a -> 'b) -> 'a t -> 'b t
 (** Map objects, along with their index in the sequence *)
 
+val map_by_2 : f:('a -> 'a -> 'a) -> 'a t -> 'a t
+  (** Map objects two by two. lazily.
+      The last element is kept in the sequence if the count is odd.
+      @since NEXT_RELEASE *)
+
 val for_all : f:('a -> bool) -> 'a t -> bool
 (** Do all elements satisfy the predicate? *)
 

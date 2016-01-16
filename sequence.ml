@@ -70,6 +70,16 @@ let mapi f seq k =
   let i = ref 0 in
   seq (fun x -> k (f !i x); incr i)
 
+let map_by_2 f seq k =
+  let r = ref None in
+  let f y = match !r with
+    | None -> r := Some y
+    | Some x -> k (f x y)
+  in
+  seq f ;
+  match !r with
+  | None -> () | Some x -> k x
+
 let filter p seq k = seq (fun x -> if p x then k x)
 
 let append s1 s2 k = s1 k; s2 k
