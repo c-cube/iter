@@ -498,6 +498,15 @@ val random_list : 'a list -> 'a t
 (** Infinite sequence of random elements of the list. Basically the
     same as {!random_array}. *)
 
+(** {2 Sampling} *)
+
+val sample : int -> 'a t -> 'a array
+  (** [sample n seq] returns k samples of [seq], with uniform probability.
+      It will consume the sequence and use O(n) memory.
+
+      It returns an array of size [min (length seq) n].
+      @since NEXT_RELEASE *)
+
 (** {2 Infix functions} *)
 
 module Infix : sig

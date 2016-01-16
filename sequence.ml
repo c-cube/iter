@@ -698,6 +698,28 @@ let random_array a k =
 
 let random_list l = random_array (Array.of_list l)
 
+(** {2 Sampling} *)
+
+(** See https://en.wikipedia.org/wiki/Reservoir_sampling#Algorithm_R *)
+let sample n seq =
+  match head seq with
+  | None -> [||]
+  | Some x ->
+    let a = Array.make n x in
+    let i = ref (-1) in
+    let f x =
+      incr i ;
+      if !i < n then
+        a.(!i) <- x
+      else
+        let j = Random.int n in
+        if j <= n then a.(!i) <- x
+        else ()
+    in
+    seq f ;
+    if !i < n then Array.sub a 0 !i
+    else a
+
 (** {2 Infix functions} *)
 
 module Infix = struct
