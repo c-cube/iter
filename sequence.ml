@@ -698,6 +698,34 @@ let random_array a k =
 
 let random_list l = random_array (Array.of_list l)
 
+(* See http://en.wikipedia.org/wiki/Fisher-Yates_shuffle *)
+let shuffle_array a =
+  for k = Array.length a - 1 downto 0+1 do
+    let l = Random.int (k+1) in
+    let tmp = a.(l) in
+    a.(l) <- a.(k);
+    a.(k) <- tmp;
+  done
+
+let shuffle_buffer n seq k =
+  let seq_front = take n seq in
+  let a = to_array seq_front in
+  let l = Array.length a in
+  if l < n then begin
+    shuffle_array a ;
+    of_array a k
+  end
+  else begin
+    let seq = drop n seq in
+    let f x =
+      let i = Random.int n in
+      let y = a.(i) in
+      a.(i) <- x ;
+      k y
+    in
+    seq f
+  end
+
 (** {2 Sampling} *)
 
 (** See https://en.wikipedia.org/wiki/Reservoir_sampling#Algorithm_R *)

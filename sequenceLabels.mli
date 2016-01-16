@@ -446,6 +446,14 @@ val random_list : 'a list -> 'a t
 (** Infinite sequence of random elements of the list. Basically the
     same as {!random_array}. *)
 
+val shuffle_buffer : n:int -> 'a t -> 'a t
+(** [shuffle_buffer n seq] returns a sequence of element of [seq] in random
+    order. The shuffling is not uniform. Uses O(n) memory.
+
+    The first [n] elements of the sequence are consumed immediately. The
+    rest is consumed lazily.
+    @since NEXT_RELEASE *)
+
 (** {2 Sampling} *)
 
 val sample : n:int -> 'a t -> 'a array
