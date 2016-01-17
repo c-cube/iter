@@ -87,6 +87,11 @@ val map : f:('a -> 'b) -> 'a t -> 'b t
 val mapi : f:(int -> 'a -> 'b) -> 'a t -> 'b t
 (** Map objects, along with their index in the sequence *)
 
+val map_by_2 : f:('a -> 'a -> 'a) -> 'a t -> 'a t
+  (** Map objects two by two. lazily.
+      The last element is kept in the sequence if the count is odd.
+      @since NEXT_RELEASE *)
+
 val for_all : f:('a -> bool) -> 'a t -> bool
 (** Do all elements satisfy the predicate? *)
 
@@ -440,6 +445,28 @@ val random_array : 'a array -> 'a t
 val random_list : 'a list -> 'a t
 (** Infinite sequence of random elements of the list. Basically the
     same as {!random_array}. *)
+
+val shuffle : 'a t -> 'a t
+(** [shuffle seq] returns a perfect shuffle of [seq].
+    Uses O(length seq) memory and time. Eager.
+    @since NEXT_RELEASE *)
+
+val shuffle_buffer : n:int -> 'a t -> 'a t
+(** [shuffle_buffer n seq] returns a sequence of element of [seq] in random
+    order. The shuffling is not uniform. Uses O(n) memory.
+
+    The first [n] elements of the sequence are consumed immediately. The
+    rest is consumed lazily.
+    @since NEXT_RELEASE *)
+
+(** {2 Sampling} *)
+
+val sample : n:int -> 'a t -> 'a array
+  (** [sample n seq] returns k samples of [seq], with uniform probability.
+      It will consume the sequence and use O(n) memory.
+
+      It returns an array of size [min (length seq) n].
+      @since NEXT_RELEASE *)
 
 (** {2 Infix functions} *)
 

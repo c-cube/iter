@@ -70,6 +70,16 @@ let mapi f seq k =
   let i = ref 0 in
   seq (fun x -> k (f !i x); incr i)
 
+let map_by_2 f seq k =
+  let r = ref None in
+  let f y = match !r with
+    | None -> r := Some y
+    | Some x -> k (f x y)
+  in
+  seq f ;
+  match !r with
+  | None -> () | Some x -> k x
+
 let filter p seq k = seq (fun x -> if p x then k x)
 
 let append s1 s2 k = s1 k; s2 k
@@ -687,6 +697,61 @@ let random_array a k =
   done
 
 let random_list l = random_array (Array.of_list l)
+
+(* See http://en.wikipedia.org/wiki/Fisher-Yates_shuffle *)
+let shuffle_array a =
+  for k = Array.length a - 1 downto 0+1 do
+    let l = Random.int (k+1) in
+    let tmp = a.(l) in
+    a.(l) <- a.(k);
+    a.(k) <- tmp;
+  done
+
+let shuffle seq =
+  let a = to_array seq in
+  shuffle_array a ;
+  of_array a
+
+let shuffle_buffer n seq k =
+  let seq_front = take n seq in
+  let a = to_array seq_front in
+  let l = Array.length a in
+  if l < n then begin
+    shuffle_array a ;
+    of_array a k
+  end
+  else begin
+    let seq = drop n seq in
+    let f x =
+      let i = Random.int n in
+      let y = a.(i) in
+      a.(i) <- x ;
+      k y
+    in
+    seq f
+  end
+
+(** {2 Sampling} *)
+
+(** See https://en.wikipedia.org/wiki/Reservoir_sampling#Algorithm_R *)
+let sample n seq =
+  match head seq with
+  | None -> [||]
+  | Some x ->
+    let a = Array.make n x in
+    let i = ref (-1) in
+    let f x =
+      incr i ;
+      if !i < n then
+        a.(!i) <- x
+      else
+        let j = Random.int n in
+        if j <= n then a.(!i) <- x
+        else ()
+    in
+    seq f ;
+    if !i < n then Array.sub a 0 !i
+    else a
 
 (** {2 Infix functions} *)
 
