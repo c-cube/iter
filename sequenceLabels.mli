@@ -126,17 +126,12 @@ val concat : 'a t t -> 'a t
 val flatten : 'a t t -> 'a t
 (** Alias for {!concat} *)
 
-val flatMap : f:('a -> 'b t) -> 'a t -> 'b t
-(** @deprecated use {!flat_map} *)
-
 val flat_map : f:('a -> 'b t) -> 'a t -> 'b t
-(** Alias to {!flatMap} with a more explicit name *)
-
-val fmap : f:('a -> 'b option) -> 'a t -> 'b t
-(** @deprecated use {!filter_map} *)
+(** Monadic bind. Intuitively, it applies the function to every
+    element of the initial sequence, and calls {!concat}. *)
 
 val filter_map : f:('a -> 'b option) -> 'a t -> 'b t
-(** Alias to {!fmap} with a more explicit name *)
+(** Map and only keep non-[None] elements *)
 
 val intersperse : x:'a -> 'a t -> 'a t
 (** Insert the single element between every element of the sequence *)

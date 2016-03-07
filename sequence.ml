@@ -88,17 +88,13 @@ let concat s k = s (fun s' -> s' k)
 
 let flatten s = concat s
 
-let flatMap f seq k = seq (fun x -> f x k)
+let flat_map f seq k = seq (fun x -> f x k)
 
-let flat_map = flatMap
-
-let fmap f seq k =
+let filter_map f seq k =
   seq (fun x -> match f x with
       | None -> ()
       | Some y -> k y
     )
-
-let filter_map = fmap
 
 let intersperse elem seq k =
   let first = ref true in

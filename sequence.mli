@@ -150,16 +150,10 @@ val concat : 'a t t -> 'a t
 val flatten : 'a t t -> 'a t
 (** Alias for {!concat} *)
 
-val flatMap : ('a -> 'b t) -> 'a t -> 'b t
-(** @deprecated use {!flat_map} since NEXT_RELEASE *)
-
 val flat_map : ('a -> 'b t) -> 'a t -> 'b t
 (** Monadic bind. Intuitively, it applies the function to every
     element of the initial sequence, and calls {!concat}.
     @since 0.5 *)
-
-val fmap : ('a -> 'b option) -> 'a t -> 'b t
-(** @deprecated use {!filter_map} since NEXT_RELEASE *)
 
 val filter_map : ('a -> 'b option) -> 'a t -> 'b t
 (** Map and only keep non-[None] elements
