@@ -112,7 +112,7 @@ val mapi : (int -> 'a -> 'b) -> 'a t -> 'b t
 val map_by_2 : ('a -> 'a -> 'a) -> 'a t -> 'a t
   (** Map objects two by two. lazily.
       The last element is kept in the sequence if the count is odd.
-      @since NEXT_RELEASE *)
+      @since 0.7 *)
 
 val for_all : ('a -> bool) -> 'a t -> bool
 (** Do all elements satisfy the predicate? *)
@@ -419,7 +419,7 @@ val int_range_dec : start:int -> stop:int -> int t
 
 val bools : bool t
 (** Iterates on [true] and [false]
-    @since NEXT_RELEASE *)
+    @since 0.7 *)
 
 val of_set : (module Set.S with type elt = 'a and type t = 'b) -> 'b -> 'a t
 (** Convert the given set to a sequence. The set module must be provided. *)
@@ -501,7 +501,7 @@ val random_list : 'a list -> 'a t
 val shuffle : 'a t -> 'a t
 (** [shuffle seq] returns a perfect shuffle of [seq].
     Uses O(length seq) memory and time. Eager.
-    @since NEXT_RELEASE *)
+    @since 0.7 *)
 
 val shuffle_buffer : int -> 'a t -> 'a t
 (** [shuffle_buffer n seq] returns a sequence of element of [seq] in random
@@ -509,7 +509,7 @@ val shuffle_buffer : int -> 'a t -> 'a t
 
     The first [n] elements of the sequence are consumed immediately. The
     rest is consumed lazily.
-    @since NEXT_RELEASE *)
+    @since 0.7 *)
 
 (** {2 Sampling} *)
 
@@ -518,7 +518,7 @@ val sample : int -> 'a t -> 'a array
       It will consume the sequence and use O(n) memory.
 
       It returns an array of size [min (length seq) n].
-      @since NEXT_RELEASE *)
+      @since 0.7 *)
 
 (** {2 Infix functions} *)
 

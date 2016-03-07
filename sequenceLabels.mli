@@ -90,7 +90,7 @@ val mapi : f:(int -> 'a -> 'b) -> 'a t -> 'b t
 val map_by_2 : f:('a -> 'a -> 'a) -> 'a t -> 'a t
   (** Map objects two by two. lazily.
       The last element is kept in the sequence if the count is odd.
-      @since NEXT_RELEASE *)
+      @since 0.7 *)
 
 val for_all : f:('a -> bool) -> 'a t -> bool
 (** Do all elements satisfy the predicate? *)
@@ -449,7 +449,7 @@ val random_list : 'a list -> 'a t
 val shuffle : 'a t -> 'a t
 (** [shuffle seq] returns a perfect shuffle of [seq].
     Uses O(length seq) memory and time. Eager.
-    @since NEXT_RELEASE *)
+    @since 0.7 *)
 
 val shuffle_buffer : n:int -> 'a t -> 'a t
 (** [shuffle_buffer n seq] returns a sequence of element of [seq] in random
@@ -457,7 +457,7 @@ val shuffle_buffer : n:int -> 'a t -> 'a t
 
     The first [n] elements of the sequence are consumed immediately. The
     rest is consumed lazily.
-    @since NEXT_RELEASE *)
+    @since 0.7 *)
 
 (** {2 Sampling} *)
 
@@ -466,7 +466,7 @@ val sample : n:int -> 'a t -> 'a array
       It will consume the sequence and use O(n) memory.
 
       It returns an array of size [min (length seq) n].
-      @since NEXT_RELEASE *)
+      @since 0.7 *)
 
 (** {2 Infix functions} *)
 
