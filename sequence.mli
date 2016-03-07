@@ -151,7 +151,7 @@ val flatten : 'a t t -> 'a t
 (** Alias for {!concat} *)
 
 val flatMap : ('a -> 'b t) -> 'a t -> 'b t
-(** @deprecated use {!flat_map} since NEXT_RELEASE *)
+(** @deprecated use {!flat_map} since 0.6 *)
 
 val flat_map : ('a -> 'b t) -> 'a t -> 'b t
 (** Monadic bind. Intuitively, it applies the function to every
@@ -159,7 +159,7 @@ val flat_map : ('a -> 'b t) -> 'a t -> 'b t
     @since 0.5 *)
 
 val fmap : ('a -> 'b option) -> 'a t -> 'b t
-(** @deprecated use {!filter_map} since NEXT_RELEASE *)
+(** @deprecated use {!filter_map} since 0.6 *)
 
 val filter_map : ('a -> 'b option) -> 'a t -> 'b t
 (** Map and only keep non-[None] elements
@@ -199,7 +199,7 @@ val sort_uniq : ?cmp:('a -> 'a -> int) -> 'a t -> 'a t
 
 val group : ?eq:('a -> 'a -> bool) -> 'a t -> 'a list t
 (** Group equal consecutive elements.
-    @deprecated use {!group_succ_by} *)
+    @deprecated since 0.6 use {!group_succ_by} *)
 
 val group_succ_by : ?eq:('a -> 'a -> bool) -> 'a t -> 'a list t
 (** Group equal consecutive elements.
