@@ -109,6 +109,11 @@ val map : ('a -> 'b) -> 'a t -> 'b t
 val mapi : (int -> 'a -> 'b) -> 'a t -> 'b t
 (** Map objects, along with their index in the sequence *)
 
+val map_by_2 : ('a -> 'a -> 'a) -> 'a t -> 'a t
+  (** Map objects two by two. lazily.
+      The last element is kept in the sequence if the count is odd.
+      @since 0.7 *)
+
 val for_all : ('a -> bool) -> 'a t -> bool
 (** Do all elements satisfy the predicate? *)
 
@@ -146,7 +151,7 @@ val flatten : 'a t t -> 'a t
 (** Alias for {!concat} *)
 
 val flatMap : ('a -> 'b t) -> 'a t -> 'b t
-(** @deprecated use {!flat_map} since NEXT_RELEASE *)
+(** @deprecated use {!flat_map} since 0.6 *)
 
 val flat_map : ('a -> 'b t) -> 'a t -> 'b t
 (** Monadic bind. Intuitively, it applies the function to every
@@ -154,7 +159,7 @@ val flat_map : ('a -> 'b t) -> 'a t -> 'b t
     @since 0.5 *)
 
 val fmap : ('a -> 'b option) -> 'a t -> 'b t
-(** @deprecated use {!filter_map} since NEXT_RELEASE *)
+(** @deprecated use {!filter_map} since 0.6 *)
 
 val filter_map : ('a -> 'b option) -> 'a t -> 'b t
 (** Map and only keep non-[None] elements
@@ -194,18 +199,18 @@ val sort_uniq : ?cmp:('a -> 'a -> int) -> 'a t -> 'a t
 
 val group : ?eq:('a -> 'a -> bool) -> 'a t -> 'a list t
 (** Group equal consecutive elements.
-    @deprecated use {!group_succ_by} *)
+    @deprecated since 0.6 use {!group_succ_by} *)
 
 val group_succ_by : ?eq:('a -> 'a -> bool) -> 'a t -> 'a list t
 (** Group equal consecutive elements.
     Synonym to {!group}.
-    @since NEXT_RELEASE *)
+    @since 0.6 *)
 
 val group_by : ?hash:('a -> int) -> ?eq:('a -> 'a -> bool) ->
   'a t -> 'a list t
 (** Group equal elements, disregarding their order of appearance.
     The result sequence is traversable as many times as required.
-    @since NEXT_RELEASE *)
+    @since 0.6 *)
 
 val uniq : ?eq:('a -> 'a -> bool) -> 'a t -> 'a t
 (** Remove consecutive duplicate elements. Basically this is
@@ -414,7 +419,7 @@ val int_range_dec : start:int -> stop:int -> int t
 
 val bools : bool t
 (** Iterates on [true] and [false]
-    @since NEXT_RELEASE *)
+    @since 0.7 *)
 
 val of_set : (module Set.S with type elt = 'a and type t = 'b) -> 'b -> 'a t
 (** Convert the given set to a sequence. The set module must be provided. *)
@@ -492,6 +497,28 @@ val random_array : 'a array -> 'a t
 val random_list : 'a list -> 'a t
 (** Infinite sequence of random elements of the list. Basically the
     same as {!random_array}. *)
+
+val shuffle : 'a t -> 'a t
+(** [shuffle seq] returns a perfect shuffle of [seq].
+    Uses O(length seq) memory and time. Eager.
+    @since 0.7 *)
+
+val shuffle_buffer : int -> 'a t -> 'a t
+(** [shuffle_buffer n seq] returns a sequence of element of [seq] in random
+    order. The shuffling is *not* uniform. Uses O(n) memory.
+
+    The first [n] elements of the sequence are consumed immediately. The
+    rest is consumed lazily.
+    @since 0.7 *)
+
+(** {2 Sampling} *)
+
+val sample : int -> 'a t -> 'a array
+  (** [sample n seq] returns k samples of [seq], with uniform probability.
+      It will consume the sequence and use O(n) memory.
+
+      It returns an array of size [min (length seq) n].
+      @since 0.7 *)
 
 (** {2 Infix functions} *)
 
