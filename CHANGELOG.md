@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.6
+
+- deprecate `flatMap` and `fmap`
+- in opam file, depend on ocamlbuild
+- add `group_by` (ignores the ordering)
+- alias `group_succ_by`, deprecated `group`
+- iterate on booleans
+- open Bigarray (preparing for 4.03)
+
 ## 0.5.5
 
 - new module `SequenceLabels`
