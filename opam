@@ -3,6 +3,7 @@ name: "sequence"
 version: "0.7"
 author: "Simon Cruanes"
 maintainer: "simon.cruanes@inria.fr"
+license: "BSD-2-clauses"
 build: [
     ["./configure" "--disable-docs"
         "--%{delimcc:enable}%-invert"
