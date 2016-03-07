@@ -15,7 +15,14 @@ of a `Hashtbl.t`, without creating a list.
 Documentation
 =============
 
-See [the online API](http://cedeela.fr/~simon/software/sequence/Sequence.html).
+There is only one type, `'a Sequence.t`, and lots of functions built around
+this type.
+To get an overview of sequence, its origins and why it was created,
+you can start with [the slides of a talk](http://cedeela.fr/~simon/talks/sequence.pdf)
+I (c-cube) made at some OCaml meeting.
+
+See [the online API](http://cedeela.fr/~simon/software/sequence/Sequence.html)
+for more details on the set of available functions.
 
 Build
 =====
