@@ -68,9 +68,9 @@ let test_concat2 () =
     |> S.length
     |> OUnit.assert_equal 2000
 
-let test_flatMap () =
+let test_flat_map () =
   S.(1 -- 1000)
-    |> S.flatMap (fun i -> S.(i -- (i+1)))
+    |> S.flat_map (fun i -> S.(i -- (i+1)))
     |> S.length
     |> OUnit.assert_equal 2000
 
@@ -237,7 +237,7 @@ let suite =
       "test_exists" >:: test_exists;
       "test_length" >:: test_length;
       "test_concat" >:: test_concat;
-      "test_flatMap" >:: test_flatMap;
+      "test_flatMap" >:: test_flat_map;
       "test_intersperse" >:: test_intersperse;
       "test_not_persistent" >:: test_not_persistent;
       "test_persistent" >:: test_persistent;
