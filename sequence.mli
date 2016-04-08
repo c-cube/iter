@@ -158,6 +158,10 @@ val flat_map : ('a -> 'b t) -> 'a t -> 'b t
     element of the initial sequence, and calls {!concat}.
     @since 0.5 *)
 
+val flat_map_l : ('a -> 'b list) -> 'a t -> 'b t
+(** Convenience function combining {!flat_map} and {!of_list}
+    @since NEXT_RELEASE *)
+
 val fmap : ('a -> 'b option) -> 'a t -> 'b t
 (** @deprecated use {!filter_map} since 0.6 *)
 

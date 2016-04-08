@@ -92,6 +92,9 @@ let flatMap f seq k = seq (fun x -> f x k)
 
 let flat_map = flatMap
 
+let flat_map_l f seq k =
+  seq (fun x -> List.iter k (f x))
+
 let fmap f seq k =
   seq (fun x -> match f x with
       | None -> ()
