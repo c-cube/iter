@@ -28,12 +28,12 @@ Flag bigarray
     Default: true
 
 Library "sequence"
-  Path:             .
+  Path:             src/
   Modules:          Sequence, SequenceLabels
   BuildDepends:     bytes
 
 Library "invert"
-  Path:             invert
+  Path:             src/invert
   Build$:           flag(invert)
   Install$:         flag(invert)
   Modules:          SequenceInvert
@@ -42,7 +42,7 @@ Library "invert"
   BuildDepends:     sequence,delimcc
 
 Library "bigarray"
-  Path:             bigarray
+  Path:             src/bigarray
   Build$:           flag(bigarray)
   Install$:         flag(bigarray)
   Modules:          SequenceBigarray
@@ -58,19 +58,20 @@ Document sequence
   XOCamlbuildPath:      .
   XOCamlbuildLibraries: sequence
 
-Test all
-  Type:         custom
-  Command:      make run-tests
-  TestTools:    run_tests
-  Run$:         flag(tests)
+PreBuildCommand: make qtest-gen
 
-Executable run_tests
-  Path:             tests/
+Executable run_qtest
+  Path:             qtest/
   Install:          false
   CompiledObject:   native
-  MainIs:           run_tests.ml
+  MainIs:           run_qtest.ml
   Build$:           flag(tests)
-  BuildDepends:     sequence,oUnit
+  BuildDepends:     sequence, qcheck
+
+Test all
+  Command:          ./run_qtest.native
+  TestTools:        run_qtest
+  Run$:             flag(tests)
 
 Executable benchs
   Path:             bench

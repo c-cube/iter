@@ -11,6 +11,10 @@ type 'a sequence = 'a t
 type (+'a, +'b) t2 = ('a -> 'b -> unit) -> unit
 (** Sequence of pairs of values of type ['a] and ['b]. *)
 
+(*$inject
+  let pp_ilist = Q.Print.(list int)
+*)
+
 (** Build a sequence from a iter function *)
 let from_iter f = f
 
@@ -19,6 +23,13 @@ let rec from_fun f k = match f () with
   | Some x -> k x; from_fun f k
 
 let empty _ = ()
+
+(*$R
+  let seq = empty in
+  OUnit.assert_bool "empty" (is_empty seq);
+  OUnit.assert_bool "empty"
+    (try iter (fun _ -> raise Exit) seq; true with Exit -> false);
+*)
 
 let singleton x k = k x
 let return x k = k x
@@ -30,6 +41,12 @@ let cons x l k = k x; l k
 let snoc l x k = l k; k x
 
 let repeat x k = while true do k x done
+
+(*$R
+  let seq = repeat "hello" in
+  OUnit.assert_equal ["hello"; "hello"; "hello"]
+    (seq |> take 3 |> to_list);
+*)
 
 let rec iterate f x k =
   k x;
@@ -55,6 +72,12 @@ let fold f init seq =
   seq (fun elt -> r := f !r elt);
   !r
 
+(*$R
+  let n = (1 -- 10)
+    |> fold (+) 0 in
+  OUnit.assert_equal 55 n;
+*)
+
 let foldi f init seq =
   let i = ref 0 in
   let r = ref init in
@@ -63,6 +86,13 @@ let foldi f init seq =
        r := f !r !i elt;
        incr i);
   !r
+
+(*$R
+  let l = ["hello"; "world"]
+    |> of_list
+    |> foldi (fun acc i x -> (i,x) :: acc) [] in
+  OUnit.assert_equal [1, "world"; 0, "hello"] l;
+*)
 
 let map f seq k = seq (fun x -> k (f x))
 
@@ -86,11 +116,33 @@ let append s1 s2 k = s1 k; s2 k
 
 let concat s k = s (fun s' -> s' k)
 
+(*$R
+  let s1 = (1 -- 5) in
+  let s2 = (6 -- 10) in
+  let l = [1;2;3;4;5;6;7;8;9;10] in
+  OUnit.assert_equal l (to_list (append s1 s2));
+*)
+
+(*$R
+  (1 -- 1000)
+    |> map (fun i -> i -- (i+1))
+    |> concat
+    |> length
+    |> OUnit.assert_equal 2000
+*)
+
 let flatten s = concat s
 
 let flatMap f seq k = seq (fun x -> f x k)
 
 let flat_map = flatMap
+
+(*$R
+  (1 -- 1000)
+    |> flat_map (fun i -> i -- (i+1))
+    |> length
+    |> OUnit.assert_equal 2000
+*)
 
 let flat_map_l f seq k =
   seq (fun x -> List.iter k (f x))
@@ -106,6 +158,14 @@ let filter_map = fmap
 let intersperse elem seq k =
   let first = ref true in
   seq (fun x -> (if !first then first := false else k elem); k x)
+
+(*$R
+  (1 -- 100)
+    |> (fun seq -> intersperse 0 seq)
+    |> take 10
+    |> to_list
+    |> OUnit.assert_equal [1;0;2;0;3;0;4;0;5;0]
+*)
 
 (** Mutable unrolled list to serve as intermediate storage *)
 module MList = struct
@@ -207,6 +267,35 @@ let persistent seq =
   let l = MList.of_seq seq in
   MList.to_seq l
 
+(*$R
+  let printer = pp_ilist in
+  let stream = Stream.from (fun i -> if i < 5 then Some i else None) in
+  let seq = of_stream stream in
+  OUnit.assert_equal ~printer [0;1;2;3;4] (seq |> to_list);
+  OUnit.assert_equal ~printer [] (seq |> to_list);
+*)
+
+(*$R
+  let printer = pp_ilist in
+  let stream = Stream.from (fun i -> if i < 5 then Some i else None) in
+  let seq = of_stream stream in
+  (* consume seq into a persistent version of itself *)
+  let seq' = persistent seq in
+  OUnit.assert_equal ~printer [] (seq |> to_list);
+  OUnit.assert_equal ~printer [0;1;2;3;4] (seq' |> to_list);
+  OUnit.assert_equal ~printer [0;1;2;3;4] (seq' |> to_list);
+  OUnit.assert_equal ~printer [0;1;2;3;4] (seq' |> to_stream |> of_stream |> to_list);
+*)
+
+(*$R
+  let printer = pp_ilist in
+  let seq = (0 -- 10_000) in
+  let seq' = persistent seq in
+  OUnit.assert_equal 10_001 (length seq');
+  OUnit.assert_equal 10_001 (length seq');
+  OUnit.assert_equal ~printer [0;1;2;3] (seq' |> take 4 |> to_list);
+*)
+
 type 'a lazy_state =
   | LazySuspend
   | LazyCached of 'a t
@@ -227,6 +316,14 @@ let sort ?(cmp=Pervasives.compare) seq =
   let l = List.fast_sort cmp l in
   fun k -> List.iter k l
 
+(*$R
+  (1 -- 100)
+    |> sort ~cmp:(fun i j -> j - i)
+    |> take 4
+    |> to_list
+    |> OUnit.assert_equal [100;99;98;97]
+*)
+
 let group_succ_by ?(eq=fun x y -> x = y) seq k =
   let cur = ref [] in
   seq (fun x ->
@@ -241,6 +338,12 @@ let group_succ_by ?(eq=fun x y -> x = y) seq k =
   if !cur <> [] then k !cur
 
 let group = group_succ_by
+
+(*$R
+  [1;2;3;3;2;2;3;4]
+    |> of_list |> group_succ_by ?eq:None |> to_list
+    |> OUnit.assert_equal [[1];[2];[3;3];[2;2];[3];[4]]
+*)
 
 let group_by (type k) ?(hash=Hashtbl.hash) ?(eq=(=)) seq =
   let module Tbl = Hashtbl.Make(struct
@@ -258,6 +361,12 @@ let group_by (type k) ?(hash=Hashtbl.hash) ?(eq=(=)) seq =
   fun yield ->
     Tbl.iter (fun _ l -> yield l) tbl
 
+(*$R
+  [1;2;3;3;2;2;3;4]
+    |> of_list |> group_by ?eq:None ?hash:None |> sort ?cmp:None |> to_list
+    |> OUnit.assert_equal [[1];[2;2;2];[3;3;3];[4]]
+*)
+
 let uniq ?(eq=fun x y -> x = y) seq k =
   let has_prev = ref false
   and prev = ref (Obj.magic 0) in  (* avoid option type, costly *)
@@ -271,6 +380,12 @@ let uniq ?(eq=fun x y -> x = y) seq k =
         k x
       ))
 
+(*$R
+  [1;2;2;3;4;4;4;3;3]
+    |> of_list |> uniq ?eq:None |> to_list
+    |> OUnit.assert_equal [1;2;3;4;3]
+*)
+
 let sort_uniq (type elt) ?(cmp=Pervasives.compare) seq =
   let module S = Set.Make(struct
       type t = elt
@@ -279,8 +394,27 @@ let sort_uniq (type elt) ?(cmp=Pervasives.compare) seq =
   let set = fold (fun acc x -> S.add x acc) S.empty seq in
   fun k -> S.iter k set
 
+(*$R
+  [42;1;2;3;4;5;4;3;2;1]
+    |> of_list
+    |> sort_uniq ?cmp:None
+    |> to_list
+    |> OUnit.assert_equal [1;2;3;4;5;42]
+*)
+
 let product outer inner k =
   outer (fun x -> inner (fun y -> k (x,y)))
+
+(*$R
+  let stream = Stream.from (fun i -> if i < 3 then Some i else None) in
+  let a = of_stream stream in
+  let b = of_list ["a";"b";"c"] in
+  let s = product a b |> map (fun (x,y) -> y,x)
+    |> to_list |> List.sort compare in
+  OUnit.assert_equal ["a",0; "a", 1; "a", 2;
+                      "b",0; "b", 1; "b", 2;
+                      "c",0; "c", 1; "c", 2;] s
+*)
 
 let product2 outer inner k =
   outer (fun x -> inner (fun y -> k x y))
@@ -292,16 +426,40 @@ let join ~join_row s1 s2 k =
           | None -> ()
           | Some c -> k c))
 
+(*$R
+  let s1 = (1 -- 3) in
+  let s2 = of_list ["1"; "2"] in
+  let join_row i j =
+    if string_of_int i = j then Some (string_of_int i ^ " = " ^ j) else None
+  in
+  let s = join ~join_row s1 s2 in
+  OUnit.assert_equal ["1 = 1"; "2 = 2"] (to_list s);
+*)
+
 let rec unfoldr f b k = match f b with
   | None -> ()
   | Some (x, b') ->
     k x;
     unfoldr f b' k
 
+(*$R
+  let f x = if x < 5 then Some (string_of_int x,x+1) else None in
+  unfoldr f 0
+    |> to_list
+    |> OUnit.assert_equal ["0"; "1"; "2"; "3"; "4"]
+*)
+
 let scan f acc seq k =
   k acc;
   let acc = ref acc in
   seq (fun elt -> let acc' = f !acc elt in k acc'; acc := acc')
+
+(*$R
+  (1 -- 5)
+    |> scan (+) 0
+    |> to_list
+    |> OUnit.assert_equal ~printer:pp_ilist [0;1;3;6;10;15]
+*)
 
 let max ?(lt=fun x y -> x < y) seq =
   let ret = ref None in
@@ -344,6 +502,13 @@ let take n seq k =
         k x)
   with ExitTake -> ()
 
+(*$R
+  let l = to_list (take 0 (of_list [1])) in
+  OUnit.assert_equal ~printer:pp_ilist [] l;
+  let l = to_list (take 5 (of_list [1;2;3;4;5;6;7;8;9;10])) in
+  OUnit.assert_equal ~printer:pp_ilist [1;2;3;4;5] l;
+*)
+
 exception ExitTakeWhile
 
 let take_while p seq k =
@@ -365,10 +530,19 @@ let fold_while f s seq =
   try
     seq consume; !state
   with ExitFoldWhile -> !state
+(*$R
+  let n = of_list [true;true;false;true]
+    |> fold_while (fun acc b -> if b then acc+1, `Continue else acc, `Stop) 0 in
+  OUnit.assert_equal 2 n;
+*)
 
 let drop n seq k =
   let count = ref 0 in
   seq (fun x -> if !count >= n then k x else incr count)
+
+(*$R
+  (1 -- 5) |> drop 2 |> to_list |> OUnit.assert_equal [3;4;5]
+*)
 
 let drop_while p seq k =
   let drop = ref true in
@@ -382,6 +556,10 @@ let rev seq =
   let l = MList.of_seq seq in
   fun k -> MList.iter_rev k l
 
+(*$R
+  (1 -- 5) |> rev |> to_list |> OUnit.assert_equal [5;4;3;2;1]
+*)
+
 exception ExitForall
 
 let for_all p seq =
@@ -389,6 +567,16 @@ let for_all p seq =
     seq (fun x -> if not (p x) then raise ExitForall);
     true
   with ExitForall -> false
+
+(*$R
+  OUnit.assert_bool "true" (for_all (fun x -> x < 10) (1--9));
+  OUnit.assert_bool "false" (not (for_all (fun x -> x < 10) (2--11)));
+  OUnit.assert_bool "true" (for_all (fun _ -> false) empty);
+  OUnit.assert_bool "nested"
+    (for_all
+      (fun seq -> not (for_all (fun x -> x < 8) seq))
+      (1 -- 10 >|= fun x -> x--20));
+*)
 
 exception ExitExists
 
@@ -398,6 +586,16 @@ let exists p seq =
     seq (fun x -> if p x then raise ExitExists);
     false
   with ExitExists -> true
+
+(*$R
+  (1 -- 100)
+    |> exists (fun x -> x = 59)
+    |> OUnit.assert_bool "exists";
+  (1 -- 100)
+    |> exists (fun x -> x < 0)
+    |> (fun x -> not x)
+    |> OUnit.assert_bool "not exists";
+*)
 
 let mem ?(eq=(=)) x seq = exists (eq x) seq
 
@@ -419,6 +617,10 @@ let length seq =
   let r = ref 0 in
   seq (fun _ -> incr r);
   !r
+
+(*$R
+  (1 -- 1000) |> length |> OUnit.assert_equal 1000
+*)
 
 exception ExitIsEmpty
 
@@ -522,6 +724,15 @@ let of_queue q k = Queue.iter k q
 let hashtbl_add h seq =
   seq (fun (k,v) -> Hashtbl.add h k v)
 
+(*$R
+  let h = (1 -- 5)
+    |> zip_i
+    |> to_hashtbl2 in
+  (0 -- 4)
+    |> iter (fun i -> OUnit.assert_equal (i+1) (Hashtbl.find h i));
+  OUnit.assert_equal [0;1;2;3;4] (hashtbl_keys h |> sort ?cmp:None |> to_list);
+*)
+
 let hashtbl_replace h seq =
   seq (fun (k,v) -> Hashtbl.replace h k v)
 
@@ -573,9 +784,24 @@ let of_in_channel ic =
 let to_buffer seq buf =
   seq (fun c -> Buffer.add_char buf c)
 
+(*$R
+  let b = Buffer.create 4 in
+  "hello world"
+    |> of_str |> rev |> map Char.uppercase
+    |> (fun seq -> to_buffer seq b);
+  OUnit.assert_equal "DLROW OLLEH" (Buffer.contents b);
+*)
+
 (** Iterator on integers in [start...stop] by steps 1 *)
 let int_range ~start ~stop k =
   for i = start to stop do k i done
+
+(*$R
+  OUnit.assert_equal ~printer:pp_ilist [1;2;3;4] (to_list (1--4));
+  OUnit.assert_equal ~printer:pp_ilist [10;9;8;7;6] (to_list (10 --^ 6));
+  OUnit.assert_equal ~printer:pp_ilist [] (to_list (10--4));
+  OUnit.assert_equal ~printer:pp_ilist [] (to_list (10 --^ 60));
+*)
 
 let int_range_dec ~start ~stop k =
   for i = start downto stop do k i done
@@ -879,3 +1105,10 @@ module IO = struct
   let write_lines ?mode ?flags filename seq =
     write_bytes_lines ?mode ?flags filename (map Bytes.unsafe_of_string seq)
 end
+
+(* regression tests *)
+
+(*$R
+  let s = (take 10 (repeat 1)) in
+  OUnit.assert_bool "not empty" (not (is_empty s));
+*)

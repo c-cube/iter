@@ -40,8 +40,24 @@ configure:
 
 # OASIS_STOP
 
-run-tests:
-	./run_tests.native
+QTEST_PREAMBLE=''
+DONTTEST=src/sequenceLabels.ml
+QTESTABLE=$(filter-out $(DONTTEST), \
+	$(wildcard src/*.ml) \
+	$(wildcard src/*.mli) \
+	)
+
+qtest-clean:
+	@rm -rf qtest/
+
+qtest-gen:
+	@mkdir -p qtest
+	@if which qtest > /dev/null ; then \
+		qtest extract --preamble $(QTEST_PREAMBLE) \
+			-o qtest/run_qtest.ml \
+			$(QTESTABLE) 2> /dev/null ; \
+	else touch qtest/run_qtest.ml ; \
+	fi
 
 examples:
 	ocamlbuild examples/test_sexpr.native
