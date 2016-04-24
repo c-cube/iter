@@ -580,6 +580,26 @@ let int_range ~start ~stop k =
 let int_range_dec ~start ~stop k =
   for i = start downto stop do k i done
 
+let int_range_by ~step i j =
+  let rec aux step i j yield =
+    if step>0 then (
+      if i<=j then (yield i; aux step (i+step) j yield)
+    ) else (
+      if i>=j then (yield i; aux step (i+step) j yield)
+    )
+  in
+  if step=0 then invalid_arg "int_range_by";
+  aux step i j
+
+(*$Q
+  Q.(pair small_int small_int) (fun (i,j) -> \
+    let i = Pervasives.min i j and j = Pervasives.max i j in \
+    (i--j |> to_list) = (int_range_by ~step:1 i j |> to_list))
+  Q.(pair small_int small_int) (fun (i,j) -> \
+    let i = Pervasives.min i j and j = Pervasives.max i j in \
+    (i--j |> to_rev_list) = (int_range_by ~step:~-1 j i |> to_list))
+*)
+
 let bools k = k false; k true
 
 let of_set (type s) (type v) m set =

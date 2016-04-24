@@ -421,6 +421,12 @@ val int_range_dec : start:int -> stop:int -> int t
 (** Iterator on decreasing integers in [stop...start] by steps -1.
     See {!(--^)} for an infix version *)
 
+val int_range_by : step:int -> int -> int -> int t
+(** [int_range_by ~step i j] is the range starting at [i], excluding [j],
+    where the difference between successive elements is [step].
+    use a negative [step] for a decreasing sequence.
+    @raise Invalid_argument if [step=0] *)
+
 val bools : bool t
 (** Iterates on [true] and [false]
     @since 0.7 *)
