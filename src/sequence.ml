@@ -806,16 +806,18 @@ let int_range ~start ~stop k =
 let int_range_dec ~start ~stop k =
   for i = start downto stop do k i done
 
-let int_range_by ~step i j =
-  let rec aux step i j yield =
-    if step>0 then (
-      if i<=j then (yield i; aux step (i+step) j yield)
-    ) else (
-      if i>=j then (yield i; aux step (i+step) j yield)
-    )
-  in
+let int_range_by ~step i j yield =
   if step=0 then invalid_arg "int_range_by";
-  aux step i j
+  for k = 0 to (j - i) / step do
+    yield (k * step + i)
+  done
+
+(*$= & ~printer:Q.Print.(list int)
+  [1;2;3;4] (int_range_by ~step:1 1 4 |> to_list)
+  [4;3;2;1] (int_range_by ~step:~-1 4 1 |> to_list)
+  [6;4;2] (int_range_by 6 1 ~step:~-2 |> to_list)
+  [] (int_range_by ~step:1 4 1 |> to_list)
+*)
 
 (*$Q
   Q.(pair small_int small_int) (fun (i,j) -> \
