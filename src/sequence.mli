@@ -422,7 +422,7 @@ val int_range_dec : start:int -> stop:int -> int t
     See {!(--^)} for an infix version *)
 
 val int_range_by : step:int -> int -> int -> int t
-(** [int_range_by ~step i j] is the range starting at [i], excluding [j],
+(** [int_range_by ~step i j] is the range starting at [i], including [j],
     where the difference between successive elements is [step].
     use a negative [step] for a decreasing sequence.
     @raise Invalid_argument if [step=0] *)
