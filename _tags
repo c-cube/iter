@@ -30,4 +30,5 @@
 true: bin_annot
 <**/*.ml>: warn_A, warn(-4)
 true: mark_tag_used
+<**/*.cmx>: optimize(3)
 <src/sequenceLabels.cm*>: nolabels
