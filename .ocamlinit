@@ -1,9 +1,9 @@
-#directory "_build";;
+#directory "_build/src";;
 #load "sequence.cma";;
 
 open Sequence.Infix;;
 
-#directory "_build/bigarray/";;
+#directory "_build/src/bigarray/";;
 #load "bigarray.cma";;
 
 (* vim:syntax=ocaml *)

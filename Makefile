@@ -40,8 +40,24 @@ configure:
 
 # OASIS_STOP
 
-run-tests:
-	./run_tests.native
+QTEST_PREAMBLE=''
+DONTTEST=src/sequenceLabels.ml
+QTESTABLE=$(filter-out $(DONTTEST), \
+	$(wildcard src/*.ml) \
+	$(wildcard src/*.mli) \
+	)
+
+qtest-clean:
+	@rm -rf qtest/
+
+qtest-gen:
+	@mkdir -p qtest
+	@if which qtest > /dev/null ; then \
+		qtest extract --preamble $(QTEST_PREAMBLE) \
+			-o qtest/run_qtest.ml \
+			$(QTESTABLE) 2> /dev/null ; \
+	else touch qtest/run_qtest.ml ; \
+	fi
 
 examples:
 	ocamlbuild examples/test_sexpr.native
@@ -59,7 +75,7 @@ push_stable: all
 
 VERSION=$(shell awk '/^Version:/ {print $$2}' _oasis)
 
-SOURCE=*.ml *.mli invert/*.ml invert/*.mli bigarray/*.ml bigarray/*.mli
+SOURCE=$(addprefix src/, *.ml *.mli invert/*.ml invert/*.mli bigarray/*.ml bigarray/*.mli)
 
 update_next_tag:
 	@echo "update version to $(VERSION)..."

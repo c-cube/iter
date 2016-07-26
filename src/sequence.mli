@@ -158,6 +158,10 @@ val flat_map : ('a -> 'b t) -> 'a t -> 'b t
     element of the initial sequence, and calls {!concat}.
     @since 0.5 *)
 
+val flat_map_l : ('a -> 'b list) -> 'a t -> 'b t
+(** Convenience function combining {!flat_map} and {!of_list}
+    @since 0.8 *)
+
 val fmap : ('a -> 'b option) -> 'a t -> 'b t
 (** @deprecated use {!filter_map} since 0.6 *)
 
@@ -416,6 +420,12 @@ val int_range : start:int -> stop:int -> int t
 val int_range_dec : start:int -> stop:int -> int t
 (** Iterator on decreasing integers in [stop...start] by steps -1.
     See {!(--^)} for an infix version *)
+
+val int_range_by : step:int -> int -> int -> int t
+(** [int_range_by ~step i j] is the range starting at [i], including [j],
+    where the difference between successive elements is [step].
+    use a negative [step] for a decreasing sequence.
+    @raise Invalid_argument if [step=0] *)
 
 val bools : bool t
 (** Iterates on [true] and [false]

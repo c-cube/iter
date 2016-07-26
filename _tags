@@ -1,5 +1,5 @@
 # OASIS_START
-# DO NOT EDIT (digest: 29e0c9fc65daf16caa16466d6ff32bac)
+# DO NOT EDIT (digest: 5495b2a66019398a5b6c2172a2c3ba42)
 # Ignore VCS directories, you can use the same kind of rule outside
 # OASIS_START/STOP if you want to exclude directories that contains
 # useless stuff for the build process
@@ -15,25 +15,25 @@ true: annot, bin_annot
 "_darcs": -traverse
 "_darcs": not_hygienic
 # Library sequence
-"sequence.cmxs": use_sequence
-<*.ml{,i,y}>: pkg_bytes
+"src/sequence.cmxs": use_sequence
+<src/*.ml{,i,y}>: pkg_bytes
 # Library invert
-"invert/invert.cmxs": use_invert
-<invert/*.ml{,i,y}>: pkg_bytes
-<invert/*.ml{,i,y}>: pkg_delimcc
-<invert/*.ml{,i,y}>: use_sequence
+"src/invert/invert.cmxs": use_invert
+<src/invert/*.ml{,i,y}>: pkg_bytes
+<src/invert/*.ml{,i,y}>: pkg_delimcc
+<src/invert/*.ml{,i,y}>: use_sequence
 # Library bigarray
-"bigarray/bigarray.cmxs": use_bigarray
-<bigarray/*.ml{,i,y}>: pkg_bigarray
-<bigarray/*.ml{,i,y}>: pkg_bytes
-<bigarray/*.ml{,i,y}>: use_sequence
-# Executable run_tests
-"tests/run_tests.native": pkg_bytes
-"tests/run_tests.native": pkg_oUnit
-"tests/run_tests.native": use_sequence
-<tests/*.ml{,i,y}>: pkg_bytes
-<tests/*.ml{,i,y}>: pkg_oUnit
-<tests/*.ml{,i,y}>: use_sequence
+"src/bigarray/bigarray.cmxs": use_bigarray
+<src/bigarray/*.ml{,i,y}>: pkg_bigarray
+<src/bigarray/*.ml{,i,y}>: pkg_bytes
+<src/bigarray/*.ml{,i,y}>: use_sequence
+# Executable run_qtest
+"qtest/run_qtest.native": pkg_bytes
+"qtest/run_qtest.native": pkg_qcheck
+"qtest/run_qtest.native": use_sequence
+<qtest/*.ml{,i,y}>: pkg_bytes
+<qtest/*.ml{,i,y}>: pkg_qcheck
+<qtest/*.ml{,i,y}>: use_sequence
 # Executable benchs
 "bench/benchs.native": pkg_benchmark
 "bench/benchs.native": pkg_bytes
@@ -53,4 +53,5 @@ true: annot, bin_annot
 true: bin_annot
 <**/*.ml>: warn_A, warn(-4)
 true: mark_tag_used
-<sequenceLabels.cm*>: nolabels
+<**/*.cmx>: optimize(3)
+<src/sequenceLabels.cm*>: nolabels
