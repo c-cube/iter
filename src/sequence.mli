@@ -57,6 +57,10 @@ val singleton : 'a -> 'a t
 val doubleton : 'a -> 'a -> 'a t
 (** Sequence with exactly two elements *)
 
+val init : (int -> 'a) -> 'a t
+(** [init f] is the infinite sequence [f 0; f 1; f 2; …].
+    @since NEXT_RELEASE *)
+
 val cons : 'a -> 'a t -> 'a t
 (** [cons x l] yields [x], then yields from [l].
     Same as [append (singleton x) l] *)
@@ -103,6 +107,17 @@ val fold : ('a -> 'b -> 'a) -> 'a -> 'b t -> 'a
 val foldi : ('a -> int -> 'b -> 'a) -> 'a -> 'b t -> 'a
 (** Fold over elements of the sequence and their index, consuming it *)
 
+val fold_map : ('acc -> 'a -> 'acc * 'b) -> 'acc -> 'a t -> 'b t
+(** [fold_map f acc l] is like {!map}, but it carries some state as in
+    {!fold}. The state is not returned, it is just used to thread some
+    information to the map function.
+    @since NEXT_RELEASE *)
+
+val fold_filter_map : ('acc -> 'a -> 'acc * 'b option) -> 'acc -> 'a t -> 'b t
+(** [fold_filter_map f acc l] is a {!fold_map}-like function, but the
+    function can choose to skip an element by retuning [None].
+    @since NEXT_RELEASE *)
+
 val map : ('a -> 'b) -> 'a t -> 'b t
 (** Map objects of the sequence into other elements, lazily *)
 
@@ -128,6 +143,20 @@ val mem : ?eq:('a -> 'a -> bool) -> 'a -> 'a t -> bool
 val find : ('a -> 'b option) -> 'a t -> 'b option
 (** Find the first element on which the function doesn't return [None]
     @since 0.5 *)
+
+val findi : (int -> 'a -> 'b option) -> 'a t -> 'b option
+(** Indexed version of {!find}
+    @since NEXT_RELEASE *)
+
+val find_pred : ('a -> bool) -> 'a t -> 'a option
+(** [find_pred p l] finds the first element of [l] that satisfies [p],
+    or returns [None] if no element satisfies [p]
+    @since NEXT_RELEASE *)
+
+val find_pred_exn : ('a -> bool) -> 'a t -> 'a
+(** Unsafe version of {!find_pred}
+    @raise Not_found if no such element is found
+    @since NEXT_RELEASE *)
 
 val length : 'a t -> int
 (** How long is the sequence? Forces the sequence. *)
@@ -197,6 +226,10 @@ val sort : ?cmp:('a -> 'a -> int) -> 'a t -> 'a t
 val sort_uniq : ?cmp:('a -> 'a -> int) -> 'a t -> 'a t
 (** Sort the sequence and remove duplicates. Eager, same as [sort] *)
 
+val sorted : ?cmp:('a -> 'a -> int) -> 'a t -> bool
+(** Checks whether the sequence is sorted. Eager, same as {!sort}.
+    @since NEXT_RELEASE *)
+
 val group_succ_by : ?eq:('a -> 'a -> bool) -> 'a t -> 'a list t
 (** Group equal consecutive elements.
     Formerly synonym to [group].
@@ -217,6 +250,11 @@ val product : 'a t -> 'b t -> ('a * 'b) t
     the caller {b MUST} ensure that [b] can be traversed as many times
     as required (several times), possibly by calling {!persistent} on it
     beforehand. *)
+
+val diagonal : 'a list -> ('a * 'a) t
+(** All pairs of distinct positions of the list. [diagonal l] will
+    return the list of [List.nth i l, List.nth j l] if [i < j].
+    @since NEXT_RELEASE *)
 
 val product2 : 'a t -> 'b t -> ('a, 'b) t2
 (** Binary version of {!product}. Same requirements.
