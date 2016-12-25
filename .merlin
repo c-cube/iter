@@ -1,9 +1,10 @@
-S .
+S src
 S bench/
 S tests/
-B _build
+B _build/src
 B _build/tests/
 B _build/bench/
-PKG oUnit
+PKG oUnit qcheck
 PKG benchmark
-FLAG -safe-string
+FLG -safe-string
+FLG -w +a -w -4 -w -44
