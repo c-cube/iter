@@ -133,9 +133,7 @@ let concat s k = s (fun s' -> s' k)
 
 let flatten s = concat s
 
-let flatMap f seq k = seq (fun x -> f x k)
-
-let flat_map = flatMap
+let flat_map f seq k = seq (fun x -> f x k)
 
 (*$R
   (1 -- 1000)
@@ -147,13 +145,11 @@ let flat_map = flatMap
 let flat_map_l f seq k =
   seq (fun x -> List.iter k (f x))
 
-let fmap f seq k =
+let filter_map f seq k =
   seq (fun x -> match f x with
       | None -> ()
       | Some y -> k y
     )
-
-let filter_map = fmap
 
 let intersperse elem seq k =
   let first = ref true in
@@ -336,8 +332,6 @@ let group_succ_by ?(eq=fun x y -> x = y) seq k =
         cur := [x]);
   (* last list *)
   if !cur <> [] then k !cur
-
-let group = group_succ_by
 
 (*$R
   [1;2;3;3;2;2;3;4]

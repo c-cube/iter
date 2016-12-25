@@ -126,14 +126,12 @@ val concat : 'a t t -> 'a t
 val flatten : 'a t t -> 'a t
 (** Alias for {!concat} *)
 
-val flatMap : f:('a -> 'b t) -> 'a t -> 'b t
-(** @deprecated use {!flat_map} *)
-
 val flat_map : f:('a -> 'b t) -> 'a t -> 'b t
 (** Alias to {!flatMap} with a more explicit name *)
 
-val fmap : f:('a -> 'b option) -> 'a t -> 'b t
-(** @deprecated use {!filter_map} *)
+val flat_map_l : f:('a -> 'b list) -> 'a t -> 'b t
+(** Convenience function combining {!flat_map} and {!of_list}
+    @since NEXT_RELEASE *)
 
 val filter_map : f:('a -> 'b option) -> 'a t -> 'b t
 (** Alias to {!fmap} with a more explicit name *)
@@ -170,8 +168,16 @@ val sort : ?cmp:('a -> 'a -> int) -> 'a t -> 'a t
 val sort_uniq : ?cmp:('a -> 'a -> int) -> 'a t -> 'a t
 (** Sort the sequence and remove duplicates. Eager, same as [sort] *)
 
-val group : ?eq:('a -> 'a -> bool) -> 'a t -> 'a list t
-(** Group equal consecutive elements. *)
+val group_succ_by : ?eq:('a -> 'a -> bool) -> 'a t -> 'a list t
+(** Group equal consecutive elements.
+    Formerly synonym to [group].
+    @since 0.6 *)
+
+val group_by : ?hash:('a -> int) -> ?eq:('a -> 'a -> bool) ->
+  'a t -> 'a list t
+(** Group equal elements, disregarding their order of appearance.
+    The result sequence is traversable as many times as required.
+    @since 0.6 *)
 
 val uniq : ?eq:('a -> 'a -> bool) -> 'a t -> 'a t
 (** Remove consecutive duplicate elements. Basically this is
@@ -368,6 +374,13 @@ val int_range : start:int -> stop:int -> int t
 val int_range_dec : start:int -> stop:int -> int t
 (** Iterator on decreasing integers in [stop...start] by steps -1.
     See {!(--^)} for an infix version *)
+
+val int_range_by : step:int -> start:int -> stop:int -> int t
+(** [int_range_by ~step ~start:i ~stop:j] is the range starting at [i], including [j],
+    where the difference between successive elements is [step].
+    use a negative [step] for a decreasing sequence.
+    @since NEXT_RELEASE
+    @raise Invalid_argument if [step=0] *)
 
 val of_set : (module Set.S with type elt = 'a and type t = 'b) -> 'b -> 'a t
 (** Convert the given set to a sequence. The set module must be provided. *)

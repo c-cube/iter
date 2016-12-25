@@ -150,23 +150,19 @@ val concat : 'a t t -> 'a t
 val flatten : 'a t t -> 'a t
 (** Alias for {!concat} *)
 
-val flatMap : ('a -> 'b t) -> 'a t -> 'b t
-(** @deprecated use {!flat_map} since 0.6 *)
-
 val flat_map : ('a -> 'b t) -> 'a t -> 'b t
 (** Monadic bind. Intuitively, it applies the function to every
     element of the initial sequence, and calls {!concat}.
+    Formerly [flatMap]
     @since 0.5 *)
 
 val flat_map_l : ('a -> 'b list) -> 'a t -> 'b t
 (** Convenience function combining {!flat_map} and {!of_list}
     @since NEXT_RELEASE *)
 
-val fmap : ('a -> 'b option) -> 'a t -> 'b t
-(** @deprecated use {!filter_map} since 0.6 *)
-
 val filter_map : ('a -> 'b option) -> 'a t -> 'b t
 (** Map and only keep non-[None] elements
+    Formerly [fmap]
     @since 0.5 *)
 
 val intersperse : 'a -> 'a t -> 'a t
@@ -201,13 +197,9 @@ val sort : ?cmp:('a -> 'a -> int) -> 'a t -> 'a t
 val sort_uniq : ?cmp:('a -> 'a -> int) -> 'a t -> 'a t
 (** Sort the sequence and remove duplicates. Eager, same as [sort] *)
 
-val group : ?eq:('a -> 'a -> bool) -> 'a t -> 'a list t
-(** Group equal consecutive elements.
-    @deprecated since 0.6 use {!group_succ_by} *)
-
 val group_succ_by : ?eq:('a -> 'a -> bool) -> 'a t -> 'a list t
 (** Group equal consecutive elements.
-    Synonym to {!group}.
+    Formerly synonym to [group].
     @since 0.6 *)
 
 val group_by : ?hash:('a -> int) -> ?eq:('a -> 'a -> bool) ->
