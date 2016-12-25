@@ -5,7 +5,7 @@
 Simple sequence abstract datatype, intended to iterate efficiently
 on collections while performing some transformations.
 
-Common operations supported by Sequence include `
+Common operations supported by Sequence include
 `filter`, `map`, `take`, `drop`, `append`, `flat_map`, etc.
 Sequence is not designed to be as general-purpose or flexible as, say,
 Batteries' `'a Enum.t`. Rather, it aims at providing a very simple and efficient
@@ -53,7 +53,6 @@ sequences, and conversely.
 
 === Transferring Data
 
-TODO: transfer queue->stack, hashtbl->list
 Conversion between n container types
 would take n² functions. In practice, for a given collection
 we can at best hope for `to_list` and `of_list`.
@@ -162,7 +161,7 @@ val vars_list : term list -> string sequence = <fun >
 === Permutations
 
 Makes it easy to write backtracking code (a non-deterministic
-function returning several '`a'
+function returning several `'a`
 will just return a `'a Sequence.t`).
 Here, we generate all permutations of a list by
 enumerating the ways we can insert an element in a list.
