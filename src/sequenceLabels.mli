@@ -222,9 +222,14 @@ val product : 'a t -> 'b t -> ('a * 'b) t
     as required (several times), possibly by calling {!persistent} on it
     beforehand. *)
 
-val diagonal : 'a list -> ('a * 'a) t
+val diagonal_l : 'a list -> ('a * 'a) t
 (** All pairs of distinct positions of the list. [diagonal l] will
-    return the list of [List.nth i l, List.nth j l] if [i < j].
+    return the sequence of all [List.nth i l, List.nth j l] if [i < j].
+    @since NEXT_RELEASE *)
+
+val diagonal : 'a t -> ('a * 'a) t
+(** All pairs of distinct positions of the sequence.
+    Iterates only once on the sequence, which must be finite.
     @since NEXT_RELEASE *)
 
 val product2 : 'a t -> 'b t -> ('a, 'b) t2

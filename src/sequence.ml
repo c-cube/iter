@@ -463,14 +463,23 @@ let product outer inner k =
 let product2 outer inner k =
   outer (fun x -> inner (fun y -> k x y))
 
-let rec diagonal l yield = match l with
+let rec diagonal_l l yield = match l with
   | [] -> ()
   | x::tail ->
     List.iter (fun y -> yield (x,y)) tail;
-    diagonal tail yield
+    diagonal_l tail yield
 
 (*$=
-  [0,1; 0,2; 1,2] (diagonal [0;1;2] |> to_list)
+  [0,1; 0,2; 1,2] (diagonal_l [0;1;2] |> to_list)
+  *)
+
+let diagonal seq =
+  let l = ref [] in
+  seq (fun x -> l := x :: !l);
+  diagonal_l (List.rev !l)
+
+(*$=
+  [0,1; 0,2; 1,2] (of_list [0;1;2] |> diagonal |> to_list)
   *)
 
 let join ~join_row s1 s2 k =
