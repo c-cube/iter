@@ -7,17 +7,20 @@
 <link rel="previous" href="Sequence.Set.Adapt.html">
 <link rel="Up" href="Sequence.Set.html">
 <link title="Index of types" rel=Appendix href="index_types.html">
+<link title="Index of exceptions" rel=Appendix href="index_exceptions.html">
 <link title="Index of values" rel=Appendix href="index_values.html">
 <link title="Index of modules" rel=Appendix href="index_modules.html">
 <link title="Index of module types" rel=Appendix href="index_module_types.html">
-<link title="Sequence" rel="Chapter" href="Sequence.html"><title>Sequence.Set.Make</title>
+<link title="Sequence" rel="Chapter" href="Sequence.html">
+<link title="SequenceLabels" rel="Chapter" href="SequenceLabels.html"><title>Sequence.Set.Make</title>
 </head>
 <body>
 <div class="navbar"><a class="pre" href="Sequence.Set.Adapt.html" title="Sequence.Set.Adapt">Previous</a>
 &nbsp;<a class="up" href="Sequence.Set.html" title="Sequence.Set">Up</a>
 &nbsp;</div>
 <h1>Functor <a href="type_Sequence.Set.Make.html">Sequence.Set.Make</a></h1>
-<pre><span class="keyword">module</span> Make: <div class="sig_block"><code class="code">functor (</code><code class="code">X</code><code class="code"> : </code><code class="type">Set.OrderedType</code><code class="code">) -&gt; </code><code class="type"><a href="Sequence.Set.S.html">S</a></code><code class="type">  with type elt = X.t</code></div></pre><div class="info">
+
+<pre><span class="keyword">module</span> Make: <div class="sig_block"><code class="code">functor (</code><code class="code">X</code><code class="code"> : </code><code class="type">Set.OrderedType</code><code class="code">) -&gt; </code><code class="type"><a href="Sequence.Set.S.html">S</a></code><code class="type">  with type elt = X.t</code></div></pre><div class="info module top">
 Functor to build an extended Set module from an ordered type<br>
 </div>
 <table border="0" cellpadding="3" width="100%">
@@ -35,7 +38,10 @@ Functor to build an extended Set module from an ordered type<br>
 </tr>
 </table>
 <hr width="100%">
-<pre><span id="TYPEset"><span class="keyword">type</span> <code class="type"></code>set</span> </pre>
 
 <pre><span class="keyword">include</span> Set.S</pre>
-<pre><span id="VALof_seq"><span class="keyword">val</span> of_seq</span> : <code class="type">elt <a href="Sequence.html#TYPEt">Sequence.t</a> -> <a href="Sequence.Set.S.html#TYPEset">set</a></code></pre><pre><span id="VALto_seq"><span class="keyword">val</span> to_seq</span> : <code class="type"><a href="Sequence.Set.S.html#TYPEset">set</a> -> elt <a href="Sequence.html#TYPEt">Sequence.t</a></code></pre></body></html>
+
+<pre><span id="VALof_seq"><span class="keyword">val</span> of_seq</span> : <code class="type">elt <a href="Sequence.html#TYPEsequence">Sequence.sequence</a> -> <a href="Sequence.html#TYPEt">Sequence.t</a></code></pre>
+<pre><span id="VALto_seq"><span class="keyword">val</span> to_seq</span> : <code class="type"><a href="Sequence.html#TYPEt">Sequence.t</a> -> elt <a href="Sequence.html#TYPEsequence">Sequence.sequence</a></code></pre>
+<pre><span id="VALto_list"><span class="keyword">val</span> to_list</span> : <code class="type"><a href="Sequence.html#TYPEt">Sequence.t</a> -> elt list</code></pre>
+<pre><span id="VALof_list"><span class="keyword">val</span> of_list</span> : <code class="type">elt list -> <a href="Sequence.html#TYPEt">Sequence.t</a></code></pre></body></html>
