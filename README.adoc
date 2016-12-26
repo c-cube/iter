@@ -1,0 +1,197 @@
+= Sequence
+:toc: macro
+:source-highlighter: pygments
+
+Simple sequence abstract datatype, intended to iterate efficiently
+on collections while performing some transformations.
+
+Common operations supported by Sequence include
+`filter`, `map`, `take`, `drop`, `append`, `flat_map`, etc.
+Sequence is not designed to be as general-purpose or flexible as, say,
+Batteries' `'a Enum.t`. Rather, it aims at providing a very simple and efficient
+way of iterating on a finite number of values, only allocating (most of the time)
+one intermediate closure to do so. For instance, iterating on keys, or values,
+of a `Hashtbl.t`, without creating a list.
+
+== Documentation
+
+There is only one important type, `'a Sequence.t`, and lots of functions built
+around this type.
+To get an overview of sequence, its origins and why it was created,
+you can start with http://cedeela.fr/~simon/talks/sequence.pdf[the slides of a talk]
+I (@c-cube) made at some OCaml meeting.
+
+See https://c-cube.github.io/sequence/api/[the online API]
+for more details on the set of available functions.
+
+== Build
+
+1. via opam `opam install sequence`
+2. manually (need OCaml >= 3.12): `make all install`
+
+If you have https://github.com/vincent-hugot/iTeML[qtest] installed,
+you can build and run tests with
+
+----
+$ ./configure --enable-tests
+$ make test
+----
+
+If you have https://github.com/Chris00/ocaml-benchmark[benchmarks] installed,
+you can build and run benchmarks with
+
+----
+$ make benchs
+$ ./benchs.native
+----
+
+To see how to use the library, check the `examples` directory.
+`tests.ml` has a few examples of how to convert basic data structures into
+sequences, and conversely.
+
+== Short Tutorial
+
+=== Transferring Data
+
+Conversion between n container types
+would take n² functions. In practice, for a given collection
+we can at best hope for `to_list` and `of_list`.
+With sequence, if the source structure provides a
+`iter` function (or a `to_seq` wrapper), it becomes:
+
+[source,OCaml]
+----
+# let q = Queue.create();;
+# Sequence.( 1 -- 10 |> to_queue q);;
+- : unit = ()
+# Sequence.of_queue q |> Sequence.to_list ;;
+- : int list = [1; 2; 3; 4; 5; 6; 7; 8; 9; 10]
+
+# let s = Stack.create();;
+# Sequence.(of_queue q |> to_stack s);;
+- : unit = ()
+# Sequence.of_stack s |> Sequence.to_list ;;
+- : int list = [10; 9; 8; 7; 6; 5; 4; 3; 2; 1] 
+----
+
+Note how the list of elements is reversed when we transfer them
+from the queue to the stack.
+
+Another example is extracting the list of values of
+a hashtable (in an undefined order that depends on the
+underlying hash function):
+
+[source,OCaml]
+----
+# let h = Hashtbl.create 16;;
+# for i = 0 to 10 do
+     Hashtbl.add h i (string_of_int i)
+  done;;
+- : unit = ()
+
+# Hashtbl.length h;;
+- : int = 11
+
+(* now to get the values *)
+# Sequence.of_t
+# Sequence.of_hashtbl h |> Sequence.map snd |> Sequence.to_list;;
+- : string list = ["6"; "2"; "8"; "7"; "3"; "5"; "4"; "9"; "0"; "10"; "1"] 
+----
+
+=== Replacing `for` loops
+
+The `for` loop is a bit limited, and lacks compositionality.
+Instead, it can be more convenient and readable to
+use `Sequence.(--) : int -> int -> int Sequence.t`.
+
+[source,OCaml]
+----
+# Sequence.(1 -- 10_000_000 |> fold (+) 0);;
+- : int = 50000005000000
+
+# let p x = x mod 5 = 0 in
+  Sequence.(1 -- 5_000
+    |> filter p
+    |> map (fun x -> x * x)
+    |> fold (+) 0
+  );;
+- : int = 8345837500
+----
+
+NOTE: with **flambda** under sufficiently strong
+optimization flags, such compositions of operators
+will be compiled to an actual loop with no overhead!
+
+=== Iterating on sub-trees
+
+A small λ-calculus AST, and some operations on it.
+
+[source,OCaml]
+----
+# type term =
+  | Var of string
+  | App of term * term
+  | Lambda of term ;;
+
+# let rec subterms : term -> term Sequence.t =
+  fun t ->
+    let open Sequence.Infix in
+    Sequence.cons t
+      (match t with
+      | Var _ -> Sequence.empty
+      | Lambda u -> subterms u
+      | App (a,b) ->
+        Sequence.append (subterms a) (subterms b))
+  ;;
+  
+(* Now we can define many other functions easily! *)
+# let vars t =
+    Sequence.filter_map
+      (function Var s -> Some s | _ -> None)
+      (subterms t) ;;
+val vars : term -> string sequence = <fun >
+
+# let size t = Sequence.length (subterms t) ;;
+val size : term -> int = <fun >
+
+# let vars_list l = Sequence.(of_list l |> flat_map vars);;
+val vars_list : term list -> string sequence = <fun >
+----
+
+=== Permutations
+
+Makes it easy to write backtracking code (a non-deterministic
+function returning several `'a`
+will just return a `'a Sequence.t`).
+Here, we generate all permutations of a list by
+enumerating the ways we can insert an element in a list.
+
+[source,OCaml]
+----
+# module S = Sequence ;;
+# let rec insert x l = match l with
+  | [] -> S.return [x]
+  | y :: tl ->
+    S.append
+      S.(insert x tl >|= fun tl' -> y :: tl')
+      (S.return (x :: l)) ;;
+
+# let rec permute l = match l with
+  | [] -> S.return []
+  | x :: tl -> permute tl >>= insert x ;;
+
+# permute [1;2;3;4] |> S.take 2 |> S.to_list ;;
+- : int list list = [[4; 3; 2; 1]; [4; 3; 1; 2]]
+
+----
+
+=== Advanced example
+
+The module `examples/sexpr.mli` exposes the interface of the S-expression
+example library. It requires OCaml>=4.0 to compile, because of the GADT
+structure used in the monadic parser combinators part of `examples/sexpr.ml`.
+Be careful that this is quite obscure.
+
+== License
+
+Sequence is available under the BSD license.

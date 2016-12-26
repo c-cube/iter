@@ -48,6 +48,17 @@ let repeat x k = while true do k x done
     (seq |> take 3 |> to_list);
 *)
 
+let init f yield =
+  let rec aux i =
+    yield (f i);
+    aux (i+1)
+  in
+  aux 0
+
+(*$=
+  [0;1;2;3;4] (init (fun x->x) |> take 5 |> to_list)
+*)
+
 let rec iterate f x k =
   k x;
   iterate f (f x) k
@@ -94,6 +105,28 @@ let foldi f init seq =
   OUnit.assert_equal [1, "world"; 0, "hello"] l;
 *)
 
+let fold_map f init seq yield =
+  let r = ref init in
+  seq
+    (fun x ->
+       let acc', y = f !r x in
+       r := acc';
+       yield y)
+
+(*$= & ~printer:Q.Print.(list int)
+  [0;1;3;5] (0--3 |> fold_map (fun prev x -> x,prev+x) 0 |> to_list)
+*)
+
+let fold_filter_map f init seq yield =
+  let r = ref init in
+  seq
+    (fun x ->
+       let acc', y = f !r x in
+       r := acc';
+       match y with
+         | None -> ()
+         | Some y' -> yield y')
+
 let map f seq k = seq (fun x -> k (f x))
 
 let mapi f seq k =
@@ -133,9 +166,7 @@ let concat s k = s (fun s' -> s' k)
 
 let flatten s = concat s
 
-let flatMap f seq k = seq (fun x -> f x k)
-
-let flat_map = flatMap
+let flat_map f seq k = seq (fun x -> f x k)
 
 (*$R
   (1 -- 1000)
@@ -147,13 +178,11 @@ let flat_map = flatMap
 let flat_map_l f seq k =
   seq (fun x -> List.iter k (f x))
 
-let fmap f seq k =
+let filter_map f seq k =
   seq (fun x -> match f x with
       | None -> ()
       | Some y -> k y
     )
-
-let filter_map = fmap
 
 let intersperse elem seq k =
   let first = ref true in
@@ -324,6 +353,23 @@ let sort ?(cmp=Pervasives.compare) seq =
     |> OUnit.assert_equal [100;99;98;97]
 *)
 
+exception Exit_sorted
+
+let sorted ?(cmp=Pervasives.compare) seq =
+  let prev = ref None in
+  try
+    seq (fun x -> match !prev with
+      | Some y when cmp y x > 0 -> raise Exit_sorted
+      | _ -> prev := Some x);
+    true
+  with Exit_sorted -> false
+
+(*$T
+  of_list [1;2;3;4] |> sorted
+  not (of_list [1;2;3;0;4] |> sorted)
+  sorted empty
+*)
+
 let group_succ_by ?(eq=fun x y -> x = y) seq k =
   let cur = ref [] in
   seq (fun x ->
@@ -336,8 +382,6 @@ let group_succ_by ?(eq=fun x y -> x = y) seq k =
         cur := [x]);
   (* last list *)
   if !cur <> [] then k !cur
-
-let group = group_succ_by
 
 (*$R
   [1;2;3;3;2;2;3;4]
@@ -418,6 +462,25 @@ let product outer inner k =
 
 let product2 outer inner k =
   outer (fun x -> inner (fun y -> k x y))
+
+let rec diagonal_l l yield = match l with
+  | [] -> ()
+  | x::tail ->
+    List.iter (fun y -> yield (x,y)) tail;
+    diagonal_l tail yield
+
+(*$=
+  [0,1; 0,2; 1,2] (diagonal_l [0;1;2] |> to_list)
+  *)
+
+let diagonal seq =
+  let l = ref [] in
+  seq (fun x -> l := x :: !l);
+  diagonal_l (List.rev !l)
+
+(*$=
+  [0,1; 0,2; 1,2] (of_list [0;1;2] |> diagonal |> to_list)
+  *)
 
 let join ~join_row s1 s2 k =
   s1 (fun a ->
@@ -612,6 +675,25 @@ let find f seq =
     with ExitFind -> ()
   end;
   !r
+
+let findi f seq =
+  let i = ref 0 in
+  let r = ref None in
+  begin
+    try
+      seq
+        (fun x -> match f !i x with
+          | None -> incr i
+          | Some _ as res -> r := res; raise ExitFind);
+    with ExitFind -> ()
+  end;
+  !r
+
+let find_pred f seq = find (fun x -> if f x then Some x else None) seq
+
+let find_pred_exn f seq = match find_pred f seq with
+  | Some x -> x
+  | None -> raise Not_found
 
 let length seq =
   let r = ref 0 in

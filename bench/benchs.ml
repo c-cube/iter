@@ -10,10 +10,10 @@ let bench_fold n =
   0 -- n |> S.fold (+) 0 |> ignore
 
 let bench_flatmap n =
-  0 -- n |> S.flatMap (fun i -> i -- (i+5)) |> (fun _ -> ())
+  0 -- n |> S.flat_map (fun i -> i -- (i+5)) |> (fun _ -> ())
 
 let bench_product n =
-  S.product (0 -- n) (0 -- n) (fun (i,j) -> ())
+  S.product (0 -- n) (0 -- n) (fun _ -> ())
 
 let _ =
   List.iter

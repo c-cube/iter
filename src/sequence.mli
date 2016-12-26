@@ -57,6 +57,10 @@ val singleton : 'a -> 'a t
 val doubleton : 'a -> 'a -> 'a t
 (** Sequence with exactly two elements *)
 
+val init : (int -> 'a) -> 'a t
+(** [init f] is the infinite sequence [f 0; f 1; f 2; …].
+    @since 0.9 *)
+
 val cons : 'a -> 'a t -> 'a t
 (** [cons x l] yields [x], then yields from [l].
     Same as [append (singleton x) l] *)
@@ -103,6 +107,17 @@ val fold : ('a -> 'b -> 'a) -> 'a -> 'b t -> 'a
 val foldi : ('a -> int -> 'b -> 'a) -> 'a -> 'b t -> 'a
 (** Fold over elements of the sequence and their index, consuming it *)
 
+val fold_map : ('acc -> 'a -> 'acc * 'b) -> 'acc -> 'a t -> 'b t
+(** [fold_map f acc l] is like {!map}, but it carries some state as in
+    {!fold}. The state is not returned, it is just used to thread some
+    information to the map function.
+    @since 0.9 *)
+
+val fold_filter_map : ('acc -> 'a -> 'acc * 'b option) -> 'acc -> 'a t -> 'b t
+(** [fold_filter_map f acc l] is a {!fold_map}-like function, but the
+    function can choose to skip an element by retuning [None].
+    @since 0.9 *)
+
 val map : ('a -> 'b) -> 'a t -> 'b t
 (** Map objects of the sequence into other elements, lazily *)
 
@@ -129,6 +144,20 @@ val find : ('a -> 'b option) -> 'a t -> 'b option
 (** Find the first element on which the function doesn't return [None]
     @since 0.5 *)
 
+val findi : (int -> 'a -> 'b option) -> 'a t -> 'b option
+(** Indexed version of {!find}
+    @since 0.9 *)
+
+val find_pred : ('a -> bool) -> 'a t -> 'a option
+(** [find_pred p l] finds the first element of [l] that satisfies [p],
+    or returns [None] if no element satisfies [p]
+    @since 0.9 *)
+
+val find_pred_exn : ('a -> bool) -> 'a t -> 'a
+(** Unsafe version of {!find_pred}
+    @raise Not_found if no such element is found
+    @since 0.9 *)
+
 val length : 'a t -> int
 (** How long is the sequence? Forces the sequence. *)
 
@@ -150,23 +179,19 @@ val concat : 'a t t -> 'a t
 val flatten : 'a t t -> 'a t
 (** Alias for {!concat} *)
 
-val flatMap : ('a -> 'b t) -> 'a t -> 'b t
-(** @deprecated use {!flat_map} since 0.6 *)
-
 val flat_map : ('a -> 'b t) -> 'a t -> 'b t
 (** Monadic bind. Intuitively, it applies the function to every
     element of the initial sequence, and calls {!concat}.
+    Formerly [flatMap]
     @since 0.5 *)
 
 val flat_map_l : ('a -> 'b list) -> 'a t -> 'b t
 (** Convenience function combining {!flat_map} and {!of_list}
     @since 0.8 *)
 
-val fmap : ('a -> 'b option) -> 'a t -> 'b t
-(** @deprecated use {!filter_map} since 0.6 *)
-
 val filter_map : ('a -> 'b option) -> 'a t -> 'b t
 (** Map and only keep non-[None] elements
+    Formerly [fmap]
     @since 0.5 *)
 
 val intersperse : 'a -> 'a t -> 'a t
@@ -201,13 +226,13 @@ val sort : ?cmp:('a -> 'a -> int) -> 'a t -> 'a t
 val sort_uniq : ?cmp:('a -> 'a -> int) -> 'a t -> 'a t
 (** Sort the sequence and remove duplicates. Eager, same as [sort] *)
 
-val group : ?eq:('a -> 'a -> bool) -> 'a t -> 'a list t
-(** Group equal consecutive elements.
-    @deprecated since 0.6 use {!group_succ_by} *)
+val sorted : ?cmp:('a -> 'a -> int) -> 'a t -> bool
+(** Checks whether the sequence is sorted. Eager, same as {!sort}.
+    @since 0.9 *)
 
 val group_succ_by : ?eq:('a -> 'a -> bool) -> 'a t -> 'a list t
 (** Group equal consecutive elements.
-    Synonym to {!group}.
+    Formerly synonym to [group].
     @since 0.6 *)
 
 val group_by : ?hash:('a -> int) -> ?eq:('a -> 'a -> bool) ->
@@ -225,6 +250,16 @@ val product : 'a t -> 'b t -> ('a * 'b) t
     the caller {b MUST} ensure that [b] can be traversed as many times
     as required (several times), possibly by calling {!persistent} on it
     beforehand. *)
+
+val diagonal_l : 'a list -> ('a * 'a) t
+(** All pairs of distinct positions of the list. [diagonal l] will
+    return the sequence of all [List.nth i l, List.nth j l] if [i < j].
+    @since 0.9 *)
+
+val diagonal : 'a t -> ('a * 'a) t
+(** All pairs of distinct positions of the sequence.
+    Iterates only once on the sequence, which must be finite.
+    @since 0.9 *)
 
 val product2 : 'a t -> 'b t -> ('a, 'b) t2
 (** Binary version of {!product}. Same requirements.
