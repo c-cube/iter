@@ -37,7 +37,7 @@ val doubleton : 'a -> 'a -> 'a t
 
 val init : f:(int -> 'a) -> 'a t
 (** [init f] is the infinite sequence [f 0; f 1; f 2; …].
-    @since NEXT_RELEASE *)
+    @since 0.9 *)
 
 val cons : 'a -> 'a t -> 'a t
 (** [cons x l] yields [x], then yields from [l].
@@ -89,12 +89,12 @@ val fold_map : f:('acc -> 'a -> 'acc * 'b) -> init:'acc -> 'a t -> 'b t
 (** [fold_map f acc l] is like {!map}, but it carries some state as in
     {!fold}. The state is not returned, it is just used to thread some
     information to the map function.
-    @since NEXT_RELEASE *)
+    @since 0.9 *)
 
 val fold_filter_map : f:('acc -> 'a -> 'acc * 'b option) -> init:'acc -> 'a t -> 'b t
 (** [fold_filter_map f acc l] is a {!fold_map}-like function, but the
     function can choose to skip an element by retuning [None].
-    @since NEXT_RELEASE *)
+    @since 0.9 *)
 
 val map : f:('a -> 'b) -> 'a t -> 'b t
 (** Map objects of the sequence into other elements, lazily *)
@@ -122,17 +122,17 @@ val find : f:('a -> 'b option) -> 'a t -> 'b option
 
 val findi : f:(int -> 'a -> 'b option) -> 'a t -> 'b option
 (** Indexed version of {!find}
-    @since NEXT_RELEASE *)
+    @since 0.9 *)
 
 val find_pred : f:('a -> bool) -> 'a t -> 'a option
 (** [find_pred p l] finds the first element of [l] that satisfies [p],
     or returns [None] if no element satisfies [p]
-    @since NEXT_RELEASE *)
+    @since 0.9 *)
 
 val find_pred_exn : f:('a -> bool) -> 'a t -> 'a
 (** Unsafe version of {!find_pred}
     @raise Not_found if no such element is found
-    @since NEXT_RELEASE *)
+    @since 0.9 *)
 
 val length : 'a t -> int
 (** How long is the sequence? Forces the sequence. *)
@@ -160,7 +160,7 @@ val flat_map : f:('a -> 'b t) -> 'a t -> 'b t
 
 val flat_map_l : f:('a -> 'b list) -> 'a t -> 'b t
 (** Convenience function combining {!flat_map} and {!of_list}
-    @since NEXT_RELEASE *)
+    @since 0.9 *)
 
 val filter_map : f:('a -> 'b option) -> 'a t -> 'b t
 (** Alias to {!fmap} with a more explicit name *)
@@ -199,7 +199,7 @@ val sort_uniq : ?cmp:('a -> 'a -> int) -> 'a t -> 'a t
 
 val sorted : ?cmp:('a -> 'a -> int) -> 'a t -> bool
 (** Checks whether the sequence is sorted. Eager, same as {!sort}.
-    @since NEXT_RELEASE *)
+    @since 0.9 *)
 
 val group_succ_by : ?eq:('a -> 'a -> bool) -> 'a t -> 'a list t
 (** Group equal consecutive elements.
@@ -225,12 +225,12 @@ val product : 'a t -> 'b t -> ('a * 'b) t
 val diagonal_l : 'a list -> ('a * 'a) t
 (** All pairs of distinct positions of the list. [diagonal l] will
     return the sequence of all [List.nth i l, List.nth j l] if [i < j].
-    @since NEXT_RELEASE *)
+    @since 0.9 *)
 
 val diagonal : 'a t -> ('a * 'a) t
 (** All pairs of distinct positions of the sequence.
     Iterates only once on the sequence, which must be finite.
-    @since NEXT_RELEASE *)
+    @since 0.9 *)
 
 val product2 : 'a t -> 'b t -> ('a, 'b) t2
 (** Binary version of {!product}. Same requirements. *)
@@ -422,12 +422,12 @@ val int_range_by : step:int -> start:int -> stop:int -> int t
 (** [int_range_by ~step ~start:i ~stop:j] is the range starting at [i], including [j],
     where the difference between successive elements is [step].
     use a negative [step] for a decreasing sequence.
-    @since NEXT_RELEASE
+    @since 0.9
     @raise Invalid_argument if [step=0] *)
 
 val bools : bool t
 (** Iterates on [true] and [false]
-    @since NEXT_RELEASE *)
+    @since 0.9 *)
 
 val of_set : (module Set.S with type elt = 'a and type t = 'b) -> 'b -> 'a t
 (** Convert the given set to a sequence. The set module must be provided. *)
