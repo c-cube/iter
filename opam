@@ -11,6 +11,14 @@ build: [
     ]
     [make "build"]
 ]
+build-doc: [
+  ["./configure" "--enable-docs"]
+  [make "doc"]
+]
+build-test: [
+  ["./configure" "--enable-tests"]
+  [make "test"]
+]
 install: [make "install"]
 remove: [
     ["ocamlfind" "remove" "sequence"]
