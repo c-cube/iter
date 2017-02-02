@@ -15,6 +15,9 @@ type (+'a, +'b) t2 = ('a -> 'b -> unit) -> unit
   let pp_ilist = Q.Print.(list int)
 *)
 
+type 'a equal = 'a -> 'a -> bool
+type 'a hash = 'a -> int
+
 (** Build a sequence from a iter function *)
 let from_iter f = f
 
@@ -520,6 +523,96 @@ let join ~join_row s1 s2 k =
   let s = join ~join_row s1 s2 in
   OUnit.assert_equal ["1 = 1"; "2 = 2"] (to_list s);
 *)
+
+let join_by (type a) ?(eq=(=)) ?(hash=Hashtbl.hash) f1 f2 ~merge c1 c2 =
+  let module Tbl = Hashtbl.Make(struct
+      type t = a
+      let equal = eq
+      let hash = hash
+    end) in
+  let tbl = Tbl.create 32 in
+  c1
+    (fun x ->
+       let key = f1 x in
+       Tbl.add tbl key x);
+  let res = ref [] in
+  c2
+    (fun y ->
+       let key = f2 y in
+       let xs = Tbl.find_all tbl key in
+       List.iter
+         (fun x -> match merge key x y with
+            | None -> ()
+            | Some z -> res := z :: !res)
+         xs);
+  fun yield -> List.iter yield !res
+
+type ('a, 'b) join_all_cell = {
+  mutable ja_left: 'a list;
+  mutable ja_right: 'b list;
+}
+
+let join_all_by (type a) ?(eq=(=)) ?(hash=Hashtbl.hash) f1 f2 ~merge c1 c2 =
+  let module Tbl = Hashtbl.Make(struct
+      type t = a
+      let equal = eq
+      let hash = hash
+    end) in
+  let tbl = Tbl.create 32 in
+  (* build the map [key -> cell] *)
+  c1
+    (fun x ->
+       let key = f1 x in
+       try
+         let c = Tbl.find tbl key in
+         c.ja_left <- x :: c.ja_left
+       with Not_found ->
+         Tbl.add tbl key {ja_left=[x]; ja_right=[]});
+  c2
+    (fun y ->
+       let key = f2 y in
+       try
+         let c = Tbl.find tbl key in
+         c.ja_right <- y :: c.ja_right
+       with Not_found ->
+         Tbl.add tbl key {ja_left=[]; ja_right=[y]});
+  let res = ref [] in
+  Tbl.iter
+    (fun key cell -> match merge key cell.ja_left cell.ja_right with
+       | None -> ()
+       | Some z -> res := z :: !res)
+    tbl;
+  fun yield -> List.iter yield !res
+
+let group_join_by (type a) ?(eq=(=)) ?(hash=Hashtbl.hash) f c1 c2 =
+  let module Tbl = Hashtbl.Make(struct
+      type t = a
+      let equal = eq
+      let hash = hash
+    end) in
+  let tbl = Tbl.create 32 in
+  c1 (fun x -> Tbl.replace tbl x []);
+  c2
+    (fun y ->
+       (* project [y] into some element of [c1] *)
+       let key = f y in
+       try
+         let l = Tbl.find tbl key in
+         Tbl.replace tbl key (y :: l)
+       with Not_found -> ());
+  fun yield -> Tbl.iter (fun k l -> yield (k,l)) tbl
+
+(*$=
+  ['a', ["abc"; "attic"]; \
+   'b', ["barbary"; "boom"; "bop"]; \
+   'c', []] \
+  (group_join_by (fun s->s.[0]) \
+    (of_str "abc") \
+    (of_list ["abc"; "boom"; "attic"; "deleted"; "barbary"; "bop"]) \
+  |> map (fun (c,l)->c,List.sort Pervasives.compare l) \
+  |> sort |> to_list)
+*)
+
 
 let rec unfoldr f b k = match f b with
   | None -> ()

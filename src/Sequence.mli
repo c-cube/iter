@@ -39,6 +39,9 @@ type +'a sequence = 'a t
 type (+'a, +'b) t2 = ('a -> 'b -> unit) -> unit
 (** Sequence of pairs of values of type ['a] and ['b]. *)
 
+type 'a equal = 'a -> 'a -> bool
+type 'a hash = 'a -> int
+
 (** {2 Build a sequence} *)
 
 val from_iter : (('a -> unit) -> unit) -> 'a t
@@ -284,6 +287,49 @@ val join : join_row:('a -> 'b -> 'c option) -> 'a t -> 'b t -> 'c t
     element of [b] using [join_row]. If [join_row] returns None, then
     the two elements do not combine. Assume that [b] allows for multiple
     iterations. *)
+
+val join_by : ?eq:'key equal -> ?hash:'key hash ->
+  ('a -> 'key) -> ('b -> 'key) ->
+  merge:('key -> 'a -> 'b -> 'c option) ->
+  'a t ->
+  'b t ->
+  'c t
+(** [join key1 key2 ~merge] is a binary operation
+    that takes two sequences [a] and [b], projects their
+    elements resp. with [key1] and [key2], and combine
+    values [(x,y)] from [(a,b)] with the same [key]
+    using [merge]. If [merge] returns [None], the combination
+    of values is discarded.
+    @since NEXT_RELEASE *)
+
+val join_all_by : ?eq:'key equal -> ?hash:'key hash ->
+  ('a -> 'key) -> ('b -> 'key) ->
+  merge:('key -> 'a list -> 'b list -> 'c option) ->
+  'a t ->
+  'b t ->
+  'c t
+(** [join_all_by key1 key2 ~merge] is a binary operation
+    that takes two sequences [a] and [b], projects their
+    elements resp. with [key1] and [key2], and, for each key [k]
+    occurring in at least one of them:
+    - compute the list [l1] of elements of [a] that map to [k]
+    - compute the list [l2] of elements of [b] that map to [k]
+    - call [merge k l1 l2]. If [merge] returns [None], the combination
+      of values is discarded, otherwise it returns [Some c]
+      and [c] is inserted in the result.
+    @since NEXT_RELEASE *)
+
+val group_join_by : ?eq:'a equal -> ?hash:'a hash ->
+  ('b -> 'a) ->
+  'a t ->
+  'b t ->
+  ('a * 'b list) t
+(** [group_join_by key2] associates to every element [x] of
+    the first sequence, all the elements [y] of the second
+    sequence such that [eq x (key y)]. Elements of the first
+    sequences without corresponding values in the second one
+    are mapped to [[]]
+    @since NEXT_RELEASE *)
 
 val unfoldr : ('b -> ('a * 'b) option) -> 'b -> 'a t
 (** [unfoldr f b] will apply [f] to [b]. If it
