@@ -554,6 +554,10 @@ let max ?(lt=fun x y -> x < y) seq =
       | Some y -> if lt y x then ret := Some x);
   !ret
 
+let max_exn ?lt seq = match max ?lt seq with
+  | Some x -> x
+  | None -> raise Not_found
+
 let min ?(lt=fun x y -> x < y) seq =
   let ret = ref None in
   seq
@@ -561,6 +565,15 @@ let min ?(lt=fun x y -> x < y) seq =
       | None -> ret := Some x
       | Some y -> if lt x y then ret := Some x);
   !ret
+
+let min_exn ?lt seq = match min ?lt seq with
+  | Some x -> x
+  | None -> raise Not_found
+
+(*$= & ~printer:string_of_int
+  100 (0 -- 100 |> max_exn ?lt:None)
+  0 (0 -- 100 |> min_exn ?lt:None)
+*)
 
 exception ExitHead
 

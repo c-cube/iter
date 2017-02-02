@@ -290,9 +290,19 @@ val max : ?lt:('a -> 'a -> bool) -> 'a t -> 'a option
     @return None if the sequence is empty, Some [m] where [m] is the maximal
     element otherwise *)
 
+val max_exn : ?lt:('a -> 'a -> bool) -> 'a t -> 'a
+(** Unsafe version of {!max}
+    @raise Not_found if the sequence is empty
+    @since NEXT_RELEASE *)
+
 val min : ?lt:('a -> 'a -> bool) -> 'a t -> 'a option
 (** Min element of the sequence, using the given comparison function.
     see {!max} for more details. *)
+
+val min_exn : ?lt:('a -> 'a -> bool) -> 'a t -> 'a
+(** Unsafe version of {!min}
+    @raise Not_found if the sequence is empty
+    @since NEXT_RELEASE *)
 
 val head : 'a t -> 'a option
 (** First element, if any, otherwise [None]
