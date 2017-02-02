@@ -613,6 +613,52 @@ let group_join_by (type a) ?(eq=(=)) ?(hash=Hashtbl.hash) f c1 c2 =
   |> sort |> to_list)
 *)
 
+let union (type a) ?(eq=(=)) ?(hash=Hashtbl.hash) c1 c2 =
+  let module Tbl = Hashtbl.Make(struct
+      type t = a let equal = eq let hash = hash end) in
+  let tbl = Tbl.create 32 in
+  c1 (fun x -> Tbl.replace tbl x ());
+  c2 (fun x -> Tbl.replace tbl x ());
+  fun yield -> Tbl.iter (fun x _ -> yield x) tbl
+
+type inter_status =
+  | Inter_left
+  | Inter_both
+
+let inter (type a) ?(eq=(=)) ?(hash=Hashtbl.hash) c1 c2 =
+  let module Tbl = Hashtbl.Make(struct
+      type t = a let equal = eq let hash = hash end) in
+  let tbl = Tbl.create 32 in
+  c1 (fun x -> Tbl.replace tbl x Inter_left);
+  c2
+    (fun x ->
+       try
+         match Tbl.find tbl x with
+           | Inter_left ->
+             Tbl.replace tbl x Inter_both; (* save *)
+           | Inter_both -> ()
+       with Not_found -> ());
+  fun yield -> Tbl.iter (fun x res -> if res=Inter_both then yield x) tbl
+
+let diff (type a) ?(eq=(=)) ?(hash=Hashtbl.hash) c1 c2 =
+  let module Tbl = Hashtbl.Make(struct
+      type t = a let equal = eq let hash = hash end) in
+  let tbl = Tbl.create 32 in
+  c2 (fun x -> Tbl.replace tbl x ());
+  fun yield ->
+    c1 (fun x -> if not (Tbl.mem tbl x) then yield x)
+
+exception Subset_exit
+
+let subset (type a) ?(eq=(=)) ?(hash=Hashtbl.hash) c1 c2 =
+  let module Tbl = Hashtbl.Make(struct
+      type t = a let equal = eq let hash = hash end) in
+  let tbl = Tbl.create 32 in
+  c2 (fun x -> Tbl.replace tbl x ());
+  try
+    c1 (fun x -> if not (Tbl.mem tbl x) then raise Subset_exit);
+    true
+  with Subset_exit -> false
 
 let rec unfoldr f b k = match f b with
   | None -> ()

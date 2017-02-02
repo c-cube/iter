@@ -331,6 +331,50 @@ val group_join_by : ?eq:'a equal -> ?hash:'a hash ->
     are mapped to [[]]
     @since NEXT_RELEASE *)
 
+val inter :
+  ?eq:'a equal -> ?hash:'a hash ->
+  'a t -> 'a t -> 'a t
+(** Intersection of two collections. Each element will occur at most once
+    in the result. Eager.
+    @since NEXT_RELEASE *)
+
+(*$=
+  [2;4;5;6] (inter (1--6) (cons 2 (4--10)) |> sort |> to_list)
+  [] (inter (0--5) (6--10) |> to_list)
+*)
+
+val union :
+  ?eq:'a equal -> ?hash:'a hash ->
+  'a t -> 'a t -> 'a t
+(** Union of two collections. Each element will occur at most once
+    in the result. Eager.
+    @since NEXT_RELEASE *)
+
+(*$=
+  [2;4;5;6] (union (4--6) (cons 2 (4--5)) |> sort |> to_list)
+*)
+
+val diff :
+  ?eq:'a equal -> ?hash:'a hash ->
+  'a t -> 'a t -> 'a t
+(** Set difference. Eager.
+    @since NEXT_RELEASE *)
+
+(*$=
+  [1;2;8;9;10] (diff (1--10) (3--7) |> to_list)
+*)
+
+val subset :
+  ?eq:'a equal -> ?hash:'a hash ->
+  'a t -> 'a t -> bool
+(** [subset a b] returns [true] if all elements of [a] belong to [b]. Eager.
+    @since NEXT_RELEASE *)
+
+(*$T
+  subset (2 -- 4) (1 -- 4)
+  not (subset (1 -- 4) (2 -- 10))
+*)
+
 val unfoldr : ('b -> ('a * 'b) option) -> 'b -> 'a t
 (** [unfoldr f b] will apply [f] to [b]. If it
     yields [Some (x,b')] then [x] is returned
