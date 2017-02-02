@@ -241,6 +241,12 @@ val group_by : ?hash:('a -> int) -> ?eq:('a -> 'a -> bool) ->
     The result sequence is traversable as many times as required.
     @since 0.6 *)
 
+val count : ?hash:('a -> int) -> ?eq:('a -> 'a -> bool) ->
+  'a t -> ('a * int) t
+(** Map each distinct element to its number of occurrences in the whole seq.
+    Similar to [group_by seq |> map (fun l->List.hd l, List.length l)]
+    @since NEXT_RELEASE *)
+
 val uniq : ?eq:('a -> 'a -> bool) -> 'a t -> 'a t
 (** Remove consecutive duplicate elements. Basically this is
     like [fun seq -> map List.hd (group seq)]. *)

@@ -411,6 +411,28 @@ let group_by (type k) ?(hash=Hashtbl.hash) ?(eq=(=)) seq =
     |> OUnit.assert_equal [[1];[2;2;2];[3;3;3];[4]]
 *)
 
+let count (type k) ?(hash=Hashtbl.hash) ?(eq=(=)) seq =
+  let module Tbl = Hashtbl.Make(struct
+      type t = k
+      let equal = eq
+      let hash = hash
+    end) in
+  (* compute group table *)
+  let tbl = Tbl.create 32 in
+  seq
+    (fun x ->
+       let n = try Tbl.find tbl x with Not_found -> 0 in
+       Tbl.replace tbl x (n+1)
+    );
+  fun yield ->
+    Tbl.iter (fun x n -> yield (x,n)) tbl
+
+(*$R
+  [1;2;3;3;2;2;3;4]
+    |> of_list |> count ?eq:None ?hash:None |> sort ?cmp:None |> to_list
+    |> OUnit.assert_equal [1,1;2,3;3,3;4,1]
+*)
+
 let uniq ?(eq=fun x y -> x = y) seq k =
   let has_prev = ref false
   and prev = ref (Obj.magic 0) in  (* avoid option type, costly *)
