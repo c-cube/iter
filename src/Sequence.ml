@@ -699,7 +699,7 @@ let mem ?(eq=(=)) x seq = exists (eq x) seq
 
 exception ExitFind
 
-let find f seq =
+let find_map f seq =
   let r = ref None in
   begin
     try
@@ -711,7 +711,9 @@ let find f seq =
   end;
   !r
 
-let findi f seq =
+let find = find_map
+
+let find_mapi f seq =
   let i = ref 0 in
   let r = ref None in
   begin
@@ -724,7 +726,9 @@ let findi f seq =
   end;
   !r
 
-let find_pred f seq = find (fun x -> if f x then Some x else None) seq
+let findi = find_mapi
+
+let find_pred f seq = find_map (fun x -> if f x then Some x else None) seq
 
 let find_pred_exn f seq = match find_pred f seq with
   | Some x -> x

@@ -144,9 +144,17 @@ val find : ('a -> 'b option) -> 'a t -> 'b option
 (** Find the first element on which the function doesn't return [None]
     @since 0.5 *)
 
+val find_map : ('a -> 'b option) -> 'a t -> 'b option
+(** Alias to {!find}
+    @since NEXT_RELEASE *)
+
 val findi : (int -> 'a -> 'b option) -> 'a t -> 'b option
 (** Indexed version of {!find}
     @since 0.9 *)
+
+val find_mapi : (int -> 'a -> 'b option) -> 'a t -> 'b option
+(** Alias to {!findi}
+    @since NEXT_RELEASE *)
 
 val find_pred : ('a -> bool) -> 'a t -> 'a option
 (** [find_pred p l] finds the first element of [l] that satisfies [p],
