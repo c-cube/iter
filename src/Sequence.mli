@@ -149,7 +149,7 @@ val find : ('a -> 'b option) -> 'a t -> 'b option
 
 val find_map : ('a -> 'b option) -> 'a t -> 'b option
 (** Alias to {!find}
-    @since NEXT_RELEASE *)
+    @since 0.10 *)
 
 val findi : (int -> 'a -> 'b option) -> 'a t -> 'b option
 (** Indexed version of {!find}
@@ -157,7 +157,7 @@ val findi : (int -> 'a -> 'b option) -> 'a t -> 'b option
 
 val find_mapi : (int -> 'a -> 'b option) -> 'a t -> 'b option
 (** Alias to {!findi}
-    @since NEXT_RELEASE *)
+    @since 0.10 *)
 
 val find_pred : ('a -> bool) -> 'a t -> 'a option
 (** [find_pred p l] finds the first element of [l] that satisfies [p],
@@ -256,7 +256,7 @@ val count : ?hash:('a -> int) -> ?eq:('a -> 'a -> bool) ->
   'a t -> ('a * int) t
 (** Map each distinct element to its number of occurrences in the whole seq.
     Similar to [group_by seq |> map (fun l->List.hd l, List.length l)]
-    @since NEXT_RELEASE *)
+    @since 0.10 *)
 
 val uniq : ?eq:('a -> 'a -> bool) -> 'a t -> 'a t
 (** Remove consecutive duplicate elements. Basically this is
@@ -300,7 +300,7 @@ val join_by : ?eq:'key equal -> ?hash:'key hash ->
     values [(x,y)] from [(a,b)] with the same [key]
     using [merge]. If [merge] returns [None], the combination
     of values is discarded.
-    @since NEXT_RELEASE *)
+    @since 0.10 *)
 
 val join_all_by : ?eq:'key equal -> ?hash:'key hash ->
   ('a -> 'key) -> ('b -> 'key) ->
@@ -317,7 +317,7 @@ val join_all_by : ?eq:'key equal -> ?hash:'key hash ->
     - call [merge k l1 l2]. If [merge] returns [None], the combination
       of values is discarded, otherwise it returns [Some c]
       and [c] is inserted in the result.
-    @since NEXT_RELEASE *)
+    @since 0.10 *)
 
 val group_join_by : ?eq:'a equal -> ?hash:'a hash ->
   ('b -> 'a) ->
@@ -329,14 +329,14 @@ val group_join_by : ?eq:'a equal -> ?hash:'a hash ->
     sequence such that [eq x (key y)]. Elements of the first
     sequences without corresponding values in the second one
     are mapped to [[]]
-    @since NEXT_RELEASE *)
+    @since 0.10 *)
 
 val inter :
   ?eq:'a equal -> ?hash:'a hash ->
   'a t -> 'a t -> 'a t
 (** Intersection of two collections. Each element will occur at most once
     in the result. Eager.
-    @since NEXT_RELEASE *)
+    @since 0.10 *)
 
 (*$=
   [2;4;5;6] (inter (1--6) (cons 2 (4--10)) |> sort |> to_list)
@@ -348,7 +348,7 @@ val union :
   'a t -> 'a t -> 'a t
 (** Union of two collections. Each element will occur at most once
     in the result. Eager.
-    @since NEXT_RELEASE *)
+    @since 0.10 *)
 
 (*$=
   [2;4;5;6] (union (4--6) (cons 2 (4--5)) |> sort |> to_list)
@@ -358,7 +358,7 @@ val diff :
   ?eq:'a equal -> ?hash:'a hash ->
   'a t -> 'a t -> 'a t
 (** Set difference. Eager.
-    @since NEXT_RELEASE *)
+    @since 0.10 *)
 
 (*$=
   [1;2;8;9;10] (diff (1--10) (3--7) |> to_list)
@@ -368,7 +368,7 @@ val subset :
   ?eq:'a equal -> ?hash:'a hash ->
   'a t -> 'a t -> bool
 (** [subset a b] returns [true] if all elements of [a] belong to [b]. Eager.
-    @since NEXT_RELEASE *)
+    @since 0.10 *)
 
 (*$T
   subset (2 -- 4) (1 -- 4)
@@ -391,7 +391,7 @@ val max : ?lt:('a -> 'a -> bool) -> 'a t -> 'a option
 val max_exn : ?lt:('a -> 'a -> bool) -> 'a t -> 'a
 (** Unsafe version of {!max}
     @raise Not_found if the sequence is empty
-    @since NEXT_RELEASE *)
+    @since 0.10 *)
 
 val min : ?lt:('a -> 'a -> bool) -> 'a t -> 'a option
 (** Min element of the sequence, using the given comparison function.
@@ -400,7 +400,7 @@ val min : ?lt:('a -> 'a -> bool) -> 'a t -> 'a option
 val min_exn : ?lt:('a -> 'a -> bool) -> 'a t -> 'a
 (** Unsafe version of {!min}
     @raise Not_found if the sequence is empty
-    @since NEXT_RELEASE *)
+    @since 0.10 *)
 
 val head : 'a t -> 'a option
 (** First element, if any, otherwise [None]

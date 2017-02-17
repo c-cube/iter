@@ -216,7 +216,7 @@ val count : ?hash:('a -> int) -> ?eq:('a -> 'a -> bool) ->
   'a t -> ('a * int) t
 (** Map each distinct element to its number of occurrences in the whole seq.
     Similar to [group_by seq |> map (fun l->List.hd l, List.length l)]
-    @since NEXT_RELEASE *)
+    @since 0.10 *)
 
 val uniq : ?eq:('a -> 'a -> bool) -> 'a t -> 'a t
 (** Remove consecutive duplicate elements. Basically this is

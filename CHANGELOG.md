@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.10
+
+- add `{union,inter,diff,subset}`
+- add `{join_by,join_all_by,group_join_by}`
+- add `find_map{,i}` as better alias to existing functions
+- add `{max_exn,min_exn}`
+- add `count`
+- add `doc` and `test` to opam
 
 ## 0.9
 

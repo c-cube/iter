@@ -169,6 +169,7 @@ enumerating the ways we can insert an element in a list.
 
 [source,OCaml]
 ----
+# open Sequence.Infix;;
 # module S = Sequence ;;
 # let rec insert x l = match l with
   | [] -> S.return [x]
