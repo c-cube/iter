@@ -1,6 +1,6 @@
 opam-version: "1.2"
 name: "sequence"
-version: "0.9"
+version: "0.10"
 author: "Simon Cruanes"
 maintainer: "simon.cruanes@inria.fr"
 license: "BSD-2-clauses"
@@ -10,6 +10,14 @@ build: [
         "--%{base-bigarray:enable}%-bigarray"
     ]
     [make "build"]
+]
+build-doc: [
+  ["./configure" "--enable-docs"]
+  [make "doc"]
+]
+build-test: [
+  ["./configure" "--enable-tests"]
+  [make "test"]
 ]
 install: [make "install"]
 remove: [

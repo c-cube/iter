@@ -39,6 +39,9 @@ type +'a sequence = 'a t
 type (+'a, +'b) t2 = ('a -> 'b -> unit) -> unit
 (** Sequence of pairs of values of type ['a] and ['b]. *)
 
+type 'a equal = 'a -> 'a -> bool
+type 'a hash = 'a -> int
+
 (** {2 Build a sequence} *)
 
 val from_iter : (('a -> unit) -> unit) -> 'a t
@@ -144,9 +147,17 @@ val find : ('a -> 'b option) -> 'a t -> 'b option
 (** Find the first element on which the function doesn't return [None]
     @since 0.5 *)
 
+val find_map : ('a -> 'b option) -> 'a t -> 'b option
+(** Alias to {!find}
+    @since 0.10 *)
+
 val findi : (int -> 'a -> 'b option) -> 'a t -> 'b option
 (** Indexed version of {!find}
     @since 0.9 *)
+
+val find_mapi : (int -> 'a -> 'b option) -> 'a t -> 'b option
+(** Alias to {!findi}
+    @since 0.10 *)
 
 val find_pred : ('a -> bool) -> 'a t -> 'a option
 (** [find_pred p l] finds the first element of [l] that satisfies [p],
@@ -241,6 +252,12 @@ val group_by : ?hash:('a -> int) -> ?eq:('a -> 'a -> bool) ->
     The result sequence is traversable as many times as required.
     @since 0.6 *)
 
+val count : ?hash:('a -> int) -> ?eq:('a -> 'a -> bool) ->
+  'a t -> ('a * int) t
+(** Map each distinct element to its number of occurrences in the whole seq.
+    Similar to [group_by seq |> map (fun l->List.hd l, List.length l)]
+    @since 0.10 *)
+
 val uniq : ?eq:('a -> 'a -> bool) -> 'a t -> 'a t
 (** Remove consecutive duplicate elements. Basically this is
     like [fun seq -> map List.hd (group seq)]. *)
@@ -271,6 +288,93 @@ val join : join_row:('a -> 'b -> 'c option) -> 'a t -> 'b t -> 'c t
     the two elements do not combine. Assume that [b] allows for multiple
     iterations. *)
 
+val join_by : ?eq:'key equal -> ?hash:'key hash ->
+  ('a -> 'key) -> ('b -> 'key) ->
+  merge:('key -> 'a -> 'b -> 'c option) ->
+  'a t ->
+  'b t ->
+  'c t
+(** [join key1 key2 ~merge] is a binary operation
+    that takes two sequences [a] and [b], projects their
+    elements resp. with [key1] and [key2], and combine
+    values [(x,y)] from [(a,b)] with the same [key]
+    using [merge]. If [merge] returns [None], the combination
+    of values is discarded.
+    @since 0.10 *)
+
+val join_all_by : ?eq:'key equal -> ?hash:'key hash ->
+  ('a -> 'key) -> ('b -> 'key) ->
+  merge:('key -> 'a list -> 'b list -> 'c option) ->
+  'a t ->
+  'b t ->
+  'c t
+(** [join_all_by key1 key2 ~merge] is a binary operation
+    that takes two sequences [a] and [b], projects their
+    elements resp. with [key1] and [key2], and, for each key [k]
+    occurring in at least one of them:
+    - compute the list [l1] of elements of [a] that map to [k]
+    - compute the list [l2] of elements of [b] that map to [k]
+    - call [merge k l1 l2]. If [merge] returns [None], the combination
+      of values is discarded, otherwise it returns [Some c]
+      and [c] is inserted in the result.
+    @since 0.10 *)
+
+val group_join_by : ?eq:'a equal -> ?hash:'a hash ->
+  ('b -> 'a) ->
+  'a t ->
+  'b t ->
+  ('a * 'b list) t
+(** [group_join_by key2] associates to every element [x] of
+    the first sequence, all the elements [y] of the second
+    sequence such that [eq x (key y)]. Elements of the first
+    sequences without corresponding values in the second one
+    are mapped to [[]]
+    @since 0.10 *)
+
+val inter :
+  ?eq:'a equal -> ?hash:'a hash ->
+  'a t -> 'a t -> 'a t
+(** Intersection of two collections. Each element will occur at most once
+    in the result. Eager.
+    @since 0.10 *)
+
+(*$=
+  [2;4;5;6] (inter (1--6) (cons 2 (4--10)) |> sort |> to_list)
+  [] (inter (0--5) (6--10) |> to_list)
+*)
+
+val union :
+  ?eq:'a equal -> ?hash:'a hash ->
+  'a t -> 'a t -> 'a t
+(** Union of two collections. Each element will occur at most once
+    in the result. Eager.
+    @since 0.10 *)
+
+(*$=
+  [2;4;5;6] (union (4--6) (cons 2 (4--5)) |> sort |> to_list)
+*)
+
+val diff :
+  ?eq:'a equal -> ?hash:'a hash ->
+  'a t -> 'a t -> 'a t
+(** Set difference. Eager.
+    @since 0.10 *)
+
+(*$=
+  [1;2;8;9;10] (diff (1--10) (3--7) |> to_list)
+*)
+
+val subset :
+  ?eq:'a equal -> ?hash:'a hash ->
+  'a t -> 'a t -> bool
+(** [subset a b] returns [true] if all elements of [a] belong to [b]. Eager.
+    @since 0.10 *)
+
+(*$T
+  subset (2 -- 4) (1 -- 4)
+  not (subset (1 -- 4) (2 -- 10))
+*)
+
 val unfoldr : ('b -> ('a * 'b) option) -> 'b -> 'a t
 (** [unfoldr f b] will apply [f] to [b]. If it
     yields [Some (x,b')] then [x] is returned
@@ -284,9 +388,19 @@ val max : ?lt:('a -> 'a -> bool) -> 'a t -> 'a option
     @return None if the sequence is empty, Some [m] where [m] is the maximal
     element otherwise *)
 
+val max_exn : ?lt:('a -> 'a -> bool) -> 'a t -> 'a
+(** Unsafe version of {!max}
+    @raise Not_found if the sequence is empty
+    @since 0.10 *)
+
 val min : ?lt:('a -> 'a -> bool) -> 'a t -> 'a option
 (** Min element of the sequence, using the given comparison function.
     see {!max} for more details. *)
+
+val min_exn : ?lt:('a -> 'a -> bool) -> 'a t -> 'a
+(** Unsafe version of {!min}
+    @raise Not_found if the sequence is empty
+    @since 0.10 *)
 
 val head : 'a t -> 'a option
 (** First element, if any, otherwise [None]

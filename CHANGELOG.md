@@ -1,5 +1,29 @@
 # Changelog
 
+## 0.10
+
+- add `{union,inter,diff,subset}`
+- add `{join_by,join_all_by,group_join_by}`
+- add `find_map{,i}` as better alias to existing functions
+- add `{max_exn,min_exn}`
+- add `count`
+- add `doc` and `test` to opam
+
+## 0.9
+
+- distinction between `diagonal,diagonal_l`
+- add `init,fold_map,fold_filter_map,sorted,diagonal,findi,…`
+- fix a few typos
+- update readme: convert into asciidoc, add tutorial
+- remove deprecated functions, add missing links to `SequenceLabels`
+
+## 0.8
+
+- loop based implementation for `int_range_by`
+- move files to 'src/', use qtest for tests
+- add `int_range_by`
+- add `Sequence.flat_map_l`
+
 ## 0.7
 
 - add missing entry in changelog and missing since annotations

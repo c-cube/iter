@@ -15,6 +15,9 @@ type (+'a, +'b) t2 = ('a -> 'b -> unit) -> unit
   let pp_ilist = Q.Print.(list int)
 *)
 
+type 'a equal = 'a -> 'a -> bool
+type 'a hash = 'a -> int
+
 (** Build a sequence from a iter function *)
 let from_iter f = f
 
@@ -411,6 +414,28 @@ let group_by (type k) ?(hash=Hashtbl.hash) ?(eq=(=)) seq =
     |> OUnit.assert_equal [[1];[2;2;2];[3;3;3];[4]]
 *)
 
+let count (type k) ?(hash=Hashtbl.hash) ?(eq=(=)) seq =
+  let module Tbl = Hashtbl.Make(struct
+      type t = k
+      let equal = eq
+      let hash = hash
+    end) in
+  (* compute group table *)
+  let tbl = Tbl.create 32 in
+  seq
+    (fun x ->
+       let n = try Tbl.find tbl x with Not_found -> 0 in
+       Tbl.replace tbl x (n+1)
+    );
+  fun yield ->
+    Tbl.iter (fun x n -> yield (x,n)) tbl
+
+(*$R
+  [1;2;3;3;2;2;3;4]
+    |> of_list |> count ?eq:None ?hash:None |> sort ?cmp:None |> to_list
+    |> OUnit.assert_equal [1,1;2,3;3,3;4,1]
+*)
+
 let uniq ?(eq=fun x y -> x = y) seq k =
   let has_prev = ref false
   and prev = ref (Obj.magic 0) in  (* avoid option type, costly *)
@@ -499,6 +524,142 @@ let join ~join_row s1 s2 k =
   OUnit.assert_equal ["1 = 1"; "2 = 2"] (to_list s);
 *)
 
+let join_by (type a) ?(eq=(=)) ?(hash=Hashtbl.hash) f1 f2 ~merge c1 c2 =
+  let module Tbl = Hashtbl.Make(struct
+      type t = a
+      let equal = eq
+      let hash = hash
+    end) in
+  let tbl = Tbl.create 32 in
+  c1
+    (fun x ->
+       let key = f1 x in
+       Tbl.add tbl key x);
+  let res = ref [] in
+  c2
+    (fun y ->
+       let key = f2 y in
+       let xs = Tbl.find_all tbl key in
+       List.iter
+         (fun x -> match merge key x y with
+            | None -> ()
+            | Some z -> res := z :: !res)
+         xs);
+  fun yield -> List.iter yield !res
+
+type ('a, 'b) join_all_cell = {
+  mutable ja_left: 'a list;
+  mutable ja_right: 'b list;
+}
+
+let join_all_by (type a) ?(eq=(=)) ?(hash=Hashtbl.hash) f1 f2 ~merge c1 c2 =
+  let module Tbl = Hashtbl.Make(struct
+      type t = a
+      let equal = eq
+      let hash = hash
+    end) in
+  let tbl = Tbl.create 32 in
+  (* build the map [key -> cell] *)
+  c1
+    (fun x ->
+       let key = f1 x in
+       try
+         let c = Tbl.find tbl key in
+         c.ja_left <- x :: c.ja_left
+       with Not_found ->
+         Tbl.add tbl key {ja_left=[x]; ja_right=[]});
+  c2
+    (fun y ->
+       let key = f2 y in
+       try
+         let c = Tbl.find tbl key in
+         c.ja_right <- y :: c.ja_right
+       with Not_found ->
+         Tbl.add tbl key {ja_left=[]; ja_right=[y]});
+  let res = ref [] in
+  Tbl.iter
+    (fun key cell -> match merge key cell.ja_left cell.ja_right with
+       | None -> ()
+       | Some z -> res := z :: !res)
+    tbl;
+  fun yield -> List.iter yield !res
+
+let group_join_by (type a) ?(eq=(=)) ?(hash=Hashtbl.hash) f c1 c2 =
+  let module Tbl = Hashtbl.Make(struct
+      type t = a
+      let equal = eq
+      let hash = hash
+    end) in
+  let tbl = Tbl.create 32 in
+  c1 (fun x -> Tbl.replace tbl x []);
+  c2
+    (fun y ->
+       (* project [y] into some element of [c1] *)
+       let key = f y in
+       try
+         let l = Tbl.find tbl key in
+         Tbl.replace tbl key (y :: l)
+       with Not_found -> ());
+  fun yield -> Tbl.iter (fun k l -> yield (k,l)) tbl
+
+(*$=
+  ['a', ["abc"; "attic"]; \
+   'b', ["barbary"; "boom"; "bop"]; \
+   'c', []] \
+  (group_join_by (fun s->s.[0]) \
+    (of_str "abc") \
+    (of_list ["abc"; "boom"; "attic"; "deleted"; "barbary"; "bop"]) \
+  |> map (fun (c,l)->c,List.sort Pervasives.compare l) \
+  |> sort |> to_list)
+*)
+
+let union (type a) ?(eq=(=)) ?(hash=Hashtbl.hash) c1 c2 =
+  let module Tbl = Hashtbl.Make(struct
+      type t = a let equal = eq let hash = hash end) in
+  let tbl = Tbl.create 32 in
+  c1 (fun x -> Tbl.replace tbl x ());
+  c2 (fun x -> Tbl.replace tbl x ());
+  fun yield -> Tbl.iter (fun x _ -> yield x) tbl
+
+type inter_status =
+  | Inter_left
+  | Inter_both
+
+let inter (type a) ?(eq=(=)) ?(hash=Hashtbl.hash) c1 c2 =
+  let module Tbl = Hashtbl.Make(struct
+      type t = a let equal = eq let hash = hash end) in
+  let tbl = Tbl.create 32 in
+  c1 (fun x -> Tbl.replace tbl x Inter_left);
+  c2
+    (fun x ->
+       try
+         match Tbl.find tbl x with
+           | Inter_left ->
+             Tbl.replace tbl x Inter_both; (* save *)
+           | Inter_both -> ()
+       with Not_found -> ());
+  fun yield -> Tbl.iter (fun x res -> if res=Inter_both then yield x) tbl
+
+let diff (type a) ?(eq=(=)) ?(hash=Hashtbl.hash) c1 c2 =
+  let module Tbl = Hashtbl.Make(struct
+      type t = a let equal = eq let hash = hash end) in
+  let tbl = Tbl.create 32 in
+  c2 (fun x -> Tbl.replace tbl x ());
+  fun yield ->
+    c1 (fun x -> if not (Tbl.mem tbl x) then yield x)
+
+exception Subset_exit
+
+let subset (type a) ?(eq=(=)) ?(hash=Hashtbl.hash) c1 c2 =
+  let module Tbl = Hashtbl.Make(struct
+      type t = a let equal = eq let hash = hash end) in
+  let tbl = Tbl.create 32 in
+  c2 (fun x -> Tbl.replace tbl x ());
+  try
+    c1 (fun x -> if not (Tbl.mem tbl x) then raise Subset_exit);
+    true
+  with Subset_exit -> false
+
 let rec unfoldr f b k = match f b with
   | None -> ()
   | Some (x, b') ->
@@ -532,6 +693,10 @@ let max ?(lt=fun x y -> x < y) seq =
       | Some y -> if lt y x then ret := Some x);
   !ret
 
+let max_exn ?lt seq = match max ?lt seq with
+  | Some x -> x
+  | None -> raise Not_found
+
 let min ?(lt=fun x y -> x < y) seq =
   let ret = ref None in
   seq
@@ -539,6 +704,15 @@ let min ?(lt=fun x y -> x < y) seq =
       | None -> ret := Some x
       | Some y -> if lt x y then ret := Some x);
   !ret
+
+let min_exn ?lt seq = match min ?lt seq with
+  | Some x -> x
+  | None -> raise Not_found
+
+(*$= & ~printer:string_of_int
+  100 (0 -- 100 |> max_exn ?lt:None)
+  0 (0 -- 100 |> min_exn ?lt:None)
+*)
 
 exception ExitHead
 
@@ -664,7 +838,7 @@ let mem ?(eq=(=)) x seq = exists (eq x) seq
 
 exception ExitFind
 
-let find f seq =
+let find_map f seq =
   let r = ref None in
   begin
     try
@@ -676,7 +850,9 @@ let find f seq =
   end;
   !r
 
-let findi f seq =
+let find = find_map
+
+let find_mapi f seq =
   let i = ref 0 in
   let r = ref None in
   begin
@@ -689,7 +865,9 @@ let findi f seq =
   end;
   !r
 
-let find_pred f seq = find (fun x -> if f x then Some x else None) seq
+let findi = find_mapi
+
+let find_pred f seq = find_map (fun x -> if f x then Some x else None) seq
 
 let find_pred_exn f seq = match find_pred f seq with
   | Some x -> x
