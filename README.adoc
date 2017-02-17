@@ -95,7 +95,6 @@ underlying hash function):
 - : int = 11
 
 (* now to get the values *)
-# Sequence.of_t
 # Sequence.of_hashtbl h |> Sequence.map snd |> Sequence.to_list;;
 - : string list = ["6"; "2"; "8"; "7"; "3"; "5"; "4"; "9"; "0"; "10"; "1"] 
 ----
@@ -122,7 +121,7 @@ use `Sequence.(--) : int -> int -> int Sequence.t`.
 
 NOTE: with **flambda** under sufficiently strong
 optimization flags, such compositions of operators
-will be compiled to an actual loop with no overhead!
+should be compiled to an actual loop with no overhead!
 
 === Iterating on sub-trees
 
