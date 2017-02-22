@@ -3,6 +3,7 @@
 <head>
 <link rel="stylesheet" href="style.css" type="text/css">
 <meta content="text/html; charset=iso-8859-1" http-equiv="Content-Type">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="Start" href="index.html">
 <link rel="next" href="SequenceLabels.html">
 <link rel="Up" href="index.html">
@@ -84,6 +85,12 @@ A sequence of values of type <code class="code">'a</code>. If you give it a func
 Sequence of pairs of values of type <code class="code">'a</code> and <code class="code">'b</code>.<br>
 </div>
 
+
+<pre><span id="TYPEequal"><span class="keyword">type</span> <code class="type">'a</code> equal</span> = <code class="type">'a -> 'a -> bool</code> </pre>
+
+
+<pre><span id="TYPEhash"><span class="keyword">type</span> <code class="type">'a</code> hash</span> = <code class="type">'a -> int</code> </pre>
+
 <br>
 <h2 id="2_Buildasequence">Build a sequence</h2><br>
 
@@ -106,6 +113,11 @@ Singleton sequence, with exactly one element.<br>
 
 <pre><span id="VALdoubleton"><span class="keyword">val</span> doubleton</span> : <code class="type">'a -> 'a -> 'a <a href="Sequence.html#TYPEt">t</a></code></pre><div class="info ">
 Sequence with exactly two elements<br>
+</div>
+
+<pre><span id="VALinit"><span class="keyword">val</span> init</span> : <code class="type">(int -> 'a) -> 'a <a href="Sequence.html#TYPEt">t</a></code></pre><div class="info ">
+<code class="code">init f</code> is the infinite sequence <code class="code">f 0; f 1; f 2; …</code>.<br>
+<b>Since</b> 0.9<br>
 </div>
 
 <pre><span id="VALcons"><span class="keyword">val</span> cons</span> : <code class="type">'a -> 'a <a href="Sequence.html#TYPEt">t</a> -> 'a <a href="Sequence.html#TYPEt">t</a></code></pre><div class="info ">
@@ -166,6 +178,19 @@ Fold over elements of the sequence, consuming it<br>
 Fold over elements of the sequence and their index, consuming it<br>
 </div>
 
+<pre><span id="VALfold_map"><span class="keyword">val</span> fold_map</span> : <code class="type">('acc -> 'a -> 'acc * 'b) -> 'acc -> 'a <a href="Sequence.html#TYPEt">t</a> -> 'b <a href="Sequence.html#TYPEt">t</a></code></pre><div class="info ">
+<code class="code">fold_map f acc l</code> is like <a href="Sequence.html#VALmap"><code class="code">Sequence.map</code></a>, but it carries some state as in
+    <a href="Sequence.html#VALfold"><code class="code">Sequence.fold</code></a>. The state is not returned, it is just used to thread some
+    information to the map function.<br>
+<b>Since</b> 0.9<br>
+</div>
+
+<pre><span id="VALfold_filter_map"><span class="keyword">val</span> fold_filter_map</span> : <code class="type">('acc -> 'a -> 'acc * 'b option) -> 'acc -> 'a <a href="Sequence.html#TYPEt">t</a> -> 'b <a href="Sequence.html#TYPEt">t</a></code></pre><div class="info ">
+<code class="code">fold_filter_map f acc l</code> is a <a href="Sequence.html#VALfold_map"><code class="code">Sequence.fold_map</code></a>-like function, but the
+    function can choose to skip an element by retuning <code class="code">None</code>.<br>
+<b>Since</b> 0.9<br>
+</div>
+
 <pre><span id="VALmap"><span class="keyword">val</span> map</span> : <code class="type">('a -> 'b) -> 'a <a href="Sequence.html#TYPEt">t</a> -> 'b <a href="Sequence.html#TYPEt">t</a></code></pre><div class="info ">
 Map objects of the sequence into other elements, lazily<br>
 </div>
@@ -197,6 +222,33 @@ Is the value a member of the sequence?<br>
 <pre><span id="VALfind"><span class="keyword">val</span> find</span> : <code class="type">('a -> 'b option) -> 'a <a href="Sequence.html#TYPEt">t</a> -> 'b option</code></pre><div class="info ">
 Find the first element on which the function doesn't return <code class="code">None</code><br>
 <b>Since</b> 0.5<br>
+</div>
+
+<pre><span id="VALfind_map"><span class="keyword">val</span> find_map</span> : <code class="type">('a -> 'b option) -> 'a <a href="Sequence.html#TYPEt">t</a> -> 'b option</code></pre><div class="info ">
+Alias to <a href="Sequence.html#VALfind"><code class="code">Sequence.find</code></a><br>
+<b>Since</b> 0.10<br>
+</div>
+
+<pre><span id="VALfindi"><span class="keyword">val</span> findi</span> : <code class="type">(int -> 'a -> 'b option) -> 'a <a href="Sequence.html#TYPEt">t</a> -> 'b option</code></pre><div class="info ">
+Indexed version of <a href="Sequence.html#VALfind"><code class="code">Sequence.find</code></a><br>
+<b>Since</b> 0.9<br>
+</div>
+
+<pre><span id="VALfind_mapi"><span class="keyword">val</span> find_mapi</span> : <code class="type">(int -> 'a -> 'b option) -> 'a <a href="Sequence.html#TYPEt">t</a> -> 'b option</code></pre><div class="info ">
+Alias to <a href="Sequence.html#VALfindi"><code class="code">Sequence.findi</code></a><br>
+<b>Since</b> 0.10<br>
+</div>
+
+<pre><span id="VALfind_pred"><span class="keyword">val</span> find_pred</span> : <code class="type">('a -> bool) -> 'a <a href="Sequence.html#TYPEt">t</a> -> 'a option</code></pre><div class="info ">
+<code class="code">find_pred p l</code> finds the first element of <code class="code">l</code> that satisfies <code class="code">p</code>,
+    or returns <code class="code">None</code> if no element satisfies <code class="code">p</code><br>
+<b>Since</b> 0.9<br>
+</div>
+
+<pre><span id="VALfind_pred_exn"><span class="keyword">val</span> find_pred_exn</span> : <code class="type">('a -> bool) -> 'a <a href="Sequence.html#TYPEt">t</a> -> 'a</code></pre><div class="info ">
+Unsafe version of <a href="Sequence.html#VALfind_pred"><code class="code">Sequence.find_pred</code></a><br>
+<b>Since</b> 0.9<br>
+<b>Raises</b> <code>Not_found</code> if no such element is found<br>
 </div>
 
 <pre><span id="VALlength"><span class="keyword">val</span> length</span> : <code class="type">'a <a href="Sequence.html#TYPEt">t</a> -> int</code></pre><div class="info ">
@@ -235,7 +287,7 @@ Monadic bind. Intuitively, it applies the function to every
 
 <pre><span id="VALflat_map_l"><span class="keyword">val</span> flat_map_l</span> : <code class="type">('a -> 'b list) -> 'a <a href="Sequence.html#TYPEt">t</a> -> 'b <a href="Sequence.html#TYPEt">t</a></code></pre><div class="info ">
 Convenience function combining <a href="Sequence.html#VALflat_map"><code class="code">Sequence.flat_map</code></a> and <a href="Sequence.html#VALof_list"><code class="code">Sequence.of_list</code></a><br>
-<b>Since</b> NEXT_RELEASE<br>
+<b>Since</b> 0.9<br>
 </div>
 
 <pre><span id="VALfilter_map"><span class="keyword">val</span> filter_map</span> : <code class="type">('a -> 'b option) -> 'a <a href="Sequence.html#TYPEt">t</a> -> 'b <a href="Sequence.html#TYPEt">t</a></code></pre><div class="info ">
@@ -282,6 +334,11 @@ Sort the sequence. Eager, O(n) ram and O(n ln(n)) time.
 Sort the sequence and remove duplicates. Eager, same as <code class="code">sort</code><br>
 </div>
 
+<pre><span id="VALsorted"><span class="keyword">val</span> sorted</span> : <code class="type">?cmp:('a -> 'a -> int) -> 'a <a href="Sequence.html#TYPEt">t</a> -> bool</code></pre><div class="info ">
+Checks whether the sequence is sorted. Eager, same as <a href="Sequence.html#VALsort"><code class="code">Sequence.sort</code></a>.<br>
+<b>Since</b> 0.9<br>
+</div>
+
 <pre><span id="VALgroup_succ_by"><span class="keyword">val</span> group_succ_by</span> : <code class="type">?eq:('a -> 'a -> bool) -> 'a <a href="Sequence.html#TYPEt">t</a> -> 'a list <a href="Sequence.html#TYPEt">t</a></code></pre><div class="info ">
 Group equal consecutive elements.
     Formerly synonym to <code class="code">group</code>.<br>
@@ -292,6 +349,12 @@ Group equal consecutive elements.
 Group equal elements, disregarding their order of appearance.
     The result sequence is traversable as many times as required.<br>
 <b>Since</b> 0.6<br>
+</div>
+
+<pre><span id="VALcount"><span class="keyword">val</span> count</span> : <code class="type">?hash:('a -> int) -><br>       ?eq:('a -> 'a -> bool) -> 'a <a href="Sequence.html#TYPEt">t</a> -> ('a * int) <a href="Sequence.html#TYPEt">t</a></code></pre><div class="info ">
+Map each distinct element to its number of occurrences in the whole seq.
+    Similar to <code class="code">group_by seq |&gt; map (fun l-&gt;List.hd l, List.length l)</code><br>
+<b>Since</b> 0.10<br>
 </div>
 
 <pre><span id="VALuniq"><span class="keyword">val</span> uniq</span> : <code class="type">?eq:('a -> 'a -> bool) -> 'a <a href="Sequence.html#TYPEt">t</a> -> 'a <a href="Sequence.html#TYPEt">t</a></code></pre><div class="info ">
@@ -306,6 +369,18 @@ Cartesian product of the sequences. When calling <code class="code">product a b<
     beforehand.<br>
 </div>
 
+<pre><span id="VALdiagonal_l"><span class="keyword">val</span> diagonal_l</span> : <code class="type">'a list -> ('a * 'a) <a href="Sequence.html#TYPEt">t</a></code></pre><div class="info ">
+All pairs of distinct positions of the list. <code class="code">diagonal l</code> will
+    return the sequence of all <code class="code">List.nth i l, List.nth j l</code> if <code class="code">i &lt; j</code>.<br>
+<b>Since</b> 0.9<br>
+</div>
+
+<pre><span id="VALdiagonal"><span class="keyword">val</span> diagonal</span> : <code class="type">'a <a href="Sequence.html#TYPEt">t</a> -> ('a * 'a) <a href="Sequence.html#TYPEt">t</a></code></pre><div class="info ">
+All pairs of distinct positions of the sequence.
+    Iterates only once on the sequence, which must be finite.<br>
+<b>Since</b> 0.9<br>
+</div>
+
 <pre><span id="VALproduct2"><span class="keyword">val</span> product2</span> : <code class="type">'a <a href="Sequence.html#TYPEt">t</a> -> 'b <a href="Sequence.html#TYPEt">t</a> -> ('a, 'b) <a href="Sequence.html#TYPEt2">t2</a></code></pre><div class="info ">
 Binary version of <a href="Sequence.html#VALproduct"><code class="code">Sequence.product</code></a>. Same requirements.<br>
 <b>Since</b> 0.5<br>
@@ -316,6 +391,62 @@ Binary version of <a href="Sequence.html#VALproduct"><code class="code">Sequence
     element of <code class="code">b</code> using <code class="code">join_row</code>. If <code class="code">join_row</code> returns None, then
     the two elements do not combine. Assume that <code class="code">b</code> allows for multiple
     iterations.<br>
+</div>
+
+<pre><span id="VALjoin_by"><span class="keyword">val</span> join_by</span> : <code class="type">?eq:'key <a href="Sequence.html#TYPEequal">equal</a> -><br>       ?hash:'key <a href="Sequence.html#TYPEhash">hash</a> -><br>       ('a -> 'key) -><br>       ('b -> 'key) -><br>       merge:('key -> 'a -> 'b -> 'c option) -><br>       'a <a href="Sequence.html#TYPEt">t</a> -> 'b <a href="Sequence.html#TYPEt">t</a> -> 'c <a href="Sequence.html#TYPEt">t</a></code></pre><div class="info ">
+<code class="code">join key1 key2 ~merge</code> is a binary operation
+    that takes two sequences <code class="code">a</code> and <code class="code">b</code>, projects their
+    elements resp. with <code class="code">key1</code> and <code class="code">key2</code>, and combine
+    values <code class="code">(x,y)</code> from <code class="code">(a,b)</code> with the same <code class="code">key</code>
+    using <code class="code">merge</code>. If <code class="code">merge</code> returns <code class="code">None</code>, the combination
+    of values is discarded.<br>
+<b>Since</b> 0.10<br>
+</div>
+
+<pre><span id="VALjoin_all_by"><span class="keyword">val</span> join_all_by</span> : <code class="type">?eq:'key <a href="Sequence.html#TYPEequal">equal</a> -><br>       ?hash:'key <a href="Sequence.html#TYPEhash">hash</a> -><br>       ('a -> 'key) -><br>       ('b -> 'key) -><br>       merge:('key -> 'a list -> 'b list -> 'c option) -><br>       'a <a href="Sequence.html#TYPEt">t</a> -> 'b <a href="Sequence.html#TYPEt">t</a> -> 'c <a href="Sequence.html#TYPEt">t</a></code></pre><div class="info ">
+<code class="code">join_all_by key1 key2 ~merge</code> is a binary operation
+    that takes two sequences <code class="code">a</code> and <code class="code">b</code>, projects their
+    elements resp. with <code class="code">key1</code> and <code class="code">key2</code>, and, for each key <code class="code">k</code>
+    occurring in at least one of them:<ul>
+<li>compute the list <code class="code">l1</code> of elements of <code class="code">a</code> that map to <code class="code">k</code></li>
+<li>compute the list <code class="code">l2</code> of elements of <code class="code">b</code> that map to <code class="code">k</code></li>
+<li>call <code class="code">merge k l1 l2</code>. If <code class="code">merge</code> returns <code class="code">None</code>, the combination
+      of values is discarded, otherwise it returns <code class="code">Some c</code>
+      and <code class="code">c</code> is inserted in the result.</li>
+</ul>
+<br>
+<b>Since</b> 0.10<br>
+</div>
+
+<pre><span id="VALgroup_join_by"><span class="keyword">val</span> group_join_by</span> : <code class="type">?eq:'a <a href="Sequence.html#TYPEequal">equal</a> -><br>       ?hash:'a <a href="Sequence.html#TYPEhash">hash</a> -><br>       ('b -> 'a) -> 'a <a href="Sequence.html#TYPEt">t</a> -> 'b <a href="Sequence.html#TYPEt">t</a> -> ('a * 'b list) <a href="Sequence.html#TYPEt">t</a></code></pre><div class="info ">
+<code class="code">group_join_by key2</code> associates to every element <code class="code">x</code> of
+    the first sequence, all the elements <code class="code">y</code> of the second
+    sequence such that <code class="code">eq x (key y)</code>. Elements of the first
+    sequences without corresponding values in the second one
+    are mapped to <code class="code">[]</code><br>
+<b>Since</b> 0.10<br>
+</div>
+
+<pre><span id="VALinter"><span class="keyword">val</span> inter</span> : <code class="type">?eq:'a <a href="Sequence.html#TYPEequal">equal</a> -><br>       ?hash:'a <a href="Sequence.html#TYPEhash">hash</a> -> 'a <a href="Sequence.html#TYPEt">t</a> -> 'a <a href="Sequence.html#TYPEt">t</a> -> 'a <a href="Sequence.html#TYPEt">t</a></code></pre><div class="info ">
+Intersection of two collections. Each element will occur at most once
+    in the result. Eager.<br>
+<b>Since</b> 0.10<br>
+</div>
+
+<pre><span id="VALunion"><span class="keyword">val</span> union</span> : <code class="type">?eq:'a <a href="Sequence.html#TYPEequal">equal</a> -><br>       ?hash:'a <a href="Sequence.html#TYPEhash">hash</a> -> 'a <a href="Sequence.html#TYPEt">t</a> -> 'a <a href="Sequence.html#TYPEt">t</a> -> 'a <a href="Sequence.html#TYPEt">t</a></code></pre><div class="info ">
+Union of two collections. Each element will occur at most once
+    in the result. Eager.<br>
+<b>Since</b> 0.10<br>
+</div>
+
+<pre><span id="VALdiff"><span class="keyword">val</span> diff</span> : <code class="type">?eq:'a <a href="Sequence.html#TYPEequal">equal</a> -><br>       ?hash:'a <a href="Sequence.html#TYPEhash">hash</a> -> 'a <a href="Sequence.html#TYPEt">t</a> -> 'a <a href="Sequence.html#TYPEt">t</a> -> 'a <a href="Sequence.html#TYPEt">t</a></code></pre><div class="info ">
+Set difference. Eager.<br>
+<b>Since</b> 0.10<br>
+</div>
+
+<pre><span id="VALsubset"><span class="keyword">val</span> subset</span> : <code class="type">?eq:'a <a href="Sequence.html#TYPEequal">equal</a> -><br>       ?hash:'a <a href="Sequence.html#TYPEhash">hash</a> -> 'a <a href="Sequence.html#TYPEt">t</a> -> 'a <a href="Sequence.html#TYPEt">t</a> -> bool</code></pre><div class="info ">
+<code class="code">subset a b</code> returns <code class="code">true</code> if all elements of <code class="code">a</code> belong to <code class="code">b</code>. Eager.<br>
+<b>Since</b> 0.10<br>
 </div>
 
 <pre><span id="VALunfoldr"><span class="keyword">val</span> unfoldr</span> : <code class="type">('b -> ('a * 'b) option) -> 'b -> 'a <a href="Sequence.html#TYPEt">t</a></code></pre><div class="info ">
@@ -334,9 +465,21 @@ Max element of the sequence, using the given comparison function.<br>
     element otherwise<br>
 </div>
 
+<pre><span id="VALmax_exn"><span class="keyword">val</span> max_exn</span> : <code class="type">?lt:('a -> 'a -> bool) -> 'a <a href="Sequence.html#TYPEt">t</a> -> 'a</code></pre><div class="info ">
+Unsafe version of <a href="Sequence.html#VALmax"><code class="code">Sequence.max</code></a><br>
+<b>Since</b> 0.10<br>
+<b>Raises</b> <code>Not_found</code> if the sequence is empty<br>
+</div>
+
 <pre><span id="VALmin"><span class="keyword">val</span> min</span> : <code class="type">?lt:('a -> 'a -> bool) -> 'a <a href="Sequence.html#TYPEt">t</a> -> 'a option</code></pre><div class="info ">
 Min element of the sequence, using the given comparison function.
     see <a href="Sequence.html#VALmax"><code class="code">Sequence.max</code></a> for more details.<br>
+</div>
+
+<pre><span id="VALmin_exn"><span class="keyword">val</span> min_exn</span> : <code class="type">?lt:('a -> 'a -> bool) -> 'a <a href="Sequence.html#TYPEt">t</a> -> 'a</code></pre><div class="info ">
+Unsafe version of <a href="Sequence.html#VALmin"><code class="code">Sequence.min</code></a><br>
+<b>Since</b> 0.10<br>
+<b>Raises</b> <code>Not_found</code> if the sequence is empty<br>
 </div>
 
 <pre><span id="VALhead"><span class="keyword">val</span> head</span> : <code class="type">'a <a href="Sequence.html#TYPEt">t</a> -> 'a option</code></pre><div class="info ">
