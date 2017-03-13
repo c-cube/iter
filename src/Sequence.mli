@@ -200,6 +200,16 @@ val flat_map_l : ('a -> 'b list) -> 'a t -> 'b t
 (** Convenience function combining {!flat_map} and {!of_list}
     @since 0.9 *)
 
+val seq_list : 'a t list -> 'a list t
+(** [seq_list l] returns all the ways to pick one element in each sub-sequence
+    in [l]. Assumes the sub-sequences can be iterated on several times.
+    @since NEXT_RELEASE *)
+
+val seq_list_map : ('a -> 'b t) -> 'a list -> 'b list t
+(** [seq_list_map f l] maps [f] over every element of [l],
+    then calls {!seq_list}
+    @since NEXT_RELEASE *)
+
 val filter_map : ('a -> 'b option) -> 'a t -> 'b t
 (** Map and only keep non-[None] elements
     Formerly [fmap]

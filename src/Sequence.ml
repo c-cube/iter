@@ -181,6 +181,19 @@ let flat_map f seq k = seq (fun x -> f x k)
 let flat_map_l f seq k =
   seq (fun x -> List.iter k (f x))
 
+let rec seq_list_map f l k = match l with
+ | [] -> k []
+ | x :: tail ->
+   f x (fun x' -> seq_list_map f tail (fun tail' -> k (x'::tail')))
+
+let seq_list l = seq_list_map (fun x->x) l
+
+(*$= & ~printer:Q.Print.(list @@ list int)
+  [[1;2];[1;3]] (seq_list [singleton 1; doubleton 2 3] |> to_list)
+  [] (seq_list [singleton 1; empty; doubleton 2 3] |> to_list)
+  [[1;2;4];[1;3;4]] (seq_list [singleton 1; doubleton 2 3; singleton 4] |> to_list)
+*)
+
 let filter_map f seq k =
   seq (fun x -> match f x with
       | None -> ()
