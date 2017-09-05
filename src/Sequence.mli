@@ -412,6 +412,14 @@ val min_exn : ?lt:('a -> 'a -> bool) -> 'a t -> 'a
     @raise Not_found if the sequence is empty
     @since 0.10 *)
 
+val sum : int t -> int
+(** Sum of elements
+    @since NEXT_RELEASE *)
+
+val sumf : float t -> float
+(** Sum of elements, using Kahan summation
+    @since NEXT_RELEASE *)
+
 val head : 'a t -> 'a option
 (** First element, if any, otherwise [None]
     @since 0.5.1 *)

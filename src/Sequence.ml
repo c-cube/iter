@@ -727,6 +727,33 @@ let min_exn ?lt seq = match min ?lt seq with
   0 (0 -- 100 |> min_exn ?lt:None)
 *)
 
+let sum seq =
+  let n = ref 0 in
+  seq (fun x -> n := !n + x);
+  !n
+
+(*$T
+  (of_list [1;2;3] |> sum) = 6
+*)
+
+(* https://en.wikipedia.org/wiki/Kahan_summation_algorithm *)
+let sumf seq : float =
+  let sum = ref 0. in
+  let c = ref 0. in (* error compensation *)
+  seq
+    (fun x ->
+       let y = x -. !c in
+       let t = !sum +. y in
+       c := (t -. !sum) -. y;
+       sum := t);
+  !sum
+
+(*$R
+  let cmp x y = (abs_float (x-.y)) < 0.05 in
+  let seq = of_list [10000.0; 3.14159; 2.71828] in
+  assert_equal ~printer:string_of_float ~cmp 10005.9 (sumf seq)
+*)
+
 exception ExitHead
 
 let head seq =
