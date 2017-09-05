@@ -749,9 +749,8 @@ let sumf seq : float =
   !sum
 
 (*$R
-  let cmp x y = (abs_float (x-.y)) < 0.05 in
   let seq = of_list [10000.0; 3.14159; 2.71828] in
-  assert_equal ~printer:string_of_float ~cmp 10005.9 (sumf seq)
+  assert_equal ~printer:string_of_float 10005.85987 (sumf seq)
 *)
 
 exception ExitHead
