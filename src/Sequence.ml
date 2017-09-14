@@ -971,6 +971,10 @@ let of_list l k = List.iter k l
 let on_list f l =
   to_list (f (of_list l))
 
+let pair_with_idx seq k =
+  let r = ref 0 in
+  seq (fun x -> let n = !r in incr r; k (n,x))
+
 let to_opt = head
 
 let of_opt o k = match o with

@@ -495,6 +495,10 @@ val on_list : ('a t -> 'b t) -> 'a list -> 'b list
     @since 0.5.2
 *)
 
+val pair_with_idx : 'a t -> (int * 'a) t
+(** Similar to {!zip_i} but returns a normal sequence of tuples
+    @since NEXT_RELEASE *)
+
 val to_opt : 'a t -> 'a option
 (** Alias to {!head}
     @since 0.5.1 *)
