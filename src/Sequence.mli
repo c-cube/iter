@@ -215,6 +215,10 @@ val filter_map : ('a -> 'b option) -> 'a t -> 'b t
     Formerly [fmap]
     @since 0.5 *)
 
+val filter_mapi : (int -> 'a -> 'b option) -> 'a t -> 'b t
+(** Map with indices, and only keep non-[None] elements
+    @since NEXT_RELEASE *)
+
 val intersperse : 'a -> 'a t -> 'a t
 (** Insert the single element between every element of the sequence *)
 

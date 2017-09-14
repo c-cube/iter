@@ -197,8 +197,16 @@ let seq_list l = seq_list_map (fun x->x) l
 let filter_map f seq k =
   seq (fun x -> match f x with
       | None -> ()
-      | Some y -> k y
-    )
+      | Some y -> k y)
+
+let filter_mapi f seq k =
+  let i = ref 0 in
+  seq (fun x ->
+    let j = !i in
+    incr i;
+    match f j x with
+      | None -> ()
+      | Some y -> k y)
 
 let intersperse elem seq k =
   let first = ref true in

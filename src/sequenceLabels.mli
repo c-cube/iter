@@ -176,6 +176,10 @@ val flat_map_l : f:('a -> 'b list) -> 'a t -> 'b t
 val filter_map : f:('a -> 'b option) -> 'a t -> 'b t
 (** Alias to {!fmap} with a more explicit name *)
 
+val filter_mapi : f:(int -> 'a -> 'b option) -> 'a t -> 'b t
+(** Map with indices, and only keep non-[None] elements
+    @since NEXT_RELEASE *)
+
 val seq_list : 'a t list -> 'a list t
 (** [seq_list l] returns all the ways to pick one element in each sub-sequence
     in [l]. Assumes the sub-sequences can be iterated on several times.
