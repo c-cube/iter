@@ -29,6 +29,7 @@
 # OASIS_STOP
 true: bin_annot, color(always)
 <**/*.ml>: warn(+a-4-44-48@8)
+<src/bigarray/*.ml>: warn(-33)
 true: mark_tag_used
 <**/*.cmx>: optimize(3)
 <src/sequenceLabels.cm*>: nolabels
