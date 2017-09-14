@@ -7,4 +7,4 @@ B _build/bench/
 PKG oUnit qcheck
 PKG benchmark
 FLG -safe-string
-FLG -w +a -w -4 -w -44
+FLG -w+a-4-44-48-60@8
