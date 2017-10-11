@@ -184,6 +184,11 @@ val append : 'a t -> 'a t -> 'a t
 (** Append two sequences. Iterating on the result is like iterating
     on the first, then on the second. *)
 
+val append_l : 'a t list -> 'a t
+(** Append sequences. Iterating on the result is like iterating
+    on the each sequence of the list in order.
+    @since NEXT_RELEASE *)
+
 val concat : 'a t t -> 'a t
 (** Concatenate a sequence of sequences into one sequence. *)
 

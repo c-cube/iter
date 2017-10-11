@@ -150,6 +150,8 @@ let filter p seq k = seq (fun x -> if p x then k x)
 
 let append s1 s2 k = s1 k; s2 k
 
+let append_l l k = List.iter (fun sub -> sub k) l
+
 let concat s k = s (fun s' -> s' k)
 
 (*$R
