@@ -8,6 +8,7 @@ build: [
     ["./configure" "--disable-docs"
         "--%{delimcc:enable}%-invert"
         "--%{base-bigarray:enable}%-bigarray"
+        "--prefix" "%{prefix}%"
     ]
     [make "build"]
 ]
