@@ -261,7 +261,7 @@ val sorted : ?cmp:('a -> 'a -> int) -> 'a t -> bool
     @since 0.9 *)
 
 val group_succ_by : ?eq:('a -> 'a -> bool) -> 'a t -> 'a list t
-(** Group equal consecutive elements.
+(** Group equal consecutive elements. Linear time.
     Formerly synonym to [group].
     @since 0.6 *)
 

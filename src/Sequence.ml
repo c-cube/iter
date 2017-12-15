@@ -407,7 +407,10 @@ let group_succ_by ?(eq=fun x y -> x = y) seq k =
         k l; (* yield group, and start another one *)
         cur := [x]);
   (* last list *)
-  if !cur <> [] then k !cur
+  begin match !cur with
+    | [] -> ()
+    | (_::_) as l -> k l
+  end
 
 (*$R
   [1;2;3;3;2;2;3;4]
