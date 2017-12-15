@@ -1107,7 +1107,7 @@ let to_buffer seq buf =
 (*$R
   let b = Buffer.create 4 in
   "hello world"
-    |> of_str |> rev |> map Char.uppercase
+    |> of_str |> rev |> map Char.uppercase_ascii
     |> (fun seq -> to_buffer seq b);
   OUnit.assert_equal "DLROW OLLEH" (Buffer.contents b);
 *)

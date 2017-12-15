@@ -27,7 +27,7 @@
 <bench/*.ml{,i}>: pkg_benchmark
 <bench/*.ml{,i}>: use_sequence
 # OASIS_STOP
-true: bin_annot, color(always)
+true: safe_string, bin_annot, color(always)
 <**/*.ml>: warn(+a-4-44-48@8)
 <src/bigarray/*.ml>: warn(-33)
 true: mark_tag_used
