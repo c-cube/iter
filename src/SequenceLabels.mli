@@ -165,7 +165,7 @@ val append : 'a t -> 'a t -> 'a t
 val append_l : 'a t list -> 'a t
 (** Append sequences. Iterating on the result is like iterating
     on the each sequence of the list in order.
-    @since NEXT_RELEASE *)
+    @since 0.11 *)
 
 val concat : 'a t t -> 'a t
 (** Concatenate a sequence of sequences into one sequence. *)
@@ -185,17 +185,17 @@ val filter_map : f:('a -> 'b option) -> 'a t -> 'b t
 
 val filter_mapi : f:(int -> 'a -> 'b option) -> 'a t -> 'b t
 (** Map with indices, and only keep non-[None] elements
-    @since NEXT_RELEASE *)
+    @since 0.11 *)
 
 val seq_list : 'a t list -> 'a list t
 (** [seq_list l] returns all the ways to pick one element in each sub-sequence
     in [l]. Assumes the sub-sequences can be iterated on several times.
-    @since NEXT_RELEASE *)
+    @since 0.11 *)
 
 val seq_list_map : f:('a -> 'b t) -> 'a list -> 'b list t
 (** [seq_list_map f l] maps [f] over every element of [l],
     then calls {!seq_list}
-    @since NEXT_RELEASE *)
+    @since 0.11 *)
 
 val intersperse : x:'a -> 'a t -> 'a t
 (** Insert the single element between every element of the sequence *)
@@ -402,11 +402,11 @@ val min_exn : ?lt:('a -> 'a -> bool) -> 'a t -> 'a
 
 val sum : int t -> int
 (** Sum of elements
-    @since NEXT_RELEASE *)
+    @since 0.11 *)
 
 val sumf : float t -> float
 (** Sum of elements, using Kahan summation
-    @since NEXT_RELEASE *)
+    @since 0.11 *)
 
 val head : 'a t -> 'a option
 (** First element, if any, otherwise [None]
@@ -485,7 +485,7 @@ val on_list : ('a t -> 'b t) -> 'a list -> 'b list
 
 val pair_with_idx : 'a t -> (int * 'a) t
 (** Similar to {!zip_i} but returns a normal sequence of tuples
-    @since NEXT_RELEASE *)
+    @since 0.11 *)
 
 val to_opt : 'a t -> 'a option
 (** Alias to {!head}
