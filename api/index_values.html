@@ -93,6 +93,16 @@ Append two sequences.
 Append two sequences.
 </div>
 </td></tr>
+<tr><td><a href="SequenceLabels.html#VALappend_l">append_l</a> [<a href="SequenceLabels.html">SequenceLabels</a>]</td>
+<td><div class="info">
+Append sequences.
+</div>
+</td></tr>
+<tr><td><a href="Sequence.html#VALappend_l">append_l</a> [<a href="Sequence.html">Sequence</a>]</td>
+<td><div class="info">
+Append sequences.
+</div>
+</td></tr>
 <tr><td><a href="SequenceLabels.html#VALarray_slice">array_slice</a> [<a href="SequenceLabels.html">SequenceLabels</a>]</td>
 <td><div class="info">
 <code class="code">array_slice a i j</code> Sequence of elements whose indexes range
@@ -198,6 +208,11 @@ All pairs of distinct positions of the list.
 All pairs of distinct positions of the list.
 </div>
 </td></tr>
+<tr><td><a href="SequenceLabels.html#VALdiff">diff</a> [<a href="SequenceLabels.html">SequenceLabels</a>]</td>
+<td><div class="info">
+Set difference.
+</div>
+</td></tr>
 <tr><td><a href="Sequence.html#VALdiff">diff</a> [<a href="Sequence.html">Sequence</a>]</td>
 <td><div class="info">
 Set difference.
@@ -280,6 +295,16 @@ Map and only keep non-<code class="code">None</code> elements
     Formerly <code class="code">fmap</code>
 </div>
 </td></tr>
+<tr><td><a href="SequenceLabels.html#VALfilter_mapi">filter_mapi</a> [<a href="SequenceLabels.html">SequenceLabels</a>]</td>
+<td><div class="info">
+Map with indices, and only keep non-<code class="code">None</code> elements
+</div>
+</td></tr>
+<tr><td><a href="Sequence.html#VALfilter_mapi">filter_mapi</a> [<a href="Sequence.html">Sequence</a>]</td>
+<td><div class="info">
+Map with indices, and only keep non-<code class="code">None</code> elements
+</div>
+</td></tr>
 <tr><td><a href="SequenceLabels.html#VALfind">find</a> [<a href="SequenceLabels.html">SequenceLabels</a>]</td>
 <td><div class="info">
 Find the first element on which the function doesn't return <code class="code">None</code>
@@ -290,9 +315,19 @@ Find the first element on which the function doesn't return <code class="code">N
 Find the first element on which the function doesn't return <code class="code">None</code>
 </div>
 </td></tr>
+<tr><td><a href="SequenceLabels.html#VALfind_map">find_map</a> [<a href="SequenceLabels.html">SequenceLabels</a>]</td>
+<td><div class="info">
+Alias to <a href="SequenceLabels.html#VALfind"><code class="code">SequenceLabels.find</code></a>
+</div>
+</td></tr>
 <tr><td><a href="Sequence.html#VALfind_map">find_map</a> [<a href="Sequence.html">Sequence</a>]</td>
 <td><div class="info">
 Alias to <a href="Sequence.html#VALfind"><code class="code">Sequence.find</code></a>
+</div>
+</td></tr>
+<tr><td><a href="SequenceLabels.html#VALfind_mapi">find_mapi</a> [<a href="SequenceLabels.html">SequenceLabels</a>]</td>
+<td><div class="info">
+Alias to <a href="SequenceLabels.html#VALfindi"><code class="code">SequenceLabels.findi</code></a>
 </div>
 </td></tr>
 <tr><td><a href="Sequence.html#VALfind_mapi">find_mapi</a> [<a href="Sequence.html">Sequence</a>]</td>
@@ -473,6 +508,13 @@ Group equal elements, disregarding their order of appearance.
 Group equal elements, disregarding their order of appearance.
 </div>
 </td></tr>
+<tr><td><a href="SequenceLabels.html#VALgroup_join_by">group_join_by</a> [<a href="SequenceLabels.html">SequenceLabels</a>]</td>
+<td><div class="info">
+<code class="code">group_join_by key2</code> associates to every element <code class="code">x</code> of
+    the first sequence, all the elements <code class="code">y</code> of the second
+    sequence such that <code class="code">eq x (key y)</code>.
+</div>
+</td></tr>
 <tr><td><a href="Sequence.html#VALgroup_join_by">group_join_by</a> [<a href="Sequence.html">Sequence</a>]</td>
 <td><div class="info">
 <code class="code">group_join_by key2</code> associates to every element <code class="code">x</code> of
@@ -586,6 +628,11 @@ Iterator on decreasing integers in <code class="code">stop...start</code> by ste
 Iterator on decreasing integers in <code class="code">stop...start</code> by steps -1.
 </div>
 </td></tr>
+<tr><td><a href="SequenceLabels.html#VALinter">inter</a> [<a href="SequenceLabels.html">SequenceLabels</a>]</td>
+<td><div class="info">
+Intersection of two collections.
+</div>
+</td></tr>
 <tr><td><a href="Sequence.html#VALinter">inter</a> [<a href="Sequence.html">Sequence</a>]</td>
 <td><div class="info">
 Intersection of two collections.
@@ -662,9 +709,23 @@ Iterate on elements and their index in the sequence
     element of <code class="code">b</code> using <code class="code">join_row</code>.
 </div>
 </td></tr>
+<tr><td><a href="SequenceLabels.html#VALjoin_all_by">join_all_by</a> [<a href="SequenceLabels.html">SequenceLabels</a>]</td>
+<td><div class="info">
+<code class="code">join_all_by key1 key2 ~merge</code> is a binary operation
+    that takes two sequences <code class="code">a</code> and <code class="code">b</code>, projects their
+    elements resp.
+</div>
+</td></tr>
 <tr><td><a href="Sequence.html#VALjoin_all_by">join_all_by</a> [<a href="Sequence.html">Sequence</a>]</td>
 <td><div class="info">
 <code class="code">join_all_by key1 key2 ~merge</code> is a binary operation
+    that takes two sequences <code class="code">a</code> and <code class="code">b</code>, projects their
+    elements resp.
+</div>
+</td></tr>
+<tr><td><a href="SequenceLabels.html#VALjoin_by">join_by</a> [<a href="SequenceLabels.html">SequenceLabels</a>]</td>
+<td><div class="info">
+<code class="code">join key1 key2 ~merge</code> is a binary operation
     that takes two sequences <code class="code">a</code> and <code class="code">b</code>, projects their
     elements resp.
 </div>
@@ -761,6 +822,11 @@ Max element of the sequence, using the given comparison function.
 Max element of the sequence, using the given comparison function.
 </div>
 </td></tr>
+<tr><td><a href="SequenceLabels.html#VALmax_exn">max_exn</a> [<a href="SequenceLabels.html">SequenceLabels</a>]</td>
+<td><div class="info">
+Unsafe version of <a href="SequenceLabels.html#VALmax"><code class="code">SequenceLabels.max</code></a>
+</div>
+</td></tr>
 <tr><td><a href="Sequence.html#VALmax_exn">max_exn</a> [<a href="Sequence.html">Sequence</a>]</td>
 <td><div class="info">
 Unsafe version of <a href="Sequence.html#VALmax"><code class="code">Sequence.max</code></a>
@@ -784,6 +850,11 @@ Min element of the sequence, using the given comparison function.
 <tr><td><a href="Sequence.html#VALmin">min</a> [<a href="Sequence.html">Sequence</a>]</td>
 <td><div class="info">
 Min element of the sequence, using the given comparison function.
+</div>
+</td></tr>
+<tr><td><a href="SequenceLabels.html#VALmin_exn">min_exn</a> [<a href="SequenceLabels.html">SequenceLabels</a>]</td>
+<td><div class="info">
+Unsafe version of <a href="SequenceLabels.html#VALmin"><code class="code">SequenceLabels.min</code></a>
 </div>
 </td></tr>
 <tr><td><a href="Sequence.html#VALmin_exn">min_exn</a> [<a href="Sequence.html">Sequence</a>]</td>
@@ -947,6 +1018,16 @@ Sequence of elements of a stream (usable only once)
 </div>
 </td></tr>
 <tr><td align="left"><br>P</td></tr>
+<tr><td><a href="SequenceLabels.html#VALpair_with_idx">pair_with_idx</a> [<a href="SequenceLabels.html">SequenceLabels</a>]</td>
+<td><div class="info">
+Similar to <a href="SequenceLabels.html#VALzip_i"><code class="code">SequenceLabels.zip_i</code></a> but returns a normal sequence of tuples
+</div>
+</td></tr>
+<tr><td><a href="Sequence.html#VALpair_with_idx">pair_with_idx</a> [<a href="Sequence.html">Sequence</a>]</td>
+<td><div class="info">
+Similar to <a href="Sequence.html#VALzip_i"><code class="code">Sequence.zip_i</code></a> but returns a normal sequence of tuples
+</div>
+</td></tr>
 <tr><td><a href="SequenceLabels.html#VALpersistent">persistent</a> [<a href="SequenceLabels.html">SequenceLabels</a>]</td>
 <td><div class="info">
 Iterate on the sequence, storing elements in an efficient internal structure..
@@ -1117,6 +1198,30 @@ Sequence of intermediate results
 Sequence of intermediate results
 </div>
 </td></tr>
+<tr><td><a href="SequenceLabels.html#VALseq_list">seq_list</a> [<a href="SequenceLabels.html">SequenceLabels</a>]</td>
+<td><div class="info">
+<code class="code">seq_list l</code> returns all the ways to pick one element in each sub-sequence
+    in <code class="code">l</code>.
+</div>
+</td></tr>
+<tr><td><a href="Sequence.html#VALseq_list">seq_list</a> [<a href="Sequence.html">Sequence</a>]</td>
+<td><div class="info">
+<code class="code">seq_list l</code> returns all the ways to pick one element in each sub-sequence
+    in <code class="code">l</code>.
+</div>
+</td></tr>
+<tr><td><a href="SequenceLabels.html#VALseq_list_map">seq_list_map</a> [<a href="SequenceLabels.html">SequenceLabels</a>]</td>
+<td><div class="info">
+<code class="code">seq_list_map f l</code> maps <code class="code">f</code> over every element of <code class="code">l</code>,
+    then calls <a href="SequenceLabels.html#VALseq_list"><code class="code">SequenceLabels.seq_list</code></a>
+</div>
+</td></tr>
+<tr><td><a href="Sequence.html#VALseq_list_map">seq_list_map</a> [<a href="Sequence.html">Sequence</a>]</td>
+<td><div class="info">
+<code class="code">seq_list_map f l</code> maps <code class="code">f</code> over every element of <code class="code">l</code>,
+    then calls <a href="Sequence.html#VALseq_list"><code class="code">Sequence.seq_list</code></a>
+</div>
+</td></tr>
 <tr><td><a href="SequenceLabels.html#VALshuffle">shuffle</a> [<a href="SequenceLabels.html">SequenceLabels</a>]</td>
 <td><div class="info">
 <code class="code">shuffle seq</code> returns a perfect shuffle of <code class="code">seq</code>.
@@ -1189,9 +1294,34 @@ Checks whether the sequence is sorted.
 Checks whether the sequence is sorted.
 </div>
 </td></tr>
+<tr><td><a href="SequenceLabels.html#VALsubset">subset</a> [<a href="SequenceLabels.html">SequenceLabels</a>]</td>
+<td><div class="info">
+<code class="code">subset a b</code> returns <code class="code">true</code> if all elements of <code class="code">a</code> belong to <code class="code">b</code>.
+</div>
+</td></tr>
 <tr><td><a href="Sequence.html#VALsubset">subset</a> [<a href="Sequence.html">Sequence</a>]</td>
 <td><div class="info">
 <code class="code">subset a b</code> returns <code class="code">true</code> if all elements of <code class="code">a</code> belong to <code class="code">b</code>.
+</div>
+</td></tr>
+<tr><td><a href="SequenceLabels.html#VALsum">sum</a> [<a href="SequenceLabels.html">SequenceLabels</a>]</td>
+<td><div class="info">
+Sum of elements
+</div>
+</td></tr>
+<tr><td><a href="Sequence.html#VALsum">sum</a> [<a href="Sequence.html">Sequence</a>]</td>
+<td><div class="info">
+Sum of elements
+</div>
+</td></tr>
+<tr><td><a href="SequenceLabels.html#VALsumf">sumf</a> [<a href="SequenceLabels.html">SequenceLabels</a>]</td>
+<td><div class="info">
+Sum of elements, using Kahan summation
+</div>
+</td></tr>
+<tr><td><a href="Sequence.html#VALsumf">sumf</a> [<a href="Sequence.html">Sequence</a>]</td>
+<td><div class="info">
+Sum of elements, using Kahan summation
 </div>
 </td></tr>
 <tr><td align="left"><br>T</td></tr>
@@ -1386,6 +1516,11 @@ Print into a string
 <code class="code">unfoldr f b</code> will apply <code class="code">f</code> to <code class="code">b</code>.
 </div>
 </td></tr>
+<tr><td><a href="SequenceLabels.html#VALunion">union</a> [<a href="SequenceLabels.html">SequenceLabels</a>]</td>
+<td><div class="info">
+Union of two collections.
+</div>
+</td></tr>
 <tr><td><a href="Sequence.html#VALunion">union</a> [<a href="Sequence.html">Sequence</a>]</td>
 <td><div class="info">
 Union of two collections.
@@ -1412,7 +1547,9 @@ Remove consecutive duplicate elements.
 <td></td></tr>
 <tr><td align="left"><br>W</td></tr>
 <tr><td><a href="SequenceLabels.IO.html#VALwrite_bytes_lines">write_bytes_lines</a> [<a href="SequenceLabels.IO.html">SequenceLabels.IO</a>]</td>
-<td></td></tr>
+<td><div class="info">
+</div>
+</td></tr>
 <tr><td><a href="Sequence.IO.html#VALwrite_bytes_lines">write_bytes_lines</a> [<a href="Sequence.IO.html">Sequence.IO</a>]</td>
 <td><div class="info">
 </div>
