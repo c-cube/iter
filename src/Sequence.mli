@@ -184,6 +184,11 @@ val append : 'a t -> 'a t -> 'a t
 (** Append two sequences. Iterating on the result is like iterating
     on the first, then on the second. *)
 
+val append_l : 'a t list -> 'a t
+(** Append sequences. Iterating on the result is like iterating
+    on the each sequence of the list in order.
+    @since 0.11 *)
+
 val concat : 'a t t -> 'a t
 (** Concatenate a sequence of sequences into one sequence. *)
 
@@ -200,10 +205,24 @@ val flat_map_l : ('a -> 'b list) -> 'a t -> 'b t
 (** Convenience function combining {!flat_map} and {!of_list}
     @since 0.8 *)
 
+val seq_list : 'a t list -> 'a list t
+(** [seq_list l] returns all the ways to pick one element in each sub-sequence
+    in [l]. Assumes the sub-sequences can be iterated on several times.
+    @since 0.11 *)
+
+val seq_list_map : ('a -> 'b t) -> 'a list -> 'b list t
+(** [seq_list_map f l] maps [f] over every element of [l],
+    then calls {!seq_list}
+    @since 0.11 *)
+
 val filter_map : ('a -> 'b option) -> 'a t -> 'b t
 (** Map and only keep non-[None] elements
     Formerly [fmap]
     @since 0.5 *)
+
+val filter_mapi : (int -> 'a -> 'b option) -> 'a t -> 'b t
+(** Map with indices, and only keep non-[None] elements
+    @since 0.11 *)
 
 val intersperse : 'a -> 'a t -> 'a t
 (** Insert the single element between every element of the sequence *)
@@ -242,7 +261,7 @@ val sorted : ?cmp:('a -> 'a -> int) -> 'a t -> bool
     @since 0.9 *)
 
 val group_succ_by : ?eq:('a -> 'a -> bool) -> 'a t -> 'a list t
-(** Group equal consecutive elements.
+(** Group equal consecutive elements. Linear time.
     Formerly synonym to [group].
     @since 0.6 *)
 
@@ -250,12 +269,14 @@ val group_by : ?hash:('a -> int) -> ?eq:('a -> 'a -> bool) ->
   'a t -> 'a list t
 (** Group equal elements, disregarding their order of appearance.
     The result sequence is traversable as many times as required.
+    precondition: for any [x] and [y], if [eq x y] then [hash x=hash y] must hold.
     @since 0.6 *)
 
 val count : ?hash:('a -> int) -> ?eq:('a -> 'a -> bool) ->
   'a t -> ('a * int) t
 (** Map each distinct element to its number of occurrences in the whole seq.
     Similar to [group_by seq |> map (fun l->List.hd l, List.length l)]
+    precondition: for any [x] and [y], if [eq x y] then [hash x=hash y] must hold.
     @since 0.10 *)
 
 val uniq : ?eq:('a -> 'a -> bool) -> 'a t -> 'a t
@@ -300,6 +321,7 @@ val join_by : ?eq:'key equal -> ?hash:'key hash ->
     values [(x,y)] from [(a,b)] with the same [key]
     using [merge]. If [merge] returns [None], the combination
     of values is discarded.
+    precondition: for any [x] and [y], if [eq x y] then [hash x=hash y] must hold.
     @since 0.10 *)
 
 val join_all_by : ?eq:'key equal -> ?hash:'key hash ->
@@ -329,6 +351,7 @@ val group_join_by : ?eq:'a equal -> ?hash:'a hash ->
     sequence such that [eq x (key y)]. Elements of the first
     sequences without corresponding values in the second one
     are mapped to [[]]
+    precondition: for any [x] and [y], if [eq x y] then [hash x=hash y] must hold.
     @since 0.10 *)
 
 val inter :
@@ -336,6 +359,7 @@ val inter :
   'a t -> 'a t -> 'a t
 (** Intersection of two collections. Each element will occur at most once
     in the result. Eager.
+    precondition: for any [x] and [y], if [eq x y] then [hash x=hash y] must hold.
     @since 0.10 *)
 
 (*$=
@@ -348,6 +372,7 @@ val union :
   'a t -> 'a t -> 'a t
 (** Union of two collections. Each element will occur at most once
     in the result. Eager.
+    precondition: for any [x] and [y], if [eq x y] then [hash x=hash y] must hold.
     @since 0.10 *)
 
 (*$=
@@ -368,6 +393,7 @@ val subset :
   ?eq:'a equal -> ?hash:'a hash ->
   'a t -> 'a t -> bool
 (** [subset a b] returns [true] if all elements of [a] belong to [b]. Eager.
+    precondition: for any [x] and [y], if [eq x y] then [hash x=hash y] must hold.
     @since 0.10 *)
 
 (*$T
@@ -401,6 +427,14 @@ val min_exn : ?lt:('a -> 'a -> bool) -> 'a t -> 'a
 (** Unsafe version of {!min}
     @raise Not_found if the sequence is empty
     @since 0.10 *)
+
+val sum : int t -> int
+(** Sum of elements
+    @since 0.11 *)
+
+val sumf : float t -> float
+(** Sum of elements, using Kahan summation
+    @since 0.11 *)
 
 val head : 'a t -> 'a option
 (** First element, if any, otherwise [None]
@@ -476,6 +510,10 @@ val on_list : ('a t -> 'b t) -> 'a list -> 'b list
 (** [on_list f l] is equivalent to [to_list @@ f @@ of_list l].
     @since 0.5.2
 *)
+
+val pair_with_idx : 'a t -> (int * 'a) t
+(** Similar to {!zip_i} but returns a normal sequence of tuples
+    @since 0.11 *)
 
 val to_opt : 'a t -> 'a option
 (** Alias to {!head}

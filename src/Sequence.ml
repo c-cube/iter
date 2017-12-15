@@ -150,6 +150,8 @@ let filter p seq k = seq (fun x -> if p x then k x)
 
 let append s1 s2 k = s1 k; s2 k
 
+let append_l l k = List.iter (fun sub -> sub k) l
+
 let concat s k = s (fun s' -> s' k)
 
 (*$R
@@ -181,11 +183,32 @@ let flat_map f seq k = seq (fun x -> f x k)
 let flat_map_l f seq k =
   seq (fun x -> List.iter k (f x))
 
+let rec seq_list_map f l k = match l with
+ | [] -> k []
+ | x :: tail ->
+   f x (fun x' -> seq_list_map f tail (fun tail' -> k (x'::tail')))
+
+let seq_list l = seq_list_map (fun x->x) l
+
+(*$= & ~printer:Q.Print.(list @@ list int)
+  [[1;2];[1;3]] (seq_list [singleton 1; doubleton 2 3] |> to_list)
+  [] (seq_list [singleton 1; empty; doubleton 2 3] |> to_list)
+  [[1;2;4];[1;3;4]] (seq_list [singleton 1; doubleton 2 3; singleton 4] |> to_list)
+*)
+
 let filter_map f seq k =
   seq (fun x -> match f x with
       | None -> ()
-      | Some y -> k y
-    )
+      | Some y -> k y)
+
+let filter_mapi f seq k =
+  let i = ref 0 in
+  seq (fun x ->
+    let j = !i in
+    incr i;
+    match f j x with
+      | None -> ()
+      | Some y -> k y)
 
 let intersperse elem seq k =
   let first = ref true in
@@ -384,7 +407,10 @@ let group_succ_by ?(eq=fun x y -> x = y) seq k =
         k l; (* yield group, and start another one *)
         cur := [x]);
   (* last list *)
-  if !cur <> [] then k !cur
+  begin match !cur with
+    | [] -> ()
+    | (_::_) as l -> k l
+  end
 
 (*$R
   [1;2;3;3;2;2;3;4]
@@ -399,14 +425,16 @@ let group_by (type k) ?(hash=Hashtbl.hash) ?(eq=(=)) seq =
       let hash = hash
     end) in
   (* compute group table *)
-  let tbl = Tbl.create 32 in
-  seq
-    (fun x ->
-       let l = try Tbl.find tbl x with Not_found -> [] in
-       Tbl.replace tbl x (x::l)
-    );
+  let tbl = lazy (
+    let tbl = Tbl.create 32 in
+    seq
+      (fun x ->
+         let l = try Tbl.find tbl x with Not_found -> [] in
+         Tbl.replace tbl x (x::l));
+    tbl
+  ) in
   fun yield ->
-    Tbl.iter (fun _ l -> yield l) tbl
+    Tbl.iter (fun _ l -> yield l) (Lazy.force tbl)
 
 (*$R
   [1;2;3;3;2;2;3;4]
@@ -421,14 +449,16 @@ let count (type k) ?(hash=Hashtbl.hash) ?(eq=(=)) seq =
       let hash = hash
     end) in
   (* compute group table *)
-  let tbl = Tbl.create 32 in
-  seq
-    (fun x ->
-       let n = try Tbl.find tbl x with Not_found -> 0 in
-       Tbl.replace tbl x (n+1)
-    );
+  let tbl = lazy (
+    let tbl = Tbl.create 32 in
+    seq
+      (fun x ->
+         let n = try Tbl.find tbl x with Not_found -> 0 in
+         Tbl.replace tbl x (n+1));
+    tbl
+  ) in
   fun yield ->
-    Tbl.iter (fun x n -> yield (x,n)) tbl
+    Tbl.iter (fun x n -> yield (x,n)) (Lazy.force tbl)
 
 (*$R
   [1;2;3;3;2;2;3;4]
@@ -714,6 +744,32 @@ let min_exn ?lt seq = match min ?lt seq with
   0 (0 -- 100 |> min_exn ?lt:None)
 *)
 
+let sum seq =
+  let n = ref 0 in
+  seq (fun x -> n := !n + x);
+  !n
+
+(*$T
+  (of_list [1;2;3] |> sum) = 6
+*)
+
+(* https://en.wikipedia.org/wiki/Kahan_summation_algorithm *)
+let sumf seq : float =
+  let sum = ref 0. in
+  let c = ref 0. in (* error compensation *)
+  seq
+    (fun x ->
+       let y = x -. !c in
+       let t = !sum +. y in
+       c := (t -. !sum) -. y;
+       sum := t);
+  !sum
+
+(*$R
+  let seq = of_list [10000.0; 3.14159; 2.71828] in
+  assert_equal ~printer:string_of_float 10005.85987 (sumf seq)
+*)
+
 exception ExitHead
 
 let head seq =
@@ -932,6 +988,10 @@ let of_list l k = List.iter k l
 let on_list f l =
   to_list (f (of_list l))
 
+let pair_with_idx seq k =
+  let r = ref 0 in
+  seq (fun x -> let n = !r in incr r; k (n,x))
+
 let to_opt = head
 
 let of_opt o k = match o with
@@ -1047,7 +1107,7 @@ let to_buffer seq buf =
 (*$R
   let b = Buffer.create 4 in
   "hello world"
-    |> of_str |> rev |> map Char.uppercase
+    |> of_str |> rev |> map Char.uppercase_ascii
     |> (fun seq -> to_buffer seq b);
   OUnit.assert_equal "DLROW OLLEH" (Buffer.contents b);
 *)

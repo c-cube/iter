@@ -17,6 +17,9 @@ type +'a sequence = 'a t
 type (+'a, +'b) t2 = ('a -> 'b -> unit) -> unit
 (** Sequence of pairs of values of type ['a] and ['b]. *)
 
+type 'a equal = 'a -> 'a -> bool
+type 'a hash = 'a -> int
+
 (** {2 Build a sequence} *)
 
 val from_iter : (('a -> unit) -> unit) -> 'a t
@@ -115,14 +118,24 @@ val exists : f:('a -> bool) -> 'a t -> bool
 
 val mem : ?eq:('a -> 'a -> bool) -> x:'a -> 'a t -> bool
 (** Is the value a member of the sequence?
-    @param eq the equality predicate to use (default [(=)]) *)
+    @param eq the equality predicate to use (default [(=)])
+    @since 0.5 *)
 
-val find : f:('a -> 'b option) -> 'a t -> 'b option
-(** Find the first element on which the function doesn't return [None] *)
+val find : ('a -> 'b option) -> 'a t -> 'b option
+(** Find the first element on which the function doesn't return [None]
+    @since 0.5 *)
+
+val find_map : f:('a -> 'b option) -> 'a t -> 'b option
+(** Alias to {!find}
+    @since 0.10 *)
 
 val findi : f:(int -> 'a -> 'b option) -> 'a t -> 'b option
 (** Indexed version of {!find}
     @since 0.9 *)
+
+val find_mapi : f:(int -> 'a -> 'b option) -> 'a t -> 'b option
+(** Alias to {!findi}
+    @since 0.10 *)
 
 val find_pred : f:('a -> bool) -> 'a t -> 'a option
 (** [find_pred p l] finds the first element of [l] that satisfies [p],
@@ -149,6 +162,11 @@ val append : 'a t -> 'a t -> 'a t
 (** Append two sequences. Iterating on the result is like iterating
     on the first, then on the second. *)
 
+val append_l : 'a t list -> 'a t
+(** Append sequences. Iterating on the result is like iterating
+    on the each sequence of the list in order.
+    @since 0.11 *)
+
 val concat : 'a t t -> 'a t
 (** Concatenate a sequence of sequences into one sequence. *)
 
@@ -164,6 +182,20 @@ val flat_map_l : f:('a -> 'b list) -> 'a t -> 'b t
 
 val filter_map : f:('a -> 'b option) -> 'a t -> 'b t
 (** Alias to {!fmap} with a more explicit name *)
+
+val filter_mapi : f:(int -> 'a -> 'b option) -> 'a t -> 'b t
+(** Map with indices, and only keep non-[None] elements
+    @since 0.11 *)
+
+val seq_list : 'a t list -> 'a list t
+(** [seq_list l] returns all the ways to pick one element in each sub-sequence
+    in [l]. Assumes the sub-sequences can be iterated on several times.
+    @since 0.11 *)
+
+val seq_list_map : f:('a -> 'b t) -> 'a list -> 'b list t
+(** [seq_list_map f l] maps [f] over every element of [l],
+    then calls {!seq_list}
+    @since 0.11 *)
 
 val intersperse : x:'a -> 'a t -> 'a t
 (** Insert the single element between every element of the sequence *)
@@ -210,6 +242,7 @@ val group_by : ?hash:('a -> int) -> ?eq:('a -> 'a -> bool) ->
   'a t -> 'a list t
 (** Group equal elements, disregarding their order of appearance.
     The result sequence is traversable as many times as required.
+    precondition: for any [x] and [y], if [eq x y] then [hash x=hash y] must hold.
     @since 0.6 *)
 
 val count : ?hash:('a -> int) -> ?eq:('a -> 'a -> bool) ->
@@ -239,13 +272,106 @@ val diagonal : 'a t -> ('a * 'a) t
     @since 0.9 *)
 
 val product2 : 'a t -> 'b t -> ('a, 'b) t2
-(** Binary version of {!product}. Same requirements. *)
+(** Binary version of {!product}. Same requirements.
+    @since 0.5 *)
 
 val join : join_row:('a -> 'b -> 'c option) -> 'a t -> 'b t -> 'c t
 (** [join ~join_row a b] combines every element of [a] with every
     element of [b] using [join_row]. If [join_row] returns None, then
     the two elements do not combine. Assume that [b] allows for multiple
     iterations. *)
+
+val join_by : ?eq:'key equal -> ?hash:'key hash ->
+  ('a -> 'key) -> ('b -> 'key) ->
+  merge:('key -> 'a -> 'b -> 'c option) ->
+  'a t ->
+  'b t ->
+  'c t
+(** [join key1 key2 ~merge] is a binary operation
+    that takes two sequences [a] and [b], projects their
+    elements resp. with [key1] and [key2], and combine
+    values [(x,y)] from [(a,b)] with the same [key]
+    using [merge]. If [merge] returns [None], the combination
+    of values is discarded.
+    precondition: for any [x] and [y], if [eq x y] then [hash x=hash y] must hold.
+    @since 0.10 *)
+
+val join_all_by : ?eq:'key equal -> ?hash:'key hash ->
+  ('a -> 'key) -> ('b -> 'key) ->
+  merge:('key -> 'a list -> 'b list -> 'c option) ->
+  'a t ->
+  'b t ->
+  'c t
+(** [join_all_by key1 key2 ~merge] is a binary operation
+    that takes two sequences [a] and [b], projects their
+    elements resp. with [key1] and [key2], and, for each key [k]
+    occurring in at least one of them:
+    - compute the list [l1] of elements of [a] that map to [k]
+    - compute the list [l2] of elements of [b] that map to [k]
+    - call [merge k l1 l2]. If [merge] returns [None], the combination
+      of values is discarded, otherwise it returns [Some c]
+      and [c] is inserted in the result.
+    @since 0.10 *)
+
+val group_join_by : ?eq:'a equal -> ?hash:'a hash ->
+  ('b -> 'a) ->
+  'a t ->
+  'b t ->
+  ('a * 'b list) t
+(** [group_join_by key2] associates to every element [x] of
+    the first sequence, all the elements [y] of the second
+    sequence such that [eq x (key y)]. Elements of the first
+    sequences without corresponding values in the second one
+    are mapped to [[]]
+    precondition: for any [x] and [y], if [eq x y] then [hash x=hash y] must hold.
+    @since 0.10 *)
+
+val inter :
+  ?eq:'a equal -> ?hash:'a hash ->
+  'a t -> 'a t -> 'a t
+(** Intersection of two collections. Each element will occur at most once
+    in the result. Eager.
+    precondition: for any [x] and [y], if [eq x y] then [hash x=hash y] must hold.
+    @since 0.10 *)
+
+(*$=
+  [2;4;5;6] (inter (1--6) (cons 2 (4--10)) |> sort |> to_list)
+  [] (inter (0--5) (6--10) |> to_list)
+*)
+
+val union :
+  ?eq:'a equal -> ?hash:'a hash ->
+  'a t -> 'a t -> 'a t
+(** Union of two collections. Each element will occur at most once
+    in the result. Eager.
+    precondition: for any [x] and [y], if [eq x y] then [hash x=hash y] must hold.
+    @since 0.10 *)
+
+(*$=
+  [2;4;5;6] (union (4--6) (cons 2 (4--5)) |> sort |> to_list)
+*)
+
+val diff :
+  ?eq:'a equal -> ?hash:'a hash ->
+  'a t -> 'a t -> 'a t
+(** Set difference. Eager.
+    @since 0.10 *)
+
+(*$=
+  [1;2;8;9;10] (diff (1--10) (3--7) |> to_list)
+*)
+
+val subset :
+  ?eq:'a equal -> ?hash:'a hash ->
+  'a t -> 'a t -> bool
+(** [subset a b] returns [true] if all elements of [a] belong to [b]. Eager.
+    precondition: for any [x] and [y], if [eq x y] then [hash x=hash y] must hold.
+    @since 0.10 *)
+
+(*$T
+  subset (2 -- 4) (1 -- 4)
+  not (subset (1 -- 4) (2 -- 10))
+*)
 
 val unfoldr : ('b -> ('a * 'b) option) -> 'b -> 'a t
 (** [unfoldr f b] will apply [f] to [b]. If it
@@ -260,16 +386,36 @@ val max : ?lt:('a -> 'a -> bool) -> 'a t -> 'a option
     @return None if the sequence is empty, Some [m] where [m] is the maximal
     element otherwise *)
 
+val max_exn : ?lt:('a -> 'a -> bool) -> 'a t -> 'a
+(** Unsafe version of {!max}
+    @raise Not_found if the sequence is empty
+    @since 0.10 *)
+
 val min : ?lt:('a -> 'a -> bool) -> 'a t -> 'a option
 (** Min element of the sequence, using the given comparison function.
     see {!max} for more details. *)
 
+val min_exn : ?lt:('a -> 'a -> bool) -> 'a t -> 'a
+(** Unsafe version of {!min}
+    @raise Not_found if the sequence is empty
+    @since 0.10 *)
+
+val sum : int t -> int
+(** Sum of elements
+    @since 0.11 *)
+
+val sumf : float t -> float
+(** Sum of elements, using Kahan summation
+    @since 0.11 *)
+
 val head : 'a t -> 'a option
-(** First element, if any, otherwise [None] *)
+(** First element, if any, otherwise [None]
+    @since 0.5.1 *)
 
 val head_exn : 'a t -> 'a
 (** First element, if any, fails
-    @raise Invalid_argument if the sequence is empty *)
+    @raise Invalid_argument if the sequence is empty
+    @since 0.5.1 *)
 
 val take : int -> 'a t -> 'a t
 (** Take at most [n] elements from the sequence. Works on infinite
@@ -282,7 +428,8 @@ val take_while : f:('a -> bool) -> 'a t -> 'a t
 
 val fold_while : f:('a -> 'b -> 'a * [`Stop | `Continue]) -> init:'a -> 'b t -> 'a
 (** Folds over elements of the sequence, stopping early if the accumulator
-    returns [('a, `Stop)] *)
+    returns [('a, `Stop)]
+    @since 0.5.5 *)
 
 val drop : int -> 'a t -> 'a t
 (** Drop the [n] first elements of the sequence. Lazy. *)
@@ -332,10 +479,17 @@ val to_rev_list : 'a t -> 'a list
 val of_list : 'a list -> 'a t
 
 val on_list : ('a t -> 'b t) -> 'a list -> 'b list
-(** [on_list f l] is equivalent to [to_list @@ f @@ of_list l]. *)
+(** [on_list f l] is equivalent to [to_list @@ f @@ of_list l].
+    @since 0.5.2
+*)
+
+val pair_with_idx : 'a t -> (int * 'a) t
+(** Similar to {!zip_i} but returns a normal sequence of tuples
+    @since 0.11 *)
 
 val to_opt : 'a t -> 'a option
-(** Alias to {!head} *)
+(** Alias to {!head}
+    @since 0.5.1 *)
 
 val to_array : 'a t -> 'a array
 (** Convert to an array. Currently not very efficient because
@@ -353,7 +507,8 @@ val array_slice : 'a array -> int -> int -> 'a t
     from [i] to [j] *)
 
 val of_opt : 'a option -> 'a t
-(** Iterate on 0 or 1 values. *)
+(** Iterate on 0 or 1 values.
+    @since 0.5.1 *)
 
 val of_stream : 'a Stream.t -> 'a t
 (** Sequence of elements of a stream (usable only once) *)
@@ -401,7 +556,8 @@ val to_str :  char t -> string
 
 val concat_str : string t -> string
 (** Concatenate strings together, eagerly.
-    Also see {!intersperse} to add a separator. *)
+    Also see {!intersperse} to add a separator.
+    @since 0.5 *)
 
 exception OneShotSequence
 (** Raised when the user tries to iterate several times on
@@ -547,16 +703,20 @@ module Infix : sig
       It will therefore be empty if [a < b]. *)
 
   val (>>=) : 'a t -> ('a -> 'b t) -> 'b t
-  (** Monadic bind (infix version of {!flat_map} *)
+  (** Monadic bind (infix version of {!flat_map}
+      @since 0.5 *)
 
   val (>|=) : 'a t -> ('a -> 'b) -> 'b t
-  (** Infix version of {!map} *)
+  (** Infix version of {!map}
+      @since 0.5 *)
 
   val (<*>) : ('a -> 'b) t -> 'a t -> 'b t
-  (** Applicative operator (product+application) *)
+  (** Applicative operator (product+application)
+      @since 0.5 *)
 
   val (<+>) : 'a t -> 'a t -> 'a t
-  (** Concatenation of sequences *)
+  (** Concatenation of sequences
+      @since 0.5 *)
 end
 
 include module type of Infix
@@ -600,7 +760,7 @@ val to_string : ?sep:string -> ('a -> string) -> 'a t -> string
       Sequence.IO.lines "a" |> Sequence.to_list
     ]}
 
-*)
+    @since 0.5.1 *)
 
 module IO : sig
   val lines_of : ?mode:int -> ?flags:open_flag list ->
@@ -630,7 +790,7 @@ module IO : sig
 
   val write_bytes_to : ?mode:int -> ?flags:open_flag list ->
     string -> Bytes.t t -> unit
-  (** *)
+  (** @since 0.5.4 *)
 
   val write_lines : ?mode:int -> ?flags:open_flag list ->
     string -> string t -> unit
@@ -638,4 +798,5 @@ module IO : sig
 
   val write_bytes_lines : ?mode:int -> ?flags:open_flag list ->
     string -> Bytes.t t -> unit
+  (** @since 0.5.4 *)
 end

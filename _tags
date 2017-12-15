@@ -50,8 +50,9 @@ true: annot, bin_annot
 <bench/*.ml{,i,y}>: pkg_bytes
 <bench/*.ml{,i,y}>: use_sequence
 # OASIS_STOP
-true: bin_annot
-<**/*.ml>: warn_A, warn(-4)
+true: safe_string, bin_annot, color(always)
+<**/*.ml>: warn(+a-4-44-48@8)
+<src/bigarray/*.ml>: warn(-33)
 true: mark_tag_used
 <**/*.cmx>: optimize(3)
-<src/sequenceLabels.cm*>: nolabels
+<src/*Labels.cm*>: nolabels
