@@ -446,14 +446,16 @@ let count (type k) ?(hash=Hashtbl.hash) ?(eq=(=)) seq =
       let hash = hash
     end) in
   (* compute group table *)
-  let tbl = Tbl.create 32 in
-  seq
-    (fun x ->
-       let n = try Tbl.find tbl x with Not_found -> 0 in
-       Tbl.replace tbl x (n+1)
-    );
+  let tbl = lazy (
+    let tbl = Tbl.create 32 in
+    seq
+      (fun x ->
+         let n = try Tbl.find tbl x with Not_found -> 0 in
+         Tbl.replace tbl x (n+1));
+    tbl
+  ) in
   fun yield ->
-    Tbl.iter (fun x n -> yield (x,n)) tbl
+    Tbl.iter (fun x n -> yield (x,n)) (Lazy.force tbl)
 
 (*$R
   [1;2;3;3;2;2;3;4]

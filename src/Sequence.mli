@@ -276,6 +276,7 @@ val count : ?hash:('a -> int) -> ?eq:('a -> 'a -> bool) ->
   'a t -> ('a * int) t
 (** Map each distinct element to its number of occurrences in the whole seq.
     Similar to [group_by seq |> map (fun l->List.hd l, List.length l)]
+    precondition: for any [x] and [y], if [eq x y] then [hash x=hash y] must hold.
     @since 0.10 *)
 
 val uniq : ?eq:('a -> 'a -> bool) -> 'a t -> 'a t
