@@ -32,4 +32,4 @@ true: bin_annot, color(always)
 <src/bigarray/*.ml>: warn(-33)
 true: mark_tag_used
 <**/*.cmx>: optimize(3)
-<src/sequenceLabels.cm*>: nolabels
+<src/*Labels.cm*>: nolabels
