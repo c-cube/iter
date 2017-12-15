@@ -269,6 +269,7 @@ val group_by : ?hash:('a -> int) -> ?eq:('a -> 'a -> bool) ->
   'a t -> 'a list t
 (** Group equal elements, disregarding their order of appearance.
     The result sequence is traversable as many times as required.
+    precondition: for any [x] and [y], if [eq x y] then [hash x=hash y] must hold.
     @since 0.6 *)
 
 val count : ?hash:('a -> int) -> ?eq:('a -> 'a -> bool) ->
@@ -319,6 +320,7 @@ val join_by : ?eq:'key equal -> ?hash:'key hash ->
     values [(x,y)] from [(a,b)] with the same [key]
     using [merge]. If [merge] returns [None], the combination
     of values is discarded.
+    precondition: for any [x] and [y], if [eq x y] then [hash x=hash y] must hold.
     @since 0.10 *)
 
 val join_all_by : ?eq:'key equal -> ?hash:'key hash ->
@@ -348,6 +350,7 @@ val group_join_by : ?eq:'a equal -> ?hash:'a hash ->
     sequence such that [eq x (key y)]. Elements of the first
     sequences without corresponding values in the second one
     are mapped to [[]]
+    precondition: for any [x] and [y], if [eq x y] then [hash x=hash y] must hold.
     @since 0.10 *)
 
 val inter :
@@ -355,6 +358,7 @@ val inter :
   'a t -> 'a t -> 'a t
 (** Intersection of two collections. Each element will occur at most once
     in the result. Eager.
+    precondition: for any [x] and [y], if [eq x y] then [hash x=hash y] must hold.
     @since 0.10 *)
 
 (*$=
@@ -367,6 +371,7 @@ val union :
   'a t -> 'a t -> 'a t
 (** Union of two collections. Each element will occur at most once
     in the result. Eager.
+    precondition: for any [x] and [y], if [eq x y] then [hash x=hash y] must hold.
     @since 0.10 *)
 
 (*$=
@@ -387,6 +392,7 @@ val subset :
   ?eq:'a equal -> ?hash:'a hash ->
   'a t -> 'a t -> bool
 (** [subset a b] returns [true] if all elements of [a] belong to [b]. Eager.
+    precondition: for any [x] and [y], if [eq x y] then [hash x=hash y] must hold.
     @since 0.10 *)
 
 (*$T
