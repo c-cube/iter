@@ -28,6 +28,8 @@ depends: [
   "ocamlfind"
   "base-bytes"
   "ocamlbuild" {build}
+  "qcheck" {test}
+  "qtest" {test}
 ]
 tags: [ "sequence" "iterator" "iter" "fold" ]
 homepage: "https://github.com/c-cube/sequence/"
