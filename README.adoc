@@ -13,6 +13,8 @@ way of iterating on a finite number of values, only allocating (most of the time
 one intermediate closure to do so. For instance, iterating on keys, or values,
 of a `Hashtbl.t`, without creating a list.
 
+image::https://travis-ci.org/c-cube/sequence.svg?branch=master[alt="Build Status", link="https://travis-ci.org/c-cube/sequence"]
+
 toc::[]
 
 == Documentation
