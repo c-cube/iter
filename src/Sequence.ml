@@ -8,9 +8,6 @@ type 'a t = ('a -> unit) -> unit
 
 type 'a sequence = 'a t
 
-type (+'a, +'b) t2 = ('a -> 'b -> unit) -> unit
-(** Sequence of pairs of values of type ['a] and ['b]. *)
-
 (*$inject
   let pp_ilist = Q.Print.(list int)
 *)
@@ -210,6 +207,17 @@ let filter_mapi f seq k =
       | None -> ()
       | Some y -> k y)
 
+let filter_count f seq =
+  let i = ref 0 in
+  seq (fun x -> if f x then incr i);
+  !i
+
+(*$Q
+  Q.(list int) (fun l -> \
+    let seq = of_list l and f x = x mod 2 = 0 in \
+    filter_count f seq = (filter f seq |> length))
+*)
+
 let intersperse elem seq k =
   let first = ref true in
   seq (fun x -> (if !first then first := false else k elem); k x)
@@ -221,6 +229,24 @@ let intersperse elem seq k =
     |> to_list
     |> OUnit.assert_equal [1;0;2;0;3;0;4;0;5;0]
 *)
+
+let keep_some seq k =
+  seq
+    (function
+      | Some x -> k x
+      | None -> ())
+
+let keep_ok seq k =
+  seq
+    (function
+      | Result.Ok x -> k x
+      | Result.Error _  -> ())
+
+let keep_error seq k =
+  seq
+    (function
+      | Result.Error x -> k x
+      | Result.Ok _  -> ())
 
 (** Mutable unrolled list to serve as intermediate storage *)
 module MList = struct
@@ -514,9 +540,6 @@ let product outer inner k =
                       "b",0; "b", 1; "b", 2;
                       "c",0; "c", 1; "c", 2;] s
 *)
-
-let product2 outer inner k =
-  outer (fun x -> inner (fun y -> k x y))
 
 let rec diagonal_l l yield = match l with
   | [] -> ()
@@ -946,36 +969,21 @@ let is_empty seq =
 
 (** {2 Transform a sequence} *)
 
-let empty2 _ = ()
-
-let is_empty2 seq2 =
-  try ignore (seq2 (fun _ _ -> raise ExitIsEmpty)); true
-  with ExitIsEmpty -> false
-
-let length2 seq2 =
-  let r = ref 0 in
-  seq2 (fun _ _ -> incr r);
-  !r
-
-let zip seq2 k = seq2 (fun x y -> k (x,y))
-
-let unzip seq k = seq (fun (x,y) -> k x y)
-
 let zip_i seq k =
   let r = ref 0 in
-  seq (fun x -> let n = !r in incr r; k n x)
+  seq (fun x -> let n = !r in incr r; k (n, x))
 
 let fold2 f acc seq2 =
   let acc = ref acc in
-  seq2 (fun x y -> acc := f !acc x y);
+  seq2 (fun (x,y) -> acc := f !acc x y);
   !acc
 
-let iter2 f seq2 = seq2 f
+let iter2 f seq2 = seq2 (fun (x,y) -> f x y)
 
-let map2 f seq2 k = seq2 (fun x y -> k (f x y))
+let map2 f seq2 k = seq2 (fun (x,y) -> k (f x y))
 
 let map2_2 f g seq2 k =
-  seq2 (fun x y -> k (f x y) (g x y))
+  seq2 (fun (x,y) -> k (f x y, g x y))
 
 (** {2 Basic data structures converters} *)
 
@@ -1016,11 +1024,6 @@ let of_array_i a k =
     k (i, Array.unsafe_get a i)
   done
 
-let of_array2 a k =
-  for i = 0 to Array.length a - 1 do
-    k i (Array.unsafe_get a i)
-  done
-
 let array_slice a i j k =
   assert (i >= 0 && j < Array.length a);
   for idx = i to j do
@@ -1047,7 +1050,7 @@ let hashtbl_add h seq =
 (*$R
   let h = (1 -- 5)
     |> zip_i
-    |> to_hashtbl2 in
+    |> to_hashtbl in
   (0 -- 4)
     |> iter (fun i -> OUnit.assert_equal (i+1) (Hashtbl.find h i));
   OUnit.assert_equal [0;1;2;3;4] (hashtbl_keys h |> sort ?cmp:None |> to_list);
@@ -1061,14 +1064,7 @@ let to_hashtbl seq =
   hashtbl_replace h seq;
   h
 
-let to_hashtbl2 seq2 =
-  let h = Hashtbl.create 3 in
-  seq2 (fun k v -> Hashtbl.replace h k v);
-  h
-
 let of_hashtbl h k = Hashtbl.iter (fun a b -> k (a, b)) h
-
-let of_hashtbl2 h k = Hashtbl.iter k h
 
 let hashtbl_keys h k = Hashtbl.iter (fun a _ -> k a) h
 
@@ -1106,8 +1102,9 @@ let to_buffer seq buf =
 
 (*$R
   let b = Buffer.create 4 in
+  let upp = function 'a'..'z' as c -> Char.chr (Char.code c - Char.code 'a' + Char.code 'A') | c -> c in
   "hello world"
-    |> of_str |> rev |> map Char.uppercase_ascii
+    |> of_str |> rev |> map upp
     |> (fun seq -> to_buffer seq b);
   OUnit.assert_equal "DLROW OLLEH" (Buffer.contents b);
 *)

@@ -1,37 +1,36 @@
 opam-version: "1.2"
 name: "sequence"
-version: "0.11"
+version: "1.0"
 author: "Simon Cruanes"
 maintainer: "simon.cruanes.2007@m4x.org"
 license: "BSD-2-clauses"
 build: [
-    ["./configure" "--disable-docs"
-        "--%{delimcc:enable}%-invert"
-        "--%{base-bigarray:enable}%-bigarray"
-        "--prefix" "%{prefix}%"
-    ]
     [make "build"]
 ]
+install: ["jbuilder" "install"]
 build-doc: [
-  ["./configure" "--enable-docs"]
   [make "doc"]
 ]
 build-test: [
-  ["./configure" "--enable-tests"]
   [make "test"]
 ]
-install: [make "install"]
 remove: [
     ["ocamlfind" "remove" "sequence"]
 ]
 depends: [
   "ocamlfind"
   "base-bytes"
-  "ocamlbuild" {build}
+  "result"
+  "jbuilder" {build}
+  "qcheck" {test}
+  "qtest" {test}
+  "ocaml-version" { >= "4.02" }
 ]
 tags: [ "sequence" "iterator" "iter" "fold" ]
 homepage: "https://github.com/c-cube/sequence/"
-depopts: ["delimcc" "base-bigarray"]
+depopts: [
+  "base-bigarray"
+]
 doc: "http://cedeela.fr/~simon/software/sequence/Sequence.html"
 bug-reports: "https://github.com/c-cube/sequence/issues"
 dev-repo: "https://github.com/c-cube/sequence.git"

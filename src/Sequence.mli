@@ -36,8 +36,8 @@ type +'a t = ('a -> unit) -> unit
 
 type +'a sequence = 'a t
 
-type (+'a, +'b) t2 = ('a -> 'b -> unit) -> unit
-(** Sequence of pairs of values of type ['a] and ['b]. *)
+(** {b NOTE} Type [('a, 'b) t2 = ('a -> 'b -> unit) -> unit]
+    has been removed and subsumed by [('a * 'b) t] @since 1.0 *)
 
 type 'a equal = 'a -> 'a -> bool
 type 'a hash = 'a -> int
@@ -224,8 +224,25 @@ val filter_mapi : (int -> 'a -> 'b option) -> 'a t -> 'b t
 (** Map with indices, and only keep non-[None] elements
     @since 0.11 *)
 
+val filter_count : ('a -> bool) -> 'a t -> int
+(** Count how many elements satisfy the given predicate
+    @since 1.0 *)
+
 val intersperse : 'a -> 'a t -> 'a t
 (** Insert the single element between every element of the sequence *)
+
+val keep_some : 'a option t -> 'a t
+(** [filter_some l] retains only elements of the form [Some x].
+    Same as [filter_map (fun x->x)]
+    @since 1.0 *)
+
+val keep_ok : ('a, _) Result.result t -> 'a t
+(** [keep_ok l] retains only elements of the form [Ok x].
+    @since 1.0 *)
+
+val keep_error : (_, 'e) Result.result t -> 'e t
+(** [keep_error l] retains only elements of the form [Error x].
+    @since 1.0 *)
 
 (** {2 Caching} *)
 
@@ -298,10 +315,6 @@ val diagonal : 'a t -> ('a * 'a) t
 (** All pairs of distinct positions of the sequence.
     Iterates only once on the sequence, which must be finite.
     @since 0.9 *)
-
-val product2 : 'a t -> 'b t -> ('a, 'b) t2
-(** Binary version of {!product}. Same requirements.
-    @since 0.5 *)
 
 val join : join_row:('a -> 'b -> 'c option) -> 'a t -> 'b t -> 'c t
 (** [join ~join_row a b] combines every element of [a] with every
@@ -470,28 +483,17 @@ val rev : 'a t -> 'a t
     sequence to be finite. The result is persistent and does
     not depend on the input being repeatable. *)
 
-(** {2 Binary sequences} *)
+val zip_i : 'a t -> (int * 'a) t
+(** Zip elements of the sequence with their index in the sequence.
+    Changed type @since 1.0 to just give a sequence of pairs *)
 
-val empty2 : ('a, 'b) t2
+val fold2 : ('c -> 'a -> 'b -> 'c) -> 'c -> ('a * 'b) t -> 'c
 
-val is_empty2 : (_, _) t2 -> bool
+val iter2 : ('a -> 'b -> unit) -> ('a * 'b) t -> unit
 
-val length2 : (_, _) t2 -> int
+val map2 : ('a -> 'b -> 'c) -> ('a * 'b) t -> 'c t
 
-val zip : ('a, 'b) t2 -> ('a * 'b) t
-
-val unzip : ('a * 'b) t -> ('a, 'b) t2
-
-val zip_i : 'a t -> (int, 'a) t2
-(** Zip elements of the sequence with their index in the sequence *)
-
-val fold2 : ('c -> 'a -> 'b -> 'c) -> 'c -> ('a, 'b) t2 -> 'c
-
-val iter2 : ('a -> 'b -> unit) -> ('a, 'b) t2 -> unit
-
-val map2 : ('a -> 'b -> 'c) -> ('a, 'b) t2 -> 'c t
-
-val map2_2 : ('a -> 'b -> 'c) -> ('a -> 'b -> 'd) -> ('a, 'b) t2 -> ('c, 'd) t2
+val map2_2 : ('a -> 'b -> 'c) -> ('a -> 'b -> 'd) -> ('a * 'b) t -> ('c * 'd) t
 (** [map2_2 f g seq2] maps each [x, y] of seq2 into [f x y, g x y] *)
 
 (** {2 Basic data structures converters} *)
@@ -527,8 +529,6 @@ val of_array : 'a array -> 'a t
 
 val of_array_i : 'a array -> (int * 'a) t
 (** Elements of the array, with their index *)
-
-val of_array2 : 'a array -> (int, 'a) t2
 
 val array_slice : 'a array -> int -> int -> 'a t
 (** [array_slice a i j] Sequence of elements whose indexes range
@@ -567,13 +567,7 @@ val hashtbl_replace : ('a, 'b) Hashtbl.t -> ('a * 'b) t -> unit
 val to_hashtbl : ('a * 'b) t -> ('a, 'b) Hashtbl.t
 (** Build a hashtable from a sequence of key/value pairs *)
 
-val to_hashtbl2 : ('a, 'b) t2 -> ('a, 'b) Hashtbl.t
-(** Build a hashtable from a sequence of key/value pairs *)
-
 val of_hashtbl : ('a, 'b) Hashtbl.t -> ('a * 'b) t
-(** Sequence of key/value pairs from the hashtable *)
-
-val of_hashtbl2 : ('a, 'b) Hashtbl.t -> ('a, 'b) t2
 (** Sequence of key/value pairs from the hashtable *)
 
 val hashtbl_keys : ('a, 'b) Hashtbl.t -> 'a t

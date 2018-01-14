@@ -4,6 +4,5 @@ _build
 *.docdir
 *.html
 man/
-sequence.install
-setup.log
-setup.data
+*.install
+.merlin

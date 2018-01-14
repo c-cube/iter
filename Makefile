@@ -1,79 +1,30 @@
-# OASIS_START
-# DO NOT EDIT (digest: a3c674b4239234cbbe53afe090018954)
 
-SETUP = ocaml setup.ml
+all: build test
 
-build: setup.data
-	$(SETUP) -build $(BUILDFLAGS)
+build:
+	jbuilder build @install
 
-doc: setup.data build
-	$(SETUP) -doc $(DOCFLAGS)
-
-test: setup.data build
-	$(SETUP) -test $(TESTFLAGS)
-
-all:
-	$(SETUP) -all $(ALLFLAGS)
-
-install: setup.data
-	$(SETUP) -install $(INSTALLFLAGS)
-
-uninstall: setup.data
-	$(SETUP) -uninstall $(UNINSTALLFLAGS)
-
-reinstall: setup.data
-	$(SETUP) -reinstall $(REINSTALLFLAGS)
+test:
+	jbuilder runtest
 
 clean:
-	$(SETUP) -clean $(CLEANFLAGS)
+	jbuilder clean
 
-distclean:
-	$(SETUP) -distclean $(DISTCLEANFLAGS)
+doc:
+	jbuilder build @doc
 
-setup.data:
-	$(SETUP) -configure $(CONFIGUREFLAGS)
+BENCH_TARGETS=bench_persistent_read.exe bench_persistent.exe
 
-configure:
-	$(SETUP) -configure $(CONFIGUREFLAGS)
-
-.PHONY: build doc test all install uninstall reinstall clean distclean configure
-
-# OASIS_STOP
-
-QTEST_PREAMBLE=''
-DONTTEST=src/sequenceLabels.ml
-QTESTABLE=$(filter-out $(DONTTEST), \
-	$(wildcard src/*.ml) \
-	$(wildcard src/*.mli) \
-	)
-
-qtest-clean:
-	@rm -rf qtest/
-
-qtest-gen:
-	@mkdir -p qtest
-	@if which qtest > /dev/null ; then \
-		qtest extract --preamble $(QTEST_PREAMBLE) \
-			-o qtest/run_qtest.ml \
-			$(QTESTABLE) 2> /dev/null ; \
-	else touch qtest/run_qtest.ml ; \
-	fi
+benchs:
+	jbuilder build $(addprefix bench/, $(BENCH_TARGETS))
 
 examples:
-	ocamlbuild examples/test_sexpr.native
+	jbuilder build examples/test_sexpr.exe
 
 push_doc: all doc
 	scp -r sequence.docdir/* cedeela.fr:~/simon/root/software/sequence/
 
-push_stable: all
-	git checkout stable
-	git merge master -m 'merge from master'
-	oasis setup
-	git commit -a -m 'oasis files'
-	git push origin
-	git checkout master
-
-VERSION=$(shell awk '/^Version:/ {print $$2}' _oasis)
+VERSION=$(shell awk '/^version:/ {print $$2}' sequence.opam)
 
 SOURCE=$(addprefix src/, *.ml *.mli invert/*.ml invert/*.mli bigarray/*.ml bigarray/*.mli)
 
@@ -81,18 +32,6 @@ update_next_tag:
 	@echo "update version to $(VERSION)..."
 	sed -i "s/NEXT_VERSION/$(VERSION)/g" $(SOURCE)
 	sed -i "s/NEXT_RELEASE/$(VERSION)/g" $(SOURCE)
-
-NAME_VERSION := sequence.$(VERSION)
-URL := https://github.com/c-cube/sequence/archive/$(VERSION).tar.gz
-
-release:
-	git tag -a $(VERSION) -m "Version $(VERSION)."
-	git push origin $(VERSION)
-	opam publish prepare $(NAME_VERSION) $(URL)
-	cp descr $(NAME_VERSION)
-	echo "submit?"
-	@read
-	opam publish submit $(NAME_VERSION)
 
 watch:
 	while find src/ -print0 | xargs -0 inotifywait -e delete_self -e modify ; do \
