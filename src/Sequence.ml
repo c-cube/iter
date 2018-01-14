@@ -8,9 +8,6 @@ type 'a t = ('a -> unit) -> unit
 
 type 'a sequence = 'a t
 
-type (+'a, +'b) t2 = ('a -> 'b -> unit) -> unit
-(** Sequence of pairs of values of type ['a] and ['b]. *)
-
 (*$inject
   let pp_ilist = Q.Print.(list int)
 *)
@@ -515,9 +512,6 @@ let product outer inner k =
                       "c",0; "c", 1; "c", 2;] s
 *)
 
-let product2 outer inner k =
-  outer (fun x -> inner (fun y -> k x y))
-
 let rec diagonal_l l yield = match l with
   | [] -> ()
   | x::tail ->
@@ -946,36 +940,21 @@ let is_empty seq =
 
 (** {2 Transform a sequence} *)
 
-let empty2 _ = ()
-
-let is_empty2 seq2 =
-  try ignore (seq2 (fun _ _ -> raise ExitIsEmpty)); true
-  with ExitIsEmpty -> false
-
-let length2 seq2 =
-  let r = ref 0 in
-  seq2 (fun _ _ -> incr r);
-  !r
-
-let zip seq2 k = seq2 (fun x y -> k (x,y))
-
-let unzip seq k = seq (fun (x,y) -> k x y)
-
 let zip_i seq k =
   let r = ref 0 in
-  seq (fun x -> let n = !r in incr r; k n x)
+  seq (fun x -> let n = !r in incr r; k (n, x))
 
 let fold2 f acc seq2 =
   let acc = ref acc in
-  seq2 (fun x y -> acc := f !acc x y);
+  seq2 (fun (x,y) -> acc := f !acc x y);
   !acc
 
-let iter2 f seq2 = seq2 f
+let iter2 f seq2 = seq2 (fun (x,y) -> f x y)
 
-let map2 f seq2 k = seq2 (fun x y -> k (f x y))
+let map2 f seq2 k = seq2 (fun (x,y) -> k (f x y))
 
 let map2_2 f g seq2 k =
-  seq2 (fun x y -> k (f x y) (g x y))
+  seq2 (fun (x,y) -> k (f x y, g x y))
 
 (** {2 Basic data structures converters} *)
 
@@ -1016,11 +995,6 @@ let of_array_i a k =
     k (i, Array.unsafe_get a i)
   done
 
-let of_array2 a k =
-  for i = 0 to Array.length a - 1 do
-    k i (Array.unsafe_get a i)
-  done
-
 let array_slice a i j k =
   assert (i >= 0 && j < Array.length a);
   for idx = i to j do
@@ -1047,7 +1021,7 @@ let hashtbl_add h seq =
 (*$R
   let h = (1 -- 5)
     |> zip_i
-    |> to_hashtbl2 in
+    |> to_hashtbl in
   (0 -- 4)
     |> iter (fun i -> OUnit.assert_equal (i+1) (Hashtbl.find h i));
   OUnit.assert_equal [0;1;2;3;4] (hashtbl_keys h |> sort ?cmp:None |> to_list);
@@ -1061,14 +1035,7 @@ let to_hashtbl seq =
   hashtbl_replace h seq;
   h
 
-let to_hashtbl2 seq2 =
-  let h = Hashtbl.create 3 in
-  seq2 (fun k v -> Hashtbl.replace h k v);
-  h
-
 let of_hashtbl h k = Hashtbl.iter (fun a b -> k (a, b)) h
-
-let of_hashtbl2 h k = Hashtbl.iter k h
 
 let hashtbl_keys h k = Hashtbl.iter (fun a _ -> k a) h
 
