@@ -230,6 +230,24 @@ let intersperse elem seq k =
     |> OUnit.assert_equal [1;0;2;0;3;0;4;0;5;0]
 *)
 
+let keep_some seq k =
+  seq
+    (function
+      | Some x -> k x
+      | None -> ())
+
+let keep_ok seq k =
+  seq
+    (function
+      | Result.Ok x -> k x
+      | Result.Error _  -> ())
+
+let keep_error seq k =
+  seq
+    (function
+      | Result.Error x -> k x
+      | Result.Ok _  -> ())
+
 (** Mutable unrolled list to serve as intermediate storage *)
 module MList = struct
   type 'a node =

@@ -27,6 +27,7 @@ remove: [
 depends: [
   "ocamlfind"
   "base-bytes"
+  "result"
   "ocamlbuild" {build}
   "qcheck" {test}
   "qtest" {test}

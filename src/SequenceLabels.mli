@@ -204,6 +204,19 @@ val filter_count : f:('a -> bool) -> 'a t -> int
 val intersperse : x:'a -> 'a t -> 'a t
 (** Insert the single element between every element of the sequence *)
 
+val keep_some : 'a option t -> 'a t
+(** [filter_some l] retains only elements of the form [Some x].
+    Same as [filter_map (fun x->x)]
+    @since NEXT_RELEASE *)
+
+val keep_ok : ('a, _) Result.result t -> 'a t
+(** [keep_ok l] retains only elements of the form [Ok x].
+    @since NEXT_RELEASE *)
+
+val keep_error : (_, 'e) Result.result t -> 'e t
+(** [keep_error l] retains only elements of the form [Error x].
+    @since NEXT_RELEASE *)
+
 (** {2 Caching} *)
 
 val persistent : 'a t -> 'a t

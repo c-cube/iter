@@ -4,7 +4,5 @@ S tests/
 B _build/src
 B _build/tests/
 B _build/bench/
-PKG oUnit qcheck
-PKG benchmark
-FLG -safe-string
-FLG -w+a-4-44-48-60@8
+PKG oUnit qcheck result benchmark
+FLG -safe-string -w+a-4-44-48-60@8

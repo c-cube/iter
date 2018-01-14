@@ -30,7 +30,7 @@ Flag bigarray
 Library "sequence"
   Path:             src/
   Modules:          Sequence, SequenceLabels
-  BuildDepends:     bytes
+  BuildDepends:     bytes, result
 
 Library "invert"
   Path:             src/invert
