@@ -29,7 +29,6 @@ depends: [
 tags: [ "sequence" "iterator" "iter" "fold" ]
 homepage: "https://github.com/c-cube/sequence/"
 depopts: [
-  "delimcc"
   "base-bigarray"
 ]
 doc: "http://cedeela.fr/~simon/software/sequence/Sequence.html"
