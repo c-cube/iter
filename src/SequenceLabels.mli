@@ -15,7 +15,7 @@ type +'a t = ('a -> unit) -> unit
 type +'a sequence = 'a t
 
 (** {b NOTE} Type [('a, 'b) t2 = ('a -> 'b -> unit) -> unit]
-    has been removed and subsumed by [('a * 'b) t] @since NEXT_RELEASE *)
+    has been removed and subsumed by [('a * 'b) t] @since 1.0 *)
 
 type 'a equal = 'a -> 'a -> bool
 type 'a hash = 'a -> int
@@ -199,7 +199,7 @@ val seq_list_map : f:('a -> 'b t) -> 'a list -> 'b list t
 
 val filter_count : f:('a -> bool) -> 'a t -> int
 (** Count how many elements satisfy the given predicate
-    @since NEXT_RELEASE *)
+    @since 1.0 *)
 
 val intersperse : x:'a -> 'a t -> 'a t
 (** Insert the single element between every element of the sequence *)
@@ -207,15 +207,15 @@ val intersperse : x:'a -> 'a t -> 'a t
 val keep_some : 'a option t -> 'a t
 (** [filter_some l] retains only elements of the form [Some x].
     Same as [filter_map (fun x->x)]
-    @since NEXT_RELEASE *)
+    @since 1.0 *)
 
 val keep_ok : ('a, _) Result.result t -> 'a t
 (** [keep_ok l] retains only elements of the form [Ok x].
-    @since NEXT_RELEASE *)
+    @since 1.0 *)
 
 val keep_error : (_, 'e) Result.result t -> 'e t
 (** [keep_error l] retains only elements of the form [Error x].
-    @since NEXT_RELEASE *)
+    @since 1.0 *)
 
 (** {2 Caching} *)
 
@@ -457,7 +457,7 @@ val rev : 'a t -> 'a t
 
 val zip_i : 'a t -> (int * 'a) t
 (** Zip elements of the sequence with their index in the sequence.
-    Changed type @since NEXT_RELEASE to just give a sequence of pairs *)
+    Changed type @since 1.0 to just give a sequence of pairs *)
 
 val fold2 : f:('c -> 'a -> 'b -> 'c) -> init:'c -> ('a * 'b) t -> 'c
 
