@@ -207,6 +207,17 @@ let filter_mapi f seq k =
       | None -> ()
       | Some y -> k y)
 
+let filter_count f seq =
+  let i = ref 0 in
+  seq (fun x -> if f x then incr i);
+  !i
+
+(*$Q
+  Q.(list int) (fun l -> \
+    let seq = of_list l and f x = x mod 2 = 0 in \
+    filter_count f seq = (filter f seq |> length))
+*)
+
 let intersperse elem seq k =
   let first = ref true in
   seq (fun x -> (if !first then first := false else k elem); k x)

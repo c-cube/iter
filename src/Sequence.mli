@@ -224,6 +224,10 @@ val filter_mapi : (int -> 'a -> 'b option) -> 'a t -> 'b t
 (** Map with indices, and only keep non-[None] elements
     @since 0.11 *)
 
+val filter_count : ('a -> bool) -> 'a t -> int
+(** Count how many elements satisfy the given predicate
+    @since NEXT_RELEASE *)
+
 val intersperse : 'a -> 'a t -> 'a t
 (** Insert the single element between every element of the sequence *)
 

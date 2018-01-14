@@ -197,6 +197,10 @@ val seq_list_map : f:('a -> 'b t) -> 'a list -> 'b list t
     then calls {!seq_list}
     @since 0.11 *)
 
+val filter_count : f:('a -> bool) -> 'a t -> int
+(** Count how many elements satisfy the given predicate
+    @since NEXT_RELEASE *)
+
 val intersperse : x:'a -> 'a t -> 'a t
 (** Insert the single element between every element of the sequence *)
 
