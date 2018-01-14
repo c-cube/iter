@@ -31,6 +31,6 @@ homepage: "https://github.com/c-cube/sequence/"
 depopts: [
   "base-bigarray"
 ]
-doc: "http://cedeela.fr/~simon/software/sequence/Sequence.html"
+doc: "https://c-cube.github.io/sequence/"
 bug-reports: "https://github.com/c-cube/sequence/issues"
 dev-repo: "https://github.com/c-cube/sequence.git"
