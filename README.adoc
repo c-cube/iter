@@ -25,13 +25,13 @@ To get an overview of sequence, its origins and why it was created,
 you can start with http://cedeela.fr/~simon/talks/sequence.pdf[the slides of a talk]
 I (@c-cube) made at some OCaml meeting.
 
-See https://c-cube.github.io/sequence/api/[the online API]
+See https://c-cube.github.io/sequence/[the online API]
 for more details on the set of available functions.
 
 == Build
 
 1. via opam `opam install sequence`
-2. manually (need OCaml >= 3.12): `make all install`
+2. manually (need OCaml >= 4.02.0): `make all install`
 
 If you have https://github.com/vincent-hugot/iTeML[qtest] installed,
 you can build and run tests with
