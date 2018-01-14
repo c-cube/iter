@@ -5,7 +5,7 @@ build:
 	jbuilder build @install
 
 test:
-	jbuilder runtest
+	jbuilder runtest --no-buffer
 
 clean:
 	jbuilder clean
