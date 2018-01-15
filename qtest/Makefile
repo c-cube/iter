@@ -1,6 +1,6 @@
 
 QTEST_PREAMBLE=''
-DONTTEST=../src/sequenceLabels.ml
+DONTTEST=../src/sequenceLabels.ml ../src/mkflags.ml
 QTESTABLE=$(filter-out $(DONTTEST), \
 	$(wildcard ../src/*.ml) \
 	$(wildcard ../src/*.mli) \
