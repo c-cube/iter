@@ -26,10 +26,8 @@ before_install:
 install:
   # Install dependencies
   - opam pin add --no-action sequence .
-  - opam install oasis
-  - opam install --deps-only sequence
+  - opam install jbuilder base-bytes result
 script:
   - make build
   - opam install qcheck qtest
-  - ./configure --enable-tests
   - make test
