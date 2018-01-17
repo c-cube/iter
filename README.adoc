@@ -196,6 +196,45 @@ example library. It requires OCaml>=4.0 to compile, because of the GADT
 structure used in the monadic parser combinators part of `examples/sexpr.ml`.
 Be careful that this is quite obscure.
 
+== Comparison with https://github.com/c-cube/gen[gen]
+
+- `Gen` is an *external* iterator.
+  It means that the code which consumes
+  some iterator of type `'a Gen.t` is the one which decides when to
+  go to the next element. This gives a lot of flexibility, for example
+  when iterating on several iterators at the same time:
++
+[source,OCaml]
+----
+let zip (g1: 'a Gen.t) (g2:'b Gen.t) : ('a * 'b) Gen.t =
+  let x1 = ref (g1 ()) in
+  let x2 = ref (g2 ()) in
+  fun () -> match !x1, !x2 with
+    | None, _ | _, None -> None
+    | Some x, Some y ->
+      (* fetch next elements from g1 and g2 *)
+      x1 := g1 ();
+      x2 := g2 ();
+      Some (x,y)
+----
+
+- `Sequence` is an *internal* iterator. When one wishes to iterate over
+  an `'a Sequence.t`, one has to give a callback `f : 'a -> unit`
+  that is called in succession over every element of the sequence.
+  Control is not handed back to the caller before the whole iteration is over.
+  This makes `zip` impossible to implement. However, the type `'a Sequence.t`
+  is general enough that it can be extracted from any classic `iter` function,
+  including from data structures such as `Map.S.t` or `Set.S.t` or `Hashtbl.t`;
+  one cannot obtain a `'a Gen.t` from these without having access to the internal
+  data structure.
+
+In short, `'a Gen.t` is more expressive than `'a Sequence.t`, but it also
+requires more knowledge of the underlying source of items.
+For some operations such as `map` or `flat_map`, Sequence is also extremely
+efficient and will, if flambda permits, be totally removed at
+compile time (e.g. `Sequence.(--)` becomes a for loop, and `Sequence.filter`
+becomes a if test).
+
 == License
 
 Sequence is available under the BSD license.
