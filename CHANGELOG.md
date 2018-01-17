@@ -1,5 +1,25 @@
 # Changelog
 
+## 1.0 
+
+- remove delimcc sublib (breaking)
+- move to jbuilder (requires OCaml >= 4.02)
+- remove type `t2` (breaking)
+
+- add some functions using `result`
+- add `filter_count`
+
+## 0.11
+
+- make `count` lazy
+- make `group_by` lazy
+- add `Sequence.append_l`
+- add `Sequence.filter_mapi`
+- update `SequenceLabels` with missing functions
+- add `Sequence.pair_with_idx`
+- add `{sum,sumf}` for summation over sequences
+- add `seq_list` and `seq_list_map`
+
 ## 0.10
 
 - add `{union,inter,diff,subset}`
