@@ -235,6 +235,8 @@ efficient and will, if flambda permits, be totally removed at
 compile time (e.g. `Sequence.(--)` becomes a for loop, and `Sequence.filter`
 becomes a if test).
 
+For more details, you can read http://gallium.inria.fr/blog/generators-iterators-control-and-continuations/ .
+
 == License
 
 Sequence is available under the BSD license.
