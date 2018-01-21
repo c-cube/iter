@@ -24,6 +24,7 @@ depends: [
   "jbuilder" {build}
   "qcheck" {test}
   "qtest" {test}
+  "odoc" {doc}
   "ocaml-version" { >= "4.02" }
 ]
 tags: [ "sequence" "iterator" "iter" "fold" ]
