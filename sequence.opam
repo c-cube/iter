@@ -18,7 +18,7 @@ remove: [
     ["ocamlfind" "remove" "sequence"]
 ]
 depends: [
-  "ocamlfind"
+  "ocamlfind" {build}
   "base-bytes"
   "result"
   "jbuilder" {build}
