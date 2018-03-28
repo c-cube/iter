@@ -1302,23 +1302,23 @@ let shuffle_buffer n seq k =
 (** {2 Sampling} *)
 
 (** See https://en.wikipedia.org/wiki/Reservoir_sampling#Algorithm_R *)
-let sample n seq =
+let sample k seq =
   match head seq with
   | None -> [||]
   | Some x ->
-    let a = Array.make n x in
+    let a = Array.make k x in
     let i = ref (-1) in
     let f x =
       incr i ;
-      if !i < n then
+      if !i < k then
         a.(!i) <- x
       else
-        let j = Random.int n in
-        if j <= n then a.(!i) <- x
+        let j = Random.int (!i) in 
+        if j < k then a.(j) <- x
         else ()
     in
     seq f ;
-    if !i < n then Array.sub a 0 !i
+    if !i < k then Array.sub a 0 (!i + 1)
     else a
 
 (** {2 Infix functions} *)
