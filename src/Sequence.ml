@@ -1321,11 +1321,20 @@ let sample k seq =
     if !i < k then Array.sub a 0 (!i + 1)
     else a
 
+(*$inject
+  let array_for_all f a =
+    try
+    for i=0 to Array.length a-1 do
+      if not (f a.(i)) then raise Exit
+     done; true
+  with Exit -> false
+*)
+
 (*$QR
   Q.(pair (list int) (1 -- 20)) (fun (l, n) ->
     let seq = of_list l in
     let a = sample n seq in
-    (Array.for_all (fun x -> exists ((=) x) seq) a)
+    (array_for_all (fun x -> exists ((=) x) seq) a)
     && (Array.length a = Pervasives.min (length seq) n) )
 *)
 
