@@ -7,9 +7,12 @@ QTESTABLE=$(filter-out $(DONTTEST), \
 	)
 
 qtest-gen:
+	@rm run_qtest.ml || true
 	@if which qtest > /dev/null ; then \
 		qtest extract --preamble $(QTEST_PREAMBLE) \
 			-o run_qtest.ml \
 			$(QTESTABLE) 2> /dev/null ; \
-	else touch qtest/run_qtest.ml ; \
+	else touch run_qtest.ml ; \
 	fi
+
+.PHONY: qtest-gen

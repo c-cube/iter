@@ -1,7 +1,7 @@
 
 (rule
   ((targets (run_qtest.ml))
-   (deps ((file Makefile) )) ; (glob_files ../src/**/*.ml{,i})))
+   (deps ((file Makefile) (files_recursively_in ../src))) ; (glob_files ../src/**/*.ml{,i})))
    (fallback)
    ;(libraries (qtest qcheck))
    (action
