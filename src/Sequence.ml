@@ -1194,14 +1194,15 @@ module Set = struct
 
   (** Create an enriched Set module from the given one *)
   module Adapt(X : Set.S) : S with type elt = X.elt and type t = X.t = struct
-    let to_seq set k = X.iter k set
+    let to_seq_ set k = X.iter k set
+    let of_seq_ seq = fold (fun set x -> X.add x set) X.empty seq
 
-    let of_seq seq = fold (fun set x -> X.add x set) X.empty seq
-
-    let to_list set = to_list (to_seq set)
+    let to_list set = to_list (to_seq_ set)
 
     include X
 
+    let to_seq = to_seq_
+    let of_seq = of_seq_
     let of_list l = List.fold_left (fun set x -> add x set) empty l
   end
 
@@ -1227,19 +1228,21 @@ module Map = struct
 
   (** Adapt a pre-existing Map module to make it sequence-aware *)
   module Adapt(M : Map.S) = struct
-    let to_seq m = from_iter (fun k -> M.iter (fun x y -> k (x,y)) m)
+    let to_seq_ m = from_iter (fun k -> M.iter (fun x y -> k (x,y)) m)
 
-    let of_seq seq = fold (fun m (k,v) -> M.add k v m) M.empty seq
+    let of_seq_ seq = fold (fun m (k,v) -> M.add k v m) M.empty seq
 
     let keys m = from_iter (fun k -> M.iter (fun x _ -> k x) m)
 
     let values m = from_iter (fun k -> M.iter (fun _ y -> k y) m)
 
-    let of_list l = of_seq (of_list l)
+    let of_list l = of_seq_ (of_list l)
 
-    let to_list x = to_list (to_seq x)
+    let to_list x = to_list (to_seq_ x)
 
     include M
+    let to_seq = to_seq_
+    let of_seq = of_seq_
   end
 
   (** Create an enriched Map module, with sequence-aware functions *)
