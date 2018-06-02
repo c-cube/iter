@@ -1197,13 +1197,12 @@ module Set = struct
     let to_seq_ set k = X.iter k set
     let of_seq_ seq = fold (fun set x -> X.add x set) X.empty seq
 
-    let to_list set = to_list (to_seq_ set)
-
     include X
 
     let to_seq = to_seq_
     let of_seq = of_seq_
     let of_list l = List.fold_left (fun set x -> add x set) empty l
+    let to_list = elements
   end
 
   (** Functor to build an extended Set module from an ordered type *)
