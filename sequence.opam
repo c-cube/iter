@@ -7,18 +7,13 @@ license: "BSD-2-clauses"
 build: [
     [make "build"]
 ]
-install: ["jbuilder" "install"]
 build-doc: [
   [make "doc"]
 ]
 build-test: [
   [make "test"]
 ]
-remove: [
-    ["ocamlfind" "remove" "sequence"]
-]
 depends: [
-  "ocamlfind" {build}
   "base-bytes"
   "result"
   "jbuilder" {build}
