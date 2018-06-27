@@ -411,7 +411,7 @@ let sorted ?(cmp=Pervasives.compare) seq =
   let prev = ref None in
   try
     seq (fun x -> match !prev with
-      | Some y when cmp y x > 0 -> raise Exit_sorted
+      | Some y when cmp y x > 0 -> raise_notrace Exit_sorted
       | _ -> prev := Some x);
     true
   with Exit_sorted -> false
@@ -709,7 +709,7 @@ let subset (type a) ?(eq=(=)) ?(hash=Hashtbl.hash) c1 c2 =
   let tbl = Tbl.create 32 in
   c2 (fun x -> Tbl.replace tbl x ());
   try
-    c1 (fun x -> if not (Tbl.mem tbl x) then raise Subset_exit);
+    c1 (fun x -> if not (Tbl.mem tbl x) then raise_notrace Subset_exit);
     true
   with Subset_exit -> false
 
@@ -748,7 +748,7 @@ let max ?(lt=fun x y -> x < y) seq =
 
 let max_exn ?lt seq = match max ?lt seq with
   | Some x -> x
-  | None -> raise Not_found
+  | None -> raise_notrace Not_found
 
 let min ?(lt=fun x y -> x < y) seq =
   let ret = ref None in
@@ -798,7 +798,7 @@ exception ExitHead
 let head seq =
   let r = ref None in
   try
-    seq (fun x -> r := Some x; raise ExitHead); None
+    seq (fun x -> r := Some x; raise_notrace ExitHead); None
   with ExitHead -> !r
 
 let head_exn seq =
@@ -813,7 +813,7 @@ let take n seq k =
   try
     seq
       (fun x ->
-        if !count = n then raise ExitTake;
+        if !count = n then raise_notrace ExitTake;
         incr count;
         k x)
   with ExitTake -> ()
@@ -829,7 +829,7 @@ exception ExitTakeWhile
 
 let take_while p seq k =
   try
-    seq (fun x -> if p x then k x else raise ExitTakeWhile)
+    seq (fun x -> if p x then k x else raise_notrace ExitTakeWhile)
   with ExitTakeWhile -> ()
 
 exception ExitFoldWhile
@@ -840,7 +840,7 @@ let fold_while f s seq =
     let acc, cont = f (!state) x in
     state := acc;
     match cont with
-    | `Stop -> raise ExitFoldWhile
+    | `Stop -> raise_notrace ExitFoldWhile
     | `Continue -> ()
   in
   try
@@ -880,7 +880,7 @@ exception ExitForall
 
 let for_all p seq =
   try
-    seq (fun x -> if not (p x) then raise ExitForall);
+    seq (fun x -> if not (p x) then raise_notrace ExitForall);
     true
   with ExitForall -> false
 
@@ -899,7 +899,7 @@ exception ExitExists
 (** Exists there some element satisfying the predicate? *)
 let exists p seq =
   try
-    seq (fun x -> if p x then raise ExitExists);
+    seq (fun x -> if p x then raise_notrace ExitExists);
     false
   with ExitExists -> true
 
@@ -924,7 +924,7 @@ let find_map f seq =
       seq
         (fun x -> match f x with
           | None -> ()
-          | Some _ as res -> r := res; raise ExitFind);
+          | Some _ as res -> r := res; raise_notrace ExitFind);
     with ExitFind -> ()
   end;
   !r
@@ -939,7 +939,7 @@ let find_mapi f seq =
       seq
         (fun x -> match f !i x with
           | None -> incr i
-          | Some _ as res -> r := res; raise ExitFind);
+          | Some _ as res -> r := res; raise_notrace ExitFind);
     with ExitFind -> ()
   end;
   !r
@@ -964,7 +964,7 @@ let length seq =
 exception ExitIsEmpty
 
 let is_empty seq =
-  try seq (fun _ -> raise ExitIsEmpty); true
+  try seq (fun _ -> raise_notrace ExitIsEmpty); true
   with ExitIsEmpty -> false
 
 (** {2 Transform a sequence} *)
