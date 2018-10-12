@@ -2,27 +2,24 @@
 all: build test
 
 build:
-	jbuilder build @install
+	@dune build @install
 
 test:
-	jbuilder runtest --no-buffer --force
+	@dune runtest --no-buffer --force
 
 clean:
-	jbuilder clean
+	@dune clean
 
 doc:
-	jbuilder build @doc
+	@dune build @doc
 
 BENCH_TARGETS=bench_persistent_read.exe bench_persistent.exe
 
 benchs:
-	jbuilder build $(addprefix bench/, $(BENCH_TARGETS))
+	dune build $(addprefix bench/, $(BENCH_TARGETS))
 
 examples:
-	jbuilder build examples/test_sexpr.exe
-
-push_doc: all doc
-	scp -r sequence.docdir/* cedeela.fr:~/simon/root/software/sequence/
+	dune build examples/test_sexpr.exe
 
 VERSION=$(shell awk '/^version:/ {print $$2}' sequence.opam)
 

@@ -23,3 +23,4 @@ let mmap filename =
     with e ->
       Unix.close fd;
       raise e
+[@@ocaml.warning "-3"]

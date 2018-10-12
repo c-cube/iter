@@ -1,0 +1,22 @@
+
+(rule
+  (targets run_qtest.ml)
+  (deps Makefile (source_tree ../src)) ; (glob_files ../src/**/*.ml{,i})))
+  (mode fallback)
+  ;(libraries (qtest qcheck))
+  (action
+    (run make qtest-gen))
+  )
+
+(executable
+  (name run_qtest)
+  (flags :standard -warn-error -a+8 -safe-string -w -33)
+  (libraries sequence qcheck)
+  )
+
+(alias
+ (name    runtest)
+ (deps    run_qtest.exe)
+ (action  (run %{deps}))
+ )
+
