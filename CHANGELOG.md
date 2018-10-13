@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.1
+
+- perf: use `Set.elements` to convert to list
+- fix(compat): compat with 4.07
+- Fix the reservoir sampling algorithm.
+- Add tests.
+- readme: link to gasche's blog post
+- readme: add some explanations and comparison with gen
+
 ## 1.0 
 
 - remove delimcc sublib (breaking)
