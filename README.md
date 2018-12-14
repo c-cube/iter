@@ -1,6 +1,4 @@
-= Iter
-:toc: macro
-:source-highlighter: pygments
+# Iter
 
 Simple abstraction over `iter` functions, intended to iterate efficiently
 on collections while performing some transformations. Used to be called `Sequence`.
@@ -13,49 +11,44 @@ way of iterating on a finite number of values, only allocating (most of the time
 one intermediate closure to do so. For instance, iterating on keys, or values,
 of a `Hashtbl.t`, without creating a list.
 
-image::https://travis-ci.org/c-cube/iter.svg?branch=master[alt="Build Status", link="https://travis-ci.org/c-cube/iter"]
+[![build status](https://travis-ci.org/c-cube/iter.svg?branch=master)](https://travis-ci.org/c-cube/iter)
 
-toc::[]
-
-== Documentation
+## Documentation
 
 There is only one important type, `'a Iter.t`, and lots of functions built
 around this type.
 To get an overview of iter (originally "sequence"), its origins and why it was created,
-you can start with http://simon.cedeela.fr/assets/talks/sequence.pdf[the slides of a talk]
+you can start with [the slides of a talk](http://simon.cedeela.fr/assets/talks/sequence.pdf)
 I (@c-cube) made at some OCaml meeting.
 
-See https://c-cube.github.io/iter/[the online API]
+See [the online API](https://c-cube.github.io/iter/)
 for more details on the set of available functions.
 
-== Build
+## Build
 
 1. via opam `opam install iter`
 2. manually (need OCaml >= 4.02.0): `make all install`
 
-If you have https://github.com/vincent-hugot/iTeML[qtest] installed,
+If you have [qtest](https://github.com/vincent-hugot/qtest) installed,
 you can build and run tests with
 
-----
-$ ./configure --enable-tests
+```
 $ make test
-----
+```
 
-If you have https://github.com/Chris00/ocaml-benchmark[benchmarks] installed,
+If you have [benchmarks](https://github.com/Chris00/ocaml-benchmark) installed,
 you can build and run benchmarks with
 
-----
+```
 $ make benchs
-$ ./benchs.native
-----
+```
 
-To see how to use the library, check the `examples` directory.
-`tests.ml` has a few examples of how to convert basic data structures into
-iterators, and conversely.
+To see how to use the library, check the following tutorial.
+The `tests` and `examples` directories also have some examples, but they're a bit arcane.
 
-== Short Tutorial
+## Short Tutorial
 
-=== Transferring Data
+### Transferring Data
 
 Conversion between n container types
 would take n² functions. In practice, for a given collection
@@ -63,8 +56,8 @@ we can at best hope for `to_list` and `of_list`.
 With iter, if the source structure provides a
 `iter` function (or a `to_iter` wrapper), it becomes:
 
-[source,OCaml]
-----
+```ocaml
+# #use "src/Iter.ml";;
 # let q = Queue.create();;
 # Iter.( 1 -- 10 |> to_queue q);;
 - : unit = ()
@@ -76,7 +69,7 @@ With iter, if the source structure provides a
 - : unit = ()
 # Iter.of_stack s |> Iter.to_list ;;
 - : int list = [10; 9; 8; 7; 6; 5; 4; 3; 2; 1] 
-----
+```
 
 Note how the list of elements is reversed when we transfer them
 from the queue to the stack.
@@ -85,8 +78,7 @@ Another example is extracting the list of values of
 a hashtable (in an undefined order that depends on the
 underlying hash function):
 
-[source,OCaml]
-----
+```ocaml
 # let h = Hashtbl.create 16;;
 # for i = 0 to 10 do
      Hashtbl.add h i (string_of_int i)
@@ -99,16 +91,15 @@ underlying hash function):
 (* now to get the values *)
 # Iter.of_hashtbl h |> Iter.map snd |> Iter.to_list;;
 - : string list = ["6"; "2"; "8"; "7"; "3"; "5"; "4"; "9"; "0"; "10"; "1"] 
-----
+```
 
-=== Replacing `for` loops
+### Replacing `for` loops
 
 The `for` loop is a bit limited, and lacks compositionality.
 Instead, it can be more convenient and readable to
 use `Iter.(--) : int -> int -> int Iter.t`.
 
-[source,OCaml]
-----
+```ocaml
 # Iter.(1 -- 10_000_000 |> fold (+) 0);;
 - : int = 50000005000000
 
@@ -119,18 +110,17 @@ use `Iter.(--) : int -> int -> int Iter.t`.
     |> fold (+) 0
   );;
 - : int = 8345837500
-----
+```
 
-NOTE: with **flambda** under sufficiently strong
+**NOTE**: with _flambda_ under sufficiently strong
 optimization flags, such compositions of operators
 should be compiled to an actual loop with no overhead!
 
-=== Iterating on sub-trees
+### Iterating on sub-trees
 
 A small λ-calculus AST, and some operations on it.
 
-[source,OCaml]
-----
+```ocaml
 # type term =
   | Var of string
   | App of term * term
@@ -159,9 +149,9 @@ val size : term -> int = <fun >
 
 # let vars_list l = Iter.(of_list l |> flat_map vars);;
 val vars_list : term list -> string sequence = <fun >
-----
+```
 
-=== Permutations
+### Permutations
 
 Makes it easy to write backtracking code (a non-deterministic
 function returning several `'a`
@@ -169,8 +159,7 @@ will just return a `'a Iter.t`).
 Here, we generate all permutations of a list by
 enumerating the ways we can insert an element in a list.
 
-[source,OCaml]
-----
+```ocaml
 # open Iter.Infix;;
 # module S = Iter ;;
 # let rec insert x l = match l with
@@ -186,37 +175,35 @@ enumerating the ways we can insert an element in a list.
 
 # permute [1;2;3;4] |> S.take 2 |> S.to_list ;;
 - : int list list = [[4; 3; 2; 1]; [4; 3; 1; 2]]
+```
 
-----
-
-=== Advanced example
+### Advanced example
 
 The module `examples/sexpr.mli` exposes the interface of the S-expression
 example library. It requires OCaml>=4.0 to compile, because of the GADT
 structure used in the monadic parser combinators part of `examples/sexpr.ml`.
 Be careful that this is quite obscure.
 
-== Comparison with https://github.com/c-cube/gen[gen]
+## Comparison with [gen](https://github.com/c-cube/gen)
 
 - `Gen` is an *external* iterator.
   It means that the code which consumes
   some iterator of type `'a Gen.t` is the one which decides when to
   go to the next element. This gives a lot of flexibility, for example
   when iterating on several iterators at the same time:
-+
-[source,OCaml]
-----
-let zip (g1: 'a Gen.t) (g2:'b Gen.t) : ('a * 'b) Gen.t =
-  let x1 = ref (g1 ()) in
-  let x2 = ref (g2 ()) in
-  fun () -> match !x1, !x2 with
-    | None, _ | _, None -> None
-    | Some x, Some y ->
-      (* fetch next elements from g1 and g2 *)
-      x1 := g1 ();
-      x2 := g2 ();
-      Some (x,y)
-----
+
+  ```ocaml
+  let zip (g1: 'a Gen.t) (g2:'b Gen.t) : ('a * 'b) Gen.t =
+    let x1 = ref (g1 ()) in
+    let x2 = ref (g2 ()) in
+    fun () -> match !x1, !x2 with
+      | None, _ | _, None -> None
+      | Some x, Some y ->
+        (* fetch next elements from g1 and g2 *)
+        x1 := g1 ();
+        x2 := g2 ();
+        Some (x,y)
+  ```
 
 - `Iter` is an *internal* iterator. When one wishes to iterate over
   an `'a Iter.t`, one has to give a callback `f : 'a -> unit`
@@ -237,6 +224,6 @@ becomes a if test).
 
 For more details, you can read http://gallium.inria.fr/blog/generators-iterators-control-and-continuations/ .
 
-== License
+## License
 
 Iter is available under the BSD license.
