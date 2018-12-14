@@ -93,26 +93,26 @@ let persistent_mlist seq =
   MList.to_seq l
 
 let bench_mlist n =
-  persistent_mlist Sequence.(1 -- n)
+  persistent_mlist Iter.(1 -- n)
 
 let bench_list n =
-  let l = Sequence.to_rev_list Sequence.(1 -- n) in
-  Sequence.of_list (List.rev l)
+  let l = Iter.to_rev_list Iter.(1 -- n) in
+  Iter.of_list (List.rev l)
 
 let bench_naive n =
-  let s = Sequence.(1 -- n) in
-  Sequence.iter ignore s ;
+  let s = Iter.(1 -- n) in
+  Iter.iter ignore s ;
   s
 
 let bench_current n =
-  Sequence.persistent Sequence.(1 -- n)
+  Iter.persistent Iter.(1 -- n)
 
 let bench_array n =
-  let a = Sequence.to_array Sequence.(1 -- n) in
-  Sequence.of_array a
+  let a = Iter.to_array Iter.(1 -- n) in
+  Iter.of_array a
 
 let read s =
-  Sequence.map (fun x -> x + 1) s
+  Iter.map (fun x -> x + 1) s
 
 let () =
   let bench_n n =

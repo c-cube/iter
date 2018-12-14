@@ -13,10 +13,15 @@ clean:
 doc:
 	@dune build @doc
 
-BENCH_TARGETS=bench_persistent_read.exe bench_persistent.exe
+BENCH_TARGETS= benchs.exe bench_persistent_read.exe bench_persistent.exe
 
 benchs:
-	dune build $(addprefix bench/, $(BENCH_TARGETS))
+	@for i in $(BENCH_TARGETS) ; do \
+	  echo "run benchmark $$i" ; \
+	  dune exec "src/bench/$$i" ; done
+
+build-benchs:
+	@dune build $(addprefix src/bench/, $(BENCH_TARGETS))
 
 examples:
 	dune build examples/test_sexpr.exe

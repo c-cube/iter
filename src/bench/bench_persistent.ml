@@ -93,21 +93,21 @@ let persistent_mlist seq =
   MList.to_seq l
 
 let bench_mlist n =
-  for i = 0 to 100 do
-    let _ = persistent_mlist Sequence.(1 -- n) in
+  for _i = 0 to 100 do
+    let _ = persistent_mlist Iter.(1 -- n) in
     ()
   done
 
 let bench_naive n =
-  for i = 0 to 100 do
-    let l = Sequence.to_rev_list Sequence.(1 -- n) in
-    let _ = Sequence.of_list (List.rev l) in
+  for _i = 0 to 100 do
+    let l = Iter.to_rev_list Iter.(1 -- n) in
+    let _ = Iter.of_list (List.rev l) in
     ()
   done
 
 let bench_current n =
-  for i = 0 to 100 do
-    let _ = Sequence.persistent Sequence.(1 -- n) in
+  for _i = 0 to 100 do
+    let _ = Iter.persistent Iter.(1 -- n) in
     ()
   done
 

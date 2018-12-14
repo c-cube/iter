@@ -1,6 +1,6 @@
 
-module S = Sequence
-open Sequence.Infix
+module S = Iter
+open Iter.Infix
 
 let small = [10;20;50;100;500]
 let medium = small @ [1000;10_000;100_000]
