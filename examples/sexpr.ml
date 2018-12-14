@@ -1,5 +1,4 @@
 (*
-Zipperposition: a functional superposition prover for prototyping
 Copyright (C) 2012 Simon Cruanes
 
 This is free software; you can redistribute it and/or
@@ -39,7 +38,7 @@ and iter_list f l = match l with
   | x::l' -> iter f x; iter_list f l'
 
 (** Traverse. This yields a sequence of tokens *)
-let traverse s = Sequence.from_iter (fun k -> iter k s)
+let traverse s = Iter.from_iter (fun k -> iter k s)
 
 (** Returns the same sequence of tokens, but during iteration, if
     the structure of the Sexpr corresponding to the sequence
@@ -47,7 +46,7 @@ let traverse s = Sequence.from_iter (fun k -> iter k s)
     and iteration is stoped *)
 let validate seq =
   let depth = ref 0 in
-  Sequence.map
+  Iter.map
     (fun tok -> match tok with
      | `Open -> incr depth; tok
      | `Close -> if !depth = 0
@@ -80,9 +79,9 @@ let lex input =
         k (`Atom word)
       end
     in
-    Sequence.iter next input
+    Iter.iter next input
   in 
-  Sequence.from_iter seq_fun
+  Iter.from_iter seq_fun
 
 (** Build a Sexpr from a sequence of tokens *)
 let of_seq seq =
@@ -98,7 +97,7 @@ let of_seq seq =
   | _ -> assert false
   in
   (* iterate on the sequence, given an empty initial stack *)
-  let stack = Sequence.fold k [] seq in
+  let stack = Iter.fold k [] seq in
   (* stack should contain exactly one expression *)
   match stack with
   | [`Expr expr] -> expr
@@ -117,7 +116,7 @@ let pp_token formatter token = match token with
 let pp_tokens formatter tokens =
   let first = ref true in
   let last = ref false in
-  Sequence.iter
+  Iter.iter
     (fun token ->
       (match token with
       | `Open -> (if not !first then Format.fprintf formatter " "); first := true
@@ -139,7 +138,7 @@ let pp_sexpr ?(indent=false) formatter s =
 let output_seq name subexpr k =
   k `Open;
   k (`Atom name);
-  Sequence.iter k subexpr;
+  Iter.iter k subexpr;
   k `Close
 
 let output_str name str k =
@@ -258,7 +257,7 @@ let parse_k p tokens k =
     match reduce state with
     | Bottom ->  (* should not happen, unless there are too many tokens *)
       raise (ParseFailure "unexpected ')'")
-    | Push (Return _, cont) ->
+    | Push (Return _, _cont) ->
       assert false (* should be reduced *)
     | Push (Zero f, cont) ->
       let p' = f token in
@@ -285,7 +284,7 @@ let parse_k p tokens k =
     | _ -> state
   in
   (* iterate on the tokens *)
-  ignore (Sequence.fold one_step state tokens)
+  ignore (Iter.fold one_step state tokens)
 
 (** Parse one value *)
 let parse p tokens =
@@ -301,5 +300,5 @@ let parse_seq p tokens =
   let seq_fun k =
     parse_k p tokens (fun x -> k x; `Continue)
   in
-  Sequence.from_iter seq_fun
+  Iter.from_iter seq_fun
 

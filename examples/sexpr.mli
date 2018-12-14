@@ -33,10 +33,10 @@ type token = [`Open | `Close | `Atom of string]
 val iter : (token -> unit) -> t -> unit
   (** Iterate on the S-expression, calling the callback with tokens *)
 
-val traverse : t -> token Sequence.t
+val traverse : t -> token Iter.t
   (** Traverse. This yields a sequence of tokens *)
 
-val validate : token Sequence.t -> token Sequence.t
+val validate : token Iter.t -> token Iter.t
   (** Returns the same sequence of tokens, but during iteration, if
       the structure of the Sexpr corresponding to the sequence
       is wrong (bad parenthesing), Invalid_argument is raised
@@ -44,10 +44,10 @@ val validate : token Sequence.t -> token Sequence.t
 
 (** {2 Text <-> tokens} *)
 
-val lex : char Sequence.t -> token Sequence.t
+val lex : char Iter.t -> token Iter.t
   (** Lex: create a sequence of tokens from the given sequence of chars. *)
 
-val of_seq : token Sequence.t -> t
+val of_seq : token Iter.t -> t
   (** Build a Sexpr from a sequence of tokens, or raise Failure *)
 
 (** {2 Printing} *)
@@ -55,7 +55,7 @@ val of_seq : token Sequence.t -> t
 val pp_token : Format.formatter -> token -> unit
   (** Print a token on the given formatter *)
 
-val pp_tokens : Format.formatter -> token Sequence.t -> unit
+val pp_tokens : Format.formatter -> token Iter.t -> unit
   (** Print a sequence of Sexpr tokens on the given formatter *)
 
 val pp_sexpr : ?indent:bool -> Format.formatter -> t -> unit
@@ -64,7 +64,7 @@ val pp_sexpr : ?indent:bool -> Format.formatter -> t -> unit
 
 (** {2 Serializing} *)
 
-val output_seq : string -> token Sequence.t -> (token -> unit) -> unit
+val output_seq : string -> token Iter.t -> (token -> unit) -> unit
   (** print a pair "(name @,sequence)" *)
 
 val output_str : string -> string -> (token -> unit) -> unit
@@ -124,9 +124,9 @@ val p_bool : bool parser
 val many : 'a parser -> 'a list parser
 val many1 : 'a parser -> 'a list parser
 
-val parse : 'a parser -> token Sequence.t -> 'a
+val parse : 'a parser -> token Iter.t -> 'a
   (** Parses exactly one value from the sequence of tokens. Raises
       ParseFailure if anything goes wrong. *)
 
-val parse_seq : 'a parser -> token Sequence.t -> 'a Sequence.t
+val parse_seq : 'a parser -> token Iter.t -> 'a Iter.t
   (** Parses a sequence of values *)
