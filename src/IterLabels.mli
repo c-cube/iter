@@ -9,8 +9,8 @@
     @since 0.5.5 *)
 
 type +'a t = ('a -> unit) -> unit
-(** A sequence of values of type ['a]. If you give it a function ['a -> unit]
-    it will be applied to every element of the sequence successively. *)
+(** An iterator of values of type ['a]. If you give it a function ['a -> unit]
+    it will be applied to every element of the iterator successively. *)
 
 type +'a iter = 'a t
 
@@ -20,10 +20,10 @@ type +'a iter = 'a t
 type 'a equal = 'a -> 'a -> bool
 type 'a hash = 'a -> int
 
-(** {2 Build a sequence} *)
+(** {2 Build an iterator} *)
 
 val from_iter : (('a -> unit) -> unit) -> 'a t
-(** Build a sequence from a iter function *)
+(** Build an iterator from a iter function *)
 
 val from_fun : (unit -> 'a option) -> 'a t
 (** Call the function repeatedly until it returns None. This
@@ -73,7 +73,7 @@ val cycle : 'a t -> 'a t
     infinite sequence, you should use something like {!take} not to loop
     forever. *)
 
-(** {2 Consume a sequence} *)
+(** {2 Consume an iterator} *)
 
 val iter : f:('a -> unit) -> 'a t -> unit
 (** Consume the sequence, passing all its arguments to the function.
@@ -153,7 +153,7 @@ val length : 'a t -> int
 val is_empty : 'a t -> bool
 (** Is the sequence empty? Forces the sequence. *)
 
-(** {2 Transform a sequence} *)
+(** {2 Transform an iterator} *)
 
 val filter : f:('a -> bool) -> 'a t -> 'a t
 (** Filter on elements of the sequence *)
@@ -168,7 +168,7 @@ val append_l : 'a t list -> 'a t
     @since 0.11 *)
 
 val concat : 'a t t -> 'a t
-(** Concatenate a sequence of sequences into one sequence. *)
+(** Concatenate an iterator of sequences into one sequence. *)
 
 val flatten : 'a t t -> 'a t
 (** Alias for {!concat} *)
@@ -180,13 +180,6 @@ val flat_map_l : f:('a -> 'b list) -> 'a t -> 'b t
 (** Convenience function combining {!flat_map} and {!of_list}
     @since 0.9 *)
 
-val filter_map : f:('a -> 'b option) -> 'a t -> 'b t
-(** Alias to {!fmap} with a more explicit name *)
-
-val filter_mapi : f:(int -> 'a -> 'b option) -> 'a t -> 'b t
-(** Map with indices, and only keep non-[None] elements
-    @since 0.11 *)
-
 val seq_list : 'a t list -> 'a list t
 (** [seq_list l] returns all the ways to pick one element in each sub-sequence
     in [l]. Assumes the sub-sequences can be iterated on several times.
@@ -195,6 +188,14 @@ val seq_list : 'a t list -> 'a list t
 val seq_list_map : f:('a -> 'b t) -> 'a list -> 'b list t
 (** [seq_list_map f l] maps [f] over every element of [l],
     then calls {!seq_list}
+    @since 0.11 *)
+
+val filter_map : f:('a -> 'b option) -> 'a t -> 'b t
+(** Map and only keep non-[None] elements
+    Formerly [fmap] *)
+
+val filter_mapi : f:(int -> 'a -> 'b option) -> 'a t -> 'b t
+(** Map with indices, and only keep non-[None] elements
     @since 0.11 *)
 
 val filter_count : f:('a -> bool) -> 'a t -> int
@@ -457,7 +458,7 @@ val rev : 'a t -> 'a t
 
 val zip_i : 'a t -> (int * 'a) t
 (** Zip elements of the sequence with their index in the sequence.
-    Changed type @since 1.0 to just give a sequence of pairs *)
+    Changed type @since 1.0 to just give an iterator of pairs *)
 
 val fold2 : f:('c -> 'a -> 'b -> 'c) -> init:'c -> ('a * 'b) t -> 'c
 
@@ -537,7 +538,7 @@ val hashtbl_replace : ('a, 'b) Hashtbl.t -> ('a * 'b) t -> unit
     Hashtbl.replace (erases conflicting bindings) *)
 
 val to_hashtbl : ('a * 'b) t -> ('a, 'b) Hashtbl.t
-(** Build a hashtable from a sequence of key/value pairs *)
+(** Build a hashtable from an iterator of key/value pairs *)
 
 val of_hashtbl : ('a, 'b) Hashtbl.t -> ('a * 'b) t
 (** Iterator of key/value pairs from the hashtable *)
@@ -586,7 +587,7 @@ val bools : bool t
     @since 0.9 *)
 
 val of_set : (module Set.S with type elt = 'a and type t = 'b) -> 'b -> 'a t
-(** Convert the given set to a sequence. The set module must be provided. *)
+(** Convert the given set to an iterator. The set module must be provided. *)
 
 val to_set : (module Set.S with type elt = 'a and type t = 'b) -> 'a t -> 'b
 (** Convert the sequence to a set, given the proper set module *)
@@ -595,7 +596,7 @@ type 'a gen = unit -> 'a option
 type 'a klist = unit -> [`Nil | `Cons of 'a * 'a klist]
 
 val of_gen : 'a gen -> 'a t
-(** Traverse eagerly the generator and build a sequence from it *)
+(** Traverse eagerly the generator and build an iterator from it *)
 
 val to_gen : 'a t -> 'a gen
 (** Make the sequence persistent (O(n)) and then iterate on it. Eager. *)
@@ -611,8 +612,8 @@ val to_klist : 'a t -> 'a klist
 module Set : sig
   module type S = sig
     include Set.S
-    val of_seq : elt iter -> t
-    val to_seq : t -> elt iter
+    val of_iter : elt iter -> t
+    val to_iter : t -> elt iter
     val to_list : t -> elt list
     val of_list : elt list -> t
   end
@@ -629,8 +630,8 @@ end
 module Map : sig
   module type S = sig
     include Map.S
-    val to_seq : 'a t -> (key * 'a) iter
-    val of_seq : (key * 'a) iter -> 'a t
+    val to_iter : 'a t -> (key * 'a) iter
+    val of_iter : (key * 'a) iter -> 'a t
     val keys : 'a t -> key iter
     val values : 'a t -> 'a iter
     val to_list : 'a t -> (key * 'a) list
@@ -668,7 +669,7 @@ val shuffle : 'a t -> 'a t
     @since 0.7 *)
 
 val shuffle_buffer : n:int -> 'a t -> 'a t
-(** [shuffle_buffer n seq] returns a sequence of element of [seq] in random
+(** [shuffle_buffer n seq] returns an iterator of element of [seq] in random
     order. The shuffling is not uniform. Uses O(n) memory.
 
     The first [n] elements of the sequence are consumed immediately. The
@@ -715,12 +716,11 @@ end
 
 include module type of Infix
 
-
 (** {2 Pretty printing of sequences} *)
 
 val pp_seq : ?sep:string -> (Format.formatter -> 'a -> unit) ->
   Format.formatter -> 'a t -> unit
-(** Pretty print a sequence of ['a], using the given pretty printer
+(** Pretty print an iterator of ['a], using the given pretty printer
     to print each elements. An optional separator string can be provided. *)
 
 val pp_buf : ?sep:string -> (Buffer.t -> 'a -> unit) ->
@@ -734,7 +734,7 @@ val to_string : ?sep:string -> ('a -> string) -> 'a t -> string
 
     Very basic interface to manipulate files as sequence of chunks/lines. The
     sequences take care of opening and closing files properly; every time
-    one iterates over a sequence, the file is opened/closed again.
+    one iterates over an iterator, the file is opened/closed again.
 
     Example: copy a file ["a"] into file ["b"], removing blank lines:
 

@@ -255,7 +255,7 @@ module MList = struct
     | Cons of 'a array * int ref * 'a node ref
 
   (* build and call callback on every element *)
-  let of_seq_with seq k =
+  let of_iter_with seq k =
     let start = ref Nil in
     let chunk_size = ref 8 in
     (* fill the list. prev: tail-reference from previous node *)
@@ -279,8 +279,8 @@ module MList = struct
     !prev := !cur;
     !start
 
-  let of_seq seq =
-    of_seq_with seq (fun _ -> ())
+  let of_iter seq =
+    of_iter_with seq (fun _ -> ())
 
   let rec iter f l = match l with
     | Nil -> ()
@@ -314,7 +314,7 @@ module MList = struct
     | Cons (a, n, _) when i < !n -> a.(i)
     | Cons (_, n, tl) -> get !tl (i- !n)
 
-  let to_seq l k = iter k l
+  let to_iter l k = iter k l
 
   let _to_next arg l =
     let cur = ref l in
@@ -345,8 +345,8 @@ module MList = struct
 end
 
 let persistent seq =
-  let l = MList.of_seq seq in
-  MList.to_seq l
+  let l = MList.of_iter seq in
+  MList.to_iter l
 
 (*$R
   let printer = pp_ilist in
@@ -388,8 +388,8 @@ let persistent_lazy (seq:'a t) =
     | LazyCached seq' -> seq' k
     | LazySuspend ->
       (* here if this traversal is interruted, no caching occurs *)
-      let seq' = MList.of_seq_with seq k in
-      r := LazyCached (MList.to_seq seq')
+      let seq' = MList.of_iter_with seq k in
+      r := LazyCached (MList.to_iter seq')
 
 let sort ?(cmp=Pervasives.compare) seq =
   (* use an intermediate list, then sort the list *)
@@ -869,7 +869,7 @@ let drop_while p seq k =
       else k x)
 
 let rev seq =
-  let l = MList.of_seq seq in
+  let l = MList.of_iter seq in
   fun k -> MList.iter_rev k l
 
 (*$R
@@ -1007,7 +1007,7 @@ let of_opt o k = match o with
   | Some x -> k x
 
 let to_array seq =
-  let l = MList.of_seq seq in
+  let l = MList.of_iter seq in
   let n = MList.length l in
   if n = 0
   then [||]
@@ -1033,7 +1033,7 @@ let array_slice a i j k =
 let of_stream s k = Stream.iter k s
 
 let to_stream seq =
-  let l = MList.of_seq seq in
+  let l = MList.of_iter seq in
   MList.to_stream l
 
 let to_stack s seq = iter (fun x -> Stack.push x s) seq
@@ -1166,11 +1166,11 @@ let of_gen g =
     | None -> ()
     | Some x -> k x; iter1 k
   in
-  let l = MList.of_seq iter1 in
-  MList.to_seq l
+  let l = MList.of_iter iter1 in
+  MList.to_iter l
 
 let to_gen seq =
-  let l = MList.of_seq seq in
+  let l = MList.of_iter seq in
   MList.to_gen l
 
 let rec of_klist l k = match l() with
@@ -1178,7 +1178,7 @@ let rec of_klist l k = match l() with
   | `Cons (x,tl) -> k x; of_klist tl k
 
 let to_klist seq =
-  let l = MList.of_seq seq in
+  let l = MList.of_iter seq in
   MList.to_klist l
 
 (** {2 Functorial conversions between sets and iterators} *)
@@ -1186,21 +1186,21 @@ let to_klist seq =
 module Set = struct
   module type S = sig
     include Set.S
-    val of_seq : elt iter -> t
-    val to_seq : t -> elt iter
+    val of_iter : elt iter -> t
+    val to_iter : t -> elt iter
     val to_list : t -> elt list
     val of_list : elt list -> t
   end
 
   (** Create an enriched Set module from the given one *)
   module Adapt(X : Set.S) : S with type elt = X.elt and type t = X.t = struct
-    let to_seq_ set k = X.iter k set
-    let of_seq_ seq = fold (fun set x -> X.add x set) X.empty seq
+    let to_iter_ set k = X.iter k set
+    let of_iter_ seq = fold (fun set x -> X.add x set) X.empty seq
 
     include X
 
-    let to_seq = to_seq_
-    let of_seq = of_seq_
+    let to_iter = to_iter_
+    let of_iter = of_iter_
     let of_list l = List.fold_left (fun set x -> add x set) empty l
     let to_list = elements
   end
@@ -1217,8 +1217,8 @@ end
 module Map = struct
   module type S = sig
     include Map.S
-    val to_seq : 'a t -> (key * 'a) iter 
-    val of_seq : (key * 'a) iter -> 'a t
+    val to_iter : 'a t -> (key * 'a) iter 
+    val of_iter : (key * 'a) iter -> 'a t
     val keys : 'a t -> key iter
     val values : 'a t -> 'a iter
     val to_list : 'a t -> (key * 'a) list
@@ -1227,21 +1227,21 @@ module Map = struct
 
   (** Adapt a pre-existing Map module to make it iterator-aware *)
   module Adapt(M : Map.S) = struct
-    let to_seq_ m = from_iter (fun k -> M.iter (fun x y -> k (x,y)) m)
+    let to_iter_ m = from_iter (fun k -> M.iter (fun x y -> k (x,y)) m)
 
-    let of_seq_ seq = fold (fun m (k,v) -> M.add k v m) M.empty seq
+    let of_iter_ seq = fold (fun m (k,v) -> M.add k v m) M.empty seq
 
     let keys m = from_iter (fun k -> M.iter (fun x _ -> k x) m)
 
     let values m = from_iter (fun k -> M.iter (fun _ y -> k y) m)
 
-    let of_list l = of_seq_ (of_list l)
+    let of_list l = of_iter_ (of_list l)
 
-    let to_list x = to_list (to_seq_ x)
+    let to_list x = to_list (to_iter_ x)
 
     include M
-    let to_seq = to_seq_
-    let of_seq = of_seq_
+    let to_iter = to_iter_
+    let of_iter = of_iter_
   end
 
   (** Create an enriched Map module, with iterator-aware functions *)
