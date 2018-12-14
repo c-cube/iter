@@ -1,36 +1,36 @@
-= Sequence
+= Iter
 :toc: macro
 :source-highlighter: pygments
 
-Simple sequence abstract datatype, intended to iterate efficiently
-on collections while performing some transformations.
+Simple abstraction over `iter` functions, intended to iterate efficiently
+on collections while performing some transformations. Used to be called `Sequence`.
 
-Common operations supported by Sequence include
+Common operations supported by `Iter` include
 `filter`, `map`, `take`, `drop`, `append`, `flat_map`, etc.
-Sequence is not designed to be as general-purpose or flexible as, say,
+`Iter` is not designed to be as general-purpose or flexible as, say,
 Batteries' `'a Enum.t`. Rather, it aims at providing a very simple and efficient
 way of iterating on a finite number of values, only allocating (most of the time)
 one intermediate closure to do so. For instance, iterating on keys, or values,
 of a `Hashtbl.t`, without creating a list.
 
-image::https://travis-ci.org/c-cube/sequence.svg?branch=master[alt="Build Status", link="https://travis-ci.org/c-cube/sequence"]
+image::https://travis-ci.org/c-cube/iter.svg?branch=master[alt="Build Status", link="https://travis-ci.org/c-cube/iter"]
 
 toc::[]
 
 == Documentation
 
-There is only one important type, `'a Sequence.t`, and lots of functions built
+There is only one important type, `'a Iter.t`, and lots of functions built
 around this type.
-To get an overview of sequence, its origins and why it was created,
-you can start with http://cedeela.fr/~simon/talks/sequence.pdf[the slides of a talk]
+To get an overview of iter (originally "sequence"), its origins and why it was created,
+you can start with http://simon.cedeela.fr/assets/talks/sequence.pdf[the slides of a talk]
 I (@c-cube) made at some OCaml meeting.
 
-See https://c-cube.github.io/sequence/[the online API]
+See https://c-cube.github.io/iter/[the online API]
 for more details on the set of available functions.
 
 == Build
 
-1. via opam `opam install sequence`
+1. via opam `opam install iter`
 2. manually (need OCaml >= 4.02.0): `make all install`
 
 If you have https://github.com/vincent-hugot/iTeML[qtest] installed,
@@ -51,7 +51,7 @@ $ ./benchs.native
 
 To see how to use the library, check the `examples` directory.
 `tests.ml` has a few examples of how to convert basic data structures into
-sequences, and conversely.
+iterators, and conversely.
 
 == Short Tutorial
 
@@ -60,21 +60,21 @@ sequences, and conversely.
 Conversion between n container types
 would take n² functions. In practice, for a given collection
 we can at best hope for `to_list` and `of_list`.
-With sequence, if the source structure provides a
-`iter` function (or a `to_seq` wrapper), it becomes:
+With iter, if the source structure provides a
+`iter` function (or a `to_iter` wrapper), it becomes:
 
 [source,OCaml]
 ----
 # let q = Queue.create();;
-# Sequence.( 1 -- 10 |> to_queue q);;
+# Iter.( 1 -- 10 |> to_queue q);;
 - : unit = ()
-# Sequence.of_queue q |> Sequence.to_list ;;
+# Iter.of_queue q |> Iter.to_list ;;
 - : int list = [1; 2; 3; 4; 5; 6; 7; 8; 9; 10]
 
 # let s = Stack.create();;
-# Sequence.(of_queue q |> to_stack s);;
+# Iter.(of_queue q |> to_stack s);;
 - : unit = ()
-# Sequence.of_stack s |> Sequence.to_list ;;
+# Iter.of_stack s |> Iter.to_list ;;
 - : int list = [10; 9; 8; 7; 6; 5; 4; 3; 2; 1] 
 ----
 
@@ -97,7 +97,7 @@ underlying hash function):
 - : int = 11
 
 (* now to get the values *)
-# Sequence.of_hashtbl h |> Sequence.map snd |> Sequence.to_list;;
+# Iter.of_hashtbl h |> Iter.map snd |> Iter.to_list;;
 - : string list = ["6"; "2"; "8"; "7"; "3"; "5"; "4"; "9"; "0"; "10"; "1"] 
 ----
 
@@ -105,15 +105,15 @@ underlying hash function):
 
 The `for` loop is a bit limited, and lacks compositionality.
 Instead, it can be more convenient and readable to
-use `Sequence.(--) : int -> int -> int Sequence.t`.
+use `Iter.(--) : int -> int -> int Iter.t`.
 
 [source,OCaml]
 ----
-# Sequence.(1 -- 10_000_000 |> fold (+) 0);;
+# Iter.(1 -- 10_000_000 |> fold (+) 0);;
 - : int = 50000005000000
 
 # let p x = x mod 5 = 0 in
-  Sequence.(1 -- 5_000
+  Iter.(1 -- 5_000
     |> filter p
     |> map (fun x -> x * x)
     |> fold (+) 0
@@ -136,28 +136,28 @@ A small λ-calculus AST, and some operations on it.
   | App of term * term
   | Lambda of term ;;
 
-# let rec subterms : term -> term Sequence.t =
+# let rec subterms : term -> term Iter.t =
   fun t ->
-    let open Sequence.Infix in
-    Sequence.cons t
+    let open Iter.Infix in
+    Iter.cons t
       (match t with
-      | Var _ -> Sequence.empty
+      | Var _ -> Iter.empty
       | Lambda u -> subterms u
       | App (a,b) ->
-        Sequence.append (subterms a) (subterms b))
+        Iter.append (subterms a) (subterms b))
   ;;
   
 (* Now we can define many other functions easily! *)
 # let vars t =
-    Sequence.filter_map
+    Iter.filter_map
       (function Var s -> Some s | _ -> None)
       (subterms t) ;;
 val vars : term -> string sequence = <fun >
 
-# let size t = Sequence.length (subterms t) ;;
+# let size t = Iter.length (subterms t) ;;
 val size : term -> int = <fun >
 
-# let vars_list l = Sequence.(of_list l |> flat_map vars);;
+# let vars_list l = Iter.(of_list l |> flat_map vars);;
 val vars_list : term list -> string sequence = <fun >
 ----
 
@@ -165,14 +165,14 @@ val vars_list : term list -> string sequence = <fun >
 
 Makes it easy to write backtracking code (a non-deterministic
 function returning several `'a`
-will just return a `'a Sequence.t`).
+will just return a `'a Iter.t`).
 Here, we generate all permutations of a list by
 enumerating the ways we can insert an element in a list.
 
 [source,OCaml]
 ----
-# open Sequence.Infix;;
-# module S = Sequence ;;
+# open Iter.Infix;;
+# module S = Iter ;;
 # let rec insert x l = match l with
   | [] -> S.return [x]
   | y :: tl ->
@@ -218,25 +218,25 @@ let zip (g1: 'a Gen.t) (g2:'b Gen.t) : ('a * 'b) Gen.t =
       Some (x,y)
 ----
 
-- `Sequence` is an *internal* iterator. When one wishes to iterate over
-  an `'a Sequence.t`, one has to give a callback `f : 'a -> unit`
+- `Iter` is an *internal* iterator. When one wishes to iterate over
+  an `'a Iter.t`, one has to give a callback `f : 'a -> unit`
   that is called in succession over every element of the sequence.
   Control is not handed back to the caller before the whole iteration is over.
-  This makes `zip` impossible to implement. However, the type `'a Sequence.t`
+  This makes `zip` impossible to implement. However, the type `'a Iter.t`
   is general enough that it can be extracted from any classic `iter` function,
   including from data structures such as `Map.S.t` or `Set.S.t` or `Hashtbl.t`;
   one cannot obtain a `'a Gen.t` from these without having access to the internal
   data structure.
 
-In short, `'a Gen.t` is more expressive than `'a Sequence.t`, but it also
+In short, `'a Gen.t` is more expressive than `'a Iter.t`, but it also
 requires more knowledge of the underlying source of items.
-For some operations such as `map` or `flat_map`, Sequence is also extremely
+For some operations such as `map` or `flat_map`, Iter is also extremely
 efficient and will, if flambda permits, be totally removed at
-compile time (e.g. `Sequence.(--)` becomes a for loop, and `Sequence.filter`
+compile time (e.g. `Iter.(--)` becomes a for loop, and `Iter.filter`
 becomes a if test).
 
 For more details, you can read http://gallium.inria.fr/blog/generators-iterators-control-and-continuations/ .
 
 == License
 
-Sequence is available under the BSD license.
+Iter is available under the BSD license.

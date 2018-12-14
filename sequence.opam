@@ -4,26 +4,18 @@ version: "1.1"
 author: "Simon Cruanes"
 maintainer: "simon.cruanes.2007@m4x.org"
 license: "BSD-2-clauses"
-synopsis: "Simple sequence abstract datatype, intended to iterate efficiently
-on collections while performing some transformations"
+synopsis: "compatibility package for `iter`"
 build: [
   ["dune" "build" "@install" "-p" name "-j" jobs]
-  ["dune" "build" "@doc" "-p" name] {with-doc}
-  ["dune" "runtest" "-p" name] {with-test}
 ]
 depends: [
-  "base-bytes"
-  "result"
-  "dune" {build}
-  "qcheck" {with-test}
-  "qtest" {with-test}
-  "odoc" {with-doc}
+  "iter"
 ]
 tags: [ "sequence" "iterator" "iter" "fold" ]
-homepage: "https://github.com/c-cube/sequence/"
+homepage: "https://github.com/c-cube/iter/"
 depopts: [
   "base-bigarray"
 ]
-doc: "https://c-cube.github.io/sequence/"
-bug-reports: "https://github.com/c-cube/sequence/issues"
-dev-repo: "git+https://github.com/c-cube/sequence.git"
+doc: "https://c-cube.github.io/iter/"
+bug-reports: "https://github.com/c-cube/iter/issues"
+dev-repo: "git+https://github.com/c-cube/iter.git"

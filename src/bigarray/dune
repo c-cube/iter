@@ -1,8 +1,8 @@
 
 (library
-  (name sequence_bigarray)
-  (public_name sequence.bigarray)
-  (libraries sequence bigarray)
+  (name iter_bigarray)
+  (public_name iter.bigarray)
+  (libraries iter bigarray)
   (wrapped false)
   (optional)
   (flags :standard -w +a-4-42-44-48-50-58-32-60@8 -safe-string)

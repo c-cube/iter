@@ -1,5 +1,5 @@
 
-(* This file is free software, part of sequence. See file "license" for more details. *)
+(* This file is free software, part of iter. See file "license" for more details. *)
 
 (** {1 Simple and Efficient Iterators} *)
 
@@ -34,7 +34,7 @@ type +'a t = ('a -> unit) -> unit
 (** A sequence of values of type ['a]. If you give it a function ['a -> unit]
     it will be applied to every element of the sequence successively. *)
 
-type +'a sequence = 'a t
+type +'a iter = 'a t
 
 (** {b NOTE} Type [('a, 'b) t2 = ('a -> 'b -> unit) -> unit]
     has been removed and subsumed by [('a * 'b) t] @since 1.0 *)
@@ -58,7 +58,7 @@ val singleton : 'a -> 'a t
 (** Singleton sequence, with exactly one element. *)
 
 val doubleton : 'a -> 'a -> 'a t
-(** Sequence with exactly two elements *)
+(** Iterator with exactly two elements *)
 
 val init : (int -> 'a) -> 'a t
 (** [init f] is the infinite sequence [f 0; f 1; f 2; …].
@@ -85,7 +85,7 @@ val iterate : ('a -> 'a) -> 'a -> 'a t
 (** [iterate f x] is the infinite sequence [x, f(x), f(f(x)), ...] *)
 
 val forever : (unit -> 'b) -> 'b t
-(** Sequence that calls the given function to produce elements.
+(** Iterator that calls the given function to produce elements.
     The sequence may be transient (depending on the function), and definitely
     is infinite. You may want to use {!take} and {!persistent}. *)
 
@@ -420,7 +420,7 @@ val unfoldr : ('b -> ('a * 'b) option) -> 'b -> 'a t
     and unfoldr recurses with [b']. *)
 
 val scan : ('b -> 'a -> 'b) -> 'b -> 'a t -> 'b t
-(** Sequence of intermediate results *)
+(** Iterator of intermediate results *)
 
 val max : ?lt:('a -> 'a -> bool) -> 'a t -> 'a option
 (** Max element of the sequence, using the given comparison function.
@@ -531,7 +531,7 @@ val of_array_i : 'a array -> (int * 'a) t
 (** Elements of the array, with their index *)
 
 val array_slice : 'a array -> int -> int -> 'a t
-(** [array_slice a i j] Sequence of elements whose indexes range
+(** [array_slice a i j] Iterator of elements whose indexes range
     from [i] to [j] *)
 
 val of_opt : 'a option -> 'a t
@@ -539,7 +539,7 @@ val of_opt : 'a option -> 'a t
     @since 0.5.1 *)
 
 val of_stream : 'a Stream.t -> 'a t
-(** Sequence of elements of a stream (usable only once) *)
+(** Iterator of elements of a stream (usable only once) *)
 
 val to_stream : 'a t -> 'a Stream.t
 (** Convert to a stream. linear in memory and time (a copy is made in memory) *)
@@ -548,13 +548,13 @@ val to_stack : 'a Stack.t -> 'a t -> unit
 (** Push elements of the sequence on the stack *)
 
 val of_stack : 'a Stack.t -> 'a t
-(** Sequence of elements of the stack (same order as [Stack.iter]) *)
+(** Iterator of elements of the stack (same order as [Stack.iter]) *)
 
 val to_queue : 'a Queue.t -> 'a t -> unit
 (** Push elements of the sequence into the queue *)
 
 val of_queue : 'a Queue.t -> 'a t
-(** Sequence of elements contained in the queue, FIFO order *)
+(** Iterator of elements contained in the queue, FIFO order *)
 
 val hashtbl_add : ('a, 'b) Hashtbl.t -> ('a * 'b) t -> unit
 (** Add elements of the sequence to the hashtable, with
@@ -568,7 +568,7 @@ val to_hashtbl : ('a * 'b) t -> ('a, 'b) Hashtbl.t
 (** Build a hashtable from a sequence of key/value pairs *)
 
 val of_hashtbl : ('a, 'b) Hashtbl.t -> ('a * 'b) t
-(** Sequence of key/value pairs from the hashtable *)
+(** Iterator of key/value pairs from the hashtable *)
 
 val hashtbl_keys : ('a, 'b) Hashtbl.t -> 'a t
 val hashtbl_values : ('a, 'b) Hashtbl.t -> 'b t
@@ -638,8 +638,8 @@ val to_klist : 'a t -> 'a klist
 module Set : sig
   module type S = sig
     include Set.S
-    val of_seq : elt sequence -> t
-    val to_seq : t -> elt sequence
+    val of_seq : elt iter -> t
+    val to_seq : t -> elt iter
     val to_list : t -> elt list
     val of_list : elt list -> t
   end
@@ -656,10 +656,10 @@ end
 module Map : sig
   module type S = sig
     include Map.S
-    val to_seq : 'a t -> (key * 'a) sequence
-    val of_seq : (key * 'a) sequence -> 'a t
-    val keys : 'a t -> key sequence
-    val values : 'a t -> 'a sequence
+    val to_seq : 'a t -> (key * 'a) iter
+    val of_seq : (key * 'a) iter -> 'a t
+    val keys : 'a t -> key iter
+    val values : 'a t -> 'a iter
     val to_list : 'a t -> (key * 'a) list
     val of_list : (key * 'a) list -> 'a t
   end
@@ -683,7 +683,7 @@ val random_bool : bool t
 val random_float : float -> float t
 
 val random_array : 'a array -> 'a t
-(** Sequence of choices of an element in the array *)
+(** Iterator of choices of an element in the array *)
 
 val random_list : 'a list -> 'a t
 (** Infinite sequence of random elements of the list. Basically the
@@ -765,19 +765,19 @@ val to_string : ?sep:string -> ('a -> string) -> 'a t -> string
     Example: copy a file ["a"] into file ["b"], removing blank lines:
 
     {[
-      Sequence.(IO.lines_of "a" |> filter (fun l-> l<> "") |> IO.write_lines "b");;
+      Iterator.(IO.lines_of "a" |> filter (fun l-> l<> "") |> IO.write_lines "b");;
     ]}
 
     By chunks of [4096] bytes:
 
     {[
-      Sequence.IO.(chunks_of ~size:4096 "a" |> write_to "b");;
+      Iterator.IO.(chunks_of ~size:4096 "a" |> write_to "b");;
     ]}
 
     Read the lines of a file into a list:
 
     {[
-      Sequence.IO.lines "a" |> Sequence.to_list
+      Iterator.IO.lines "a" |> Iterator.to_list
     ]}
 
     @since 0.5.1 *)

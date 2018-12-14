@@ -7,10 +7,10 @@
   )
 
 (library
-  (name sequence)
-  (public_name sequence)
+  (name iter)
+  (public_name iter)
   (wrapped false)
-  (modules Sequence SequenceLabels)
+  (modules Iter IterLabels)
   (flags :standard -w +a-4-42-44-48-50-58-32-60@8 -safe-string -nolabels)
   (ocamlopt_flags :standard (:include flambda.flags))
   (libraries bytes result)

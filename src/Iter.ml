@@ -1,12 +1,12 @@
 
-(* This file is free software, part of sequence. See file "license" for more details. *)
+(* This file is free software, part of iter. See file "license" for more details. *)
 
 (** {1 Simple and Efficient Iterators} *)
 
-(** Sequence abstract iterator type *)
+(** Iter abstract iterator type *)
 type 'a t = ('a -> unit) -> unit
 
-type 'a sequence = 'a t
+type 'a iter = 'a t
 
 (*$inject
   let pp_ilist = Q.Print.(list int)
@@ -15,7 +15,7 @@ type 'a sequence = 'a t
 type 'a equal = 'a -> 'a -> bool
 type 'a hash = 'a -> int
 
-(** Build a sequence from a iter function *)
+(** Build an iterator from a iter function *)
 let from_iter f = f
 
 let rec from_fun f k = match f () with
@@ -803,7 +803,7 @@ let head seq =
 
 let head_exn seq =
   match head seq with
-  | None -> invalid_arg "Sequence.head_exn"
+  | None -> invalid_arg "Iter.head_exn"
   | Some x -> x
 
 exception ExitTake
@@ -967,7 +967,7 @@ let is_empty seq =
   try seq (fun _ -> raise_notrace ExitIsEmpty); true
   with ExitIsEmpty -> false
 
-(** {2 Transform a sequence} *)
+(** {2 Transform an iterator} *)
 
 let zip_i seq k =
   let r = ref 0 in
@@ -1181,13 +1181,13 @@ let to_klist seq =
   let l = MList.of_seq seq in
   MList.to_klist l
 
-(** {2 Functorial conversions between sets and sequences} *)
+(** {2 Functorial conversions between sets and iterators} *)
 
 module Set = struct
   module type S = sig
     include Set.S
-    val of_seq : elt sequence -> t
-    val to_seq : t -> elt sequence
+    val of_seq : elt iter -> t
+    val to_seq : t -> elt iter
     val to_list : t -> elt list
     val of_list : elt list -> t
   end
@@ -1212,20 +1212,20 @@ module Set = struct
   end
 end
 
-(** {2 Conversion between maps and sequences.} *)
+(** {2 Conversion between maps and iterators.} *)
 
 module Map = struct
   module type S = sig
     include Map.S
-    val to_seq : 'a t -> (key * 'a) sequence
-    val of_seq : (key * 'a) sequence -> 'a t
-    val keys : 'a t -> key sequence
-    val values : 'a t -> 'a sequence
+    val to_seq : 'a t -> (key * 'a) iter 
+    val of_seq : (key * 'a) iter -> 'a t
+    val keys : 'a t -> key iter
+    val values : 'a t -> 'a iter
     val to_list : 'a t -> (key * 'a) list
     val of_list : (key * 'a) list -> 'a t
   end
 
-  (** Adapt a pre-existing Map module to make it sequence-aware *)
+  (** Adapt a pre-existing Map module to make it iterator-aware *)
   module Adapt(M : Map.S) = struct
     let to_seq_ m = from_iter (fun k -> M.iter (fun x y -> k (x,y)) m)
 
@@ -1244,14 +1244,14 @@ module Map = struct
     let of_seq = of_seq_
   end
 
-  (** Create an enriched Map module, with sequence-aware functions *)
+  (** Create an enriched Map module, with iterator-aware functions *)
   module Make(V : Map.OrderedType) : S with type key = V.t = struct
     module M = Map.Make(V)
     include Adapt(M)
   end
 end
 
-(** {2 Infinite sequences of random values} *)
+(** {2 Infinite iterators of random values} *)
 
 let random_int bound = forever (fun () -> Random.int bound)
 
@@ -1359,9 +1359,9 @@ end
 
 include Infix
 
-(** {2 Pretty printing of sequences} *)
+(** {2 Pretty printing of iterators} *)
 
-(** Pretty print a sequence of ['a], using the given pretty printer
+(** Pretty print an ['a iter], using the given pretty printer
     to print each elements. An optional separator string can be provided. *)
 let pp_seq ?(sep=", ") pp_elt formatter seq =
   let first = ref true in
