@@ -57,7 +57,6 @@ With iter, if the source structure provides a
 `iter` function (or a `to_iter` wrapper), it becomes:
 
 ```ocaml
-# #use "src/Iter.ml";;
 # let q = Queue.create();;
 # Iter.( 1 -- 10 |> to_queue q);;
 - : unit = ()
