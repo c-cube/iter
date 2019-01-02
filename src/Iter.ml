@@ -18,6 +18,8 @@ type 'a hash = 'a -> int
 (** Build an iterator from a iter function *)
 let from_iter f = f
 
+let from_labelled_iter iter f = iter ~f
+
 let rec from_fun f k = match f () with
   | None -> ()
   | Some x -> k x; from_fun f k

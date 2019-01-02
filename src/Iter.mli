@@ -49,6 +49,10 @@ type 'a hash = 'a -> int
 val from_iter : (('a -> unit) -> unit) -> 'a t
 (** Build an iterator from a iter function *)
 
+val from_labelled_iter : (f:('a -> unit) -> unit) -> 'a t
+(** Build an iterator from a labelled iter function
+    @since NEXT_RELEASE *)
+
 val from_fun : (unit -> 'a option) -> 'a t
 (** Call the function repeatedly until it returns None. This
     sequence is transient, use {!persistent} if needed! *)
