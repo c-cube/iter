@@ -23,6 +23,6 @@ homepage: "https://github.com/c-cube/iter/"
 depopts: [
   "base-bigarray"
 ]
-doc: "https://c-cube.github.io/iter/"
-bug-reports: "https://github.com/c-cube/iter/issues"
-dev-repo: "git+https://github.com/c-cube/iter.git"
+doc: "https://c-cube.github.io/sequence/"
+bug-reports: "https://github.com/c-cube/sequence/issues"
+dev-repo: "git+https://github.com/c-cube/sequence.git"

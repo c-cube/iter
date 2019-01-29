@@ -11,7 +11,7 @@ way of iterating on a finite number of values, only allocating (most of the time
 one intermediate closure to do so. For instance, iterating on keys, or values,
 of a `Hashtbl.t`, without creating a list.
 
-[![build status](https://travis-ci.org/c-cube/iter.svg?branch=master)](https://travis-ci.org/c-cube/iter)
+[![build status](https://travis-ci.org/c-cube/sequence.svg?branch=master)](https://travis-ci.org/c-cube/sequence)
 
 ## Documentation
 
@@ -21,7 +21,7 @@ To get an overview of iter (originally "sequence"), its origins and why it was c
 you can start with [the slides of a talk](http://simon.cedeela.fr/assets/talks/sequence.pdf)
 I (@c-cube) made at some OCaml meeting.
 
-See [the online API](https://c-cube.github.io/iter/)
+See [the online API](https://c-cube.github.io/sequence/)
 for more details on the set of available functions.
 
 ## Build
