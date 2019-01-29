@@ -644,6 +644,12 @@ module Set : sig
     val to_iter : t -> elt iter
     val to_list : t -> elt list
     val of_list : elt list -> t
+
+    val of_seq : elt iter -> t
+    (** @deprecated use {!of_iter} instead *)
+
+    val to_seq : t -> elt iter
+    (** @deprecated use {!to_iter} instead *)
   end
 
   (** Create an enriched Set module from the given one *)
@@ -664,6 +670,12 @@ module Map : sig
     val values : 'a t -> 'a iter
     val to_list : 'a t -> (key * 'a) list
     val of_list : (key * 'a) list -> 'a t
+
+    val to_seq : 'a t -> (key * 'a) iter 
+    (** @deprecated use {!to_iter} instead *)
+
+    val of_seq : (key * 'a) iter -> 'a t
+    (** @deprecated use {!of_iter} instead *)
   end
 
   (** Adapt a pre-existing Map module to make it sequence-aware *)

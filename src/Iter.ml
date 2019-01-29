@@ -1190,6 +1190,12 @@ module Set = struct
     val to_iter : t -> elt iter
     val to_list : t -> elt list
     val of_list : elt list -> t
+
+    val of_seq : elt iter -> t
+    (** @deprecated use {!of_iter} instead *)
+
+    val to_seq : t -> elt iter
+    (** @deprecated use {!to_iter} instead *)
   end
 
   (** Create an enriched Set module from the given one *)
@@ -1201,6 +1207,8 @@ module Set = struct
 
     let to_iter = to_iter_
     let of_iter = of_iter_
+    let to_seq = to_iter_
+    let of_seq = of_iter_
     let of_list l = List.fold_left (fun set x -> add x set) empty l
     let to_list = elements
   end
@@ -1223,6 +1231,12 @@ module Map = struct
     val values : 'a t -> 'a iter
     val to_list : 'a t -> (key * 'a) list
     val of_list : (key * 'a) list -> 'a t
+
+    val to_seq : 'a t -> (key * 'a) iter 
+    (** @deprecated use {!to_iter} instead *)
+
+    val of_seq : (key * 'a) iter -> 'a t
+    (** @deprecated use {!of_iter} instead *)
   end
 
   (** Adapt a pre-existing Map module to make it iterator-aware *)
@@ -1242,6 +1256,8 @@ module Map = struct
     include M
     let to_iter = to_iter_
     let of_iter = of_iter_
+    let to_seq = to_iter_
+    let of_seq = of_iter_
   end
 
   (** Create an enriched Map module, with iterator-aware functions *)
