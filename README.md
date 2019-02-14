@@ -57,17 +57,20 @@ With iter, if the source structure provides a
 `iter` function (or a `to_iter` wrapper), it becomes:
 
 ```ocaml
-# let q = Queue.create();;
+# #require "iter";;
+# let q : int Queue.t = Queue.create();;
+val q : int Queue.t = <abstr>
 # Iter.( 1 -- 10 |> to_queue q);;
 - : unit = ()
 # Iter.of_queue q |> Iter.to_list ;;
 - : int list = [1; 2; 3; 4; 5; 6; 7; 8; 9; 10]
 
-# let s = Stack.create();;
+# let s : int Stack.t = Stack.create();;
+val s : int Stack.t = <abstr>
 # Iter.(of_queue q |> to_stack s);;
 - : unit = ()
 # Iter.of_stack s |> Iter.to_list ;;
-- : int list = [10; 9; 8; 7; 6; 5; 4; 3; 2; 1] 
+- : int list = [10; 9; 8; 7; 6; 5; 4; 3; 2; 1]
 ```
 
 Note how the list of elements is reversed when we transfer them
@@ -78,7 +81,8 @@ a hashtable (in an undefined order that depends on the
 underlying hash function):
 
 ```ocaml
-# let h = Hashtbl.create 16;;
+# let h: (int, string) Hashtbl.t = Hashtbl.create 16;;
+val h : (int, string) Hashtbl.t = <abstr>
 # for i = 0 to 10 do
      Hashtbl.add h i (string_of_int i)
   done;;
@@ -87,9 +91,9 @@ underlying hash function):
 # Hashtbl.length h;;
 - : int = 11
 
-(* now to get the values *)
-# Iter.of_hashtbl h |> Iter.map snd |> Iter.to_list;;
-- : string list = ["6"; "2"; "8"; "7"; "3"; "5"; "4"; "9"; "0"; "10"; "1"] 
+# (* now to get the values *)
+  Iter.of_hashtbl h |> Iter.map snd |> Iter.to_list;;
+- : string list = ["6"; "2"; "8"; "7"; "3"; "5"; "4"; "9"; "0"; "10"; "1"]
 ```
 
 ### Replacing `for` loops
@@ -124,6 +128,7 @@ A small λ-calculus AST, and some operations on it.
   | Var of string
   | App of term * term
   | Lambda of term ;;
+type term = Var of string | App of term * term | Lambda of term
 
 # let rec subterms : term -> term Iter.t =
   fun t ->
@@ -135,19 +140,20 @@ A small λ-calculus AST, and some operations on it.
       | App (a,b) ->
         Iter.append (subterms a) (subterms b))
   ;;
-  
-(* Now we can define many other functions easily! *)
-# let vars t =
+val subterms : term -> term Iter.t = <fun>
+
+# (* Now we can define many other functions easily! *)
+  let vars t =
     Iter.filter_map
       (function Var s -> Some s | _ -> None)
       (subterms t) ;;
-val vars : term -> string sequence = <fun >
+val vars : term -> string Iter.t = <fun>
 
 # let size t = Iter.length (subterms t) ;;
-val size : term -> int = <fun >
+val size : term -> int = <fun>
 
 # let vars_list l = Iter.(of_list l |> flat_map vars);;
-val vars_list : term list -> string sequence = <fun >
+val vars_list : term list -> string Iter.t = <fun>
 ```
 
 ### Permutations
@@ -161,16 +167,19 @@ enumerating the ways we can insert an element in a list.
 ```ocaml
 # open Iter.Infix;;
 # module S = Iter ;;
+module S = Iter
 # let rec insert x l = match l with
   | [] -> S.return [x]
   | y :: tl ->
     S.append
       S.(insert x tl >|= fun tl' -> y :: tl')
       (S.return (x :: l)) ;;
+val insert : 'a -> 'a list -> 'a list S.t = <fun>
 
 # let rec permute l = match l with
   | [] -> S.return []
   | x :: tl -> permute tl >>= insert x ;;
+val permute : 'a list -> 'a list S.t = <fun>
 
 # permute [1;2;3;4] |> S.take 2 |> S.to_list ;;
 - : int list list = [[4; 3; 2; 1]; [4; 3; 1; 2]]

@@ -16,6 +16,7 @@ depends: [
   "dune" {build}
   "qcheck" {with-test}
   "qtest" {with-test}
+  "mdx" {with-test}
   "odoc" {with-doc}
 ]
 tags: [ "sequence" "iterator" "iter" "fold" ]
