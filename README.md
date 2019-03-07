@@ -166,22 +166,20 @@ enumerating the ways we can insert an element in a list.
 
 ```ocaml
 # open Iter.Infix;;
-# module S = Iter ;;
-module S = Iter
 # let rec insert x l = match l with
-  | [] -> S.return [x]
+  | [] -> Iter.return [x]
   | y :: tl ->
-    S.append
-      S.(insert x tl >|= fun tl' -> y :: tl')
-      (S.return (x :: l)) ;;
-val insert : 'a -> 'a list -> 'a list S.t = <fun>
+    Iter.append
+      (insert x tl >|= fun tl' -> y :: tl')
+      (Iter.return (x :: l)) ;;
+val insert : 'a -> 'a list -> 'a list Iter.t = <fun>
 
 # let rec permute l = match l with
-  | [] -> S.return []
+  | [] -> Iter.return []
   | x :: tl -> permute tl >>= insert x ;;
-val permute : 'a list -> 'a list S.t = <fun>
+val permute : 'a list -> 'a list Iter.t = <fun>
 
-# permute [1;2;3;4] |> S.take 2 |> S.to_list ;;
+# permute [1;2;3;4] |> Iter.take 2 |> Iter.to_list ;;
 - : int list list = [[4; 3; 2; 1]; [4; 3; 1; 2]]
 ```
 
