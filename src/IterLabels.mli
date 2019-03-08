@@ -15,12 +15,14 @@ type +'a t = ('a -> unit) -> unit
 type +'a iter = 'a t
 
 (** {b NOTE} Type [('a, 'b) t2 = ('a -> 'b -> unit) -> unit]
-    has been removed and subsumed by [('a * 'b) t] @since 1.0 *)
+    has been removed and subsumed by [('a * 'b) t] 
+    @since 1.0
+ *)
 
 type 'a equal = 'a -> 'a -> bool
 type 'a hash = 'a -> int
 
-(** {2 Build an iterator} *)
+(** {2 Creation} *)
 
 val from_iter : (('a -> unit) -> unit) -> 'a t
 (** Build an iterator from a iter function *)
@@ -77,7 +79,7 @@ val cycle : 'a t -> 'a t
     infinite iterator, you should use something like {!take} not to loop
     forever. *)
 
-(** {2 Consume an iterator} *)
+(** {2 Consumption} *)
 
 val iter : f:('a -> unit) -> 'a t -> unit
 (** Consume the iterator, passing all its arguments to the function.
@@ -157,7 +159,8 @@ val length : 'a t -> int
 val is_empty : 'a t -> bool
 (** Is the iterator empty? Forces the iterator. *)
 
-(** {2 Transform an iterator} *)
+
+(** {2 Transformation} *)
 
 val filter : f:('a -> bool) -> 'a t -> 'a t
 (** Filter on elements of the iterator *)
@@ -462,7 +465,7 @@ val rev : 'a t -> 'a t
 
 val zip_i : 'a t -> (int * 'a) t
 (** Zip elements of the iterator with their index in the iterator.
-    Changed type @since 1.0 to just give an iterator of pairs *)
+    @since 1.0 Changed type to just give an iterator of pairs *)
 
 val fold2 : f:('c -> 'a -> 'b -> 'c) -> init:'c -> ('a * 'b) t -> 'c
 
@@ -473,7 +476,8 @@ val map2 : f:('a -> 'b -> 'c) -> ('a * 'b) t -> 'c t
 val map2_2 : f:('a -> 'b -> 'c) -> ('a -> 'b -> 'd) -> ('a * 'b) t -> ('c * 'd) t
 (** [map2_2 f g seq2] maps each [x, y] of seq2 into [f x y, g x y] *)
 
-(** {2 Basic data structures converters} *)
+
+(** {2 Data structures converters} *)
 
 val to_list : 'a t -> 'a list
 (** Convert the iterator into a list. Preserves order of elements.
@@ -611,7 +615,7 @@ val of_klist : 'a klist -> 'a t
 val to_klist : 'a t -> 'a klist
 (** Make the iterator persistent and then iterate on it. Eager. *)
 
-(** {2 Functorial conversions between sets and iterators} *)
+(** {3 Sets} *)
 
 module Set : sig
   module type S = sig
@@ -635,7 +639,7 @@ module Set : sig
   module Make(X : Set.OrderedType) : S with type elt = X.t
 end
 
-(** {2 Conversion between maps and iterators.} *)
+(** {3 Maps} *)
 
 module Map : sig
   module type S = sig
@@ -661,7 +665,7 @@ module Map : sig
   module Make(V : Map.OrderedType) : S with type key = V.t
 end
 
-(** {2 Infinite iterators of random values} *)
+(** {2 Random iterators} *)
 
 val random_int : int -> int t
 (** Infinite iterator of random integers between 0 and
@@ -692,7 +696,7 @@ val shuffle_buffer : n:int -> 'a t -> 'a t
     rest is consumed lazily.
     @since 0.7 *)
 
-(** {2 Sampling} *)
+(** {3 Sampling} *)
 
 val sample : n:int -> 'a t -> 'a array
   (** [sample n seq] returns k samples of [seq], with uniform probability.
@@ -732,7 +736,7 @@ end
 
 include module type of Infix
 
-(** {2 Pretty printing of iterators} *)
+(** {2 Pretty printing} *)
 
 val pp_seq : ?sep:string -> (Format.formatter -> 'a -> unit) ->
   Format.formatter -> 'a t -> unit
