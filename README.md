@@ -1,50 +1,39 @@
-# Iter
+# Iter [![build status](https://travis-ci.org/c-cube/iter.svg?branch=master)](https://travis-ci.org/c-cube/iter) [![docs](https://img.shields.io/badge/doc-online-blue.svg)][doc]
 
 Simple abstraction over `iter` functions, intended to iterate efficiently
-on collections while performing some transformations. Used to be called `Sequence`.
+on collections while performing some transformations. 
+
+```ocaml
+# #require "iter";;
+# let p x = x mod 5 = 0 in
+  Iter.(1 -- 5_000 |> filter p |> map (fun x -> x * x) |> fold (+) 0);;
+- : int = 8345837500
+```
 
 Common operations supported by `Iter` include
 `filter`, `map`, `take`, `drop`, `append`, `flat_map`, etc.
-`Iter` is not designed to be as general-purpose or flexible as, say,
-Batteries' `'a Enum.t`. Rather, it aims at providing a very simple and efficient
+`Iter` is not designed to be as general-purpose or flexible as `Seq`. 
+Rather, it aims at providing a very simple and efficient
 way of iterating on a finite number of values, only allocating (most of the time)
 one intermediate closure to do so. For instance, iterating on keys, or values,
 of a `Hashtbl.t`, without creating a list.
-
-[![build status](https://travis-ci.org/c-cube/iter.svg?branch=master)](https://travis-ci.org/c-cube/iter)
+Similarly, the code above is turned into a single optimized
+for loop with `flambda`.
 
 ## Documentation
 
 There is only one important type, `'a Iter.t`, and lots of functions built
 around this type.
-To get an overview of iter (originally "sequence"), its origins and why it was created,
-you can start with [the slides of a talk](http://simon.cedeela.fr/assets/talks/sequence.pdf)
-I (@c-cube) made at some OCaml meeting.
-
-See [the online API](https://c-cube.github.io/iter/)
+See [the online API][doc]
 for more details on the set of available functions.
+Some examples can be found below.
 
-## Build
+[doc]: https://c-cube.github.io/iter/
 
-1. via opam `opam install iter`
-2. manually (need OCaml >= 4.02.0): `make all install`
-
-If you have [qtest](https://github.com/vincent-hugot/qtest) installed,
-you can build and run tests with
-
-```
-$ make test
-```
-
-If you have [benchmarks](https://github.com/Chris00/ocaml-benchmark) installed,
-you can build and run benchmarks with
-
-```
-$ make benchs
-```
-
-To see how to use the library, check the following tutorial.
-The `tests` and `examples` directories also have some examples, but they're a bit arcane.
+The library used to be called `Sequence`.
+Some historical perspective is provided 
+in [this talk](http://simon.cedeela.fr/assets/talks/sequence.pdf)
+given by @c-cube at some OCaml meeting.
 
 ## Short Tutorial
 
@@ -57,7 +46,6 @@ With iter, if the source structure provides a
 `iter` function (or a `to_iter` wrapper), it becomes:
 
 ```ocaml
-# #require "iter";;
 # let q : int Queue.t = Queue.create();;
 val q : int Queue.t = <abstr>
 # Iter.( 1 -- 10 |> to_queue q);;
@@ -190,25 +178,19 @@ example library. It requires OCaml>=4.0 to compile, because of the GADT
 structure used in the monadic parser combinators part of `examples/sexpr.ml`.
 Be careful that this is quite obscure.
 
-## Comparison with [gen](https://github.com/c-cube/gen)
+## Comparison with `Seq` from the standard library
 
-- `Gen` is an *external* iterator.
+- `Seq` is an *external* iterator.
   It means that the code which consumes
-  some iterator of type `'a Gen.t` is the one which decides when to
+  some iterator of type `'a Seq.t` is the one which decides when to
   go to the next element. This gives a lot of flexibility, for example
   when iterating on several iterators at the same time:
 
   ```ocaml
-  let zip (g1: 'a Gen.t) (g2:'b Gen.t) : ('a * 'b) Gen.t =
-    let x1 = ref (g1 ()) in
-    let x2 = ref (g2 ()) in
-    fun () -> match !x1, !x2 with
-      | None, _ | _, None -> None
-      | Some x, Some y ->
-        (* fetch next elements from g1 and g2 *)
-        x1 := g1 ();
-        x2 := g2 ();
-        Some (x,y)
+  let rec zip a b () = match a(), b() with
+    | Nil, _
+    | _, Nil -> Nil
+    | Cons (x, a'), Cons (y, b') -> Cons ((x,y), zip a' b')
   ```
 
 - `Iter` is an *internal* iterator. When one wishes to iterate over
@@ -218,10 +200,10 @@ Be careful that this is quite obscure.
   This makes `zip` impossible to implement. However, the type `'a Iter.t`
   is general enough that it can be extracted from any classic `iter` function,
   including from data structures such as `Map.S.t` or `Set.S.t` or `Hashtbl.t`;
-  one cannot obtain a `'a Gen.t` from these without having access to the internal
+  one cannot obtain a `'a Seq.t` from these without having access to the internal
   data structure.
 
-In short, `'a Gen.t` is more expressive than `'a Iter.t`, but it also
+In short, `'a Seq.t` is more expressive than `'a Iter.t`, but it also
 requires more knowledge of the underlying source of items.
 For some operations such as `map` or `flat_map`, Iter is also extremely
 efficient and will, if flambda permits, be totally removed at
@@ -229,6 +211,29 @@ compile time (e.g. `Iter.(--)` becomes a for loop, and `Iter.filter`
 becomes a if test).
 
 For more details, you can read http://gallium.inria.fr/blog/generators-iterators-control-and-continuations/ .
+
+
+## Build
+
+1. via opam `opam install iter`
+2. manually (need OCaml >= 4.02.0): `make all install`
+
+If you have [qtest](https://github.com/vincent-hugot/qtest) installed,
+you can build and run tests with
+
+```
+$ make test
+```
+
+If you have [benchmarks](https://github.com/Chris00/ocaml-benchmark) installed,
+you can build and run benchmarks with
+
+```
+$ make benchs
+```
+
+To see how to use the library, check the following tutorial.
+The `tests` and `examples` directories also have some examples, but they're a bit arcane.
 
 ## License
 
