@@ -1,12 +1,10 @@
-# Changelog
-
-## 1.2 
+# 1.2 
 
 - Rename the library to Iter.
 - Add `from_labeled_iter`.
 - Use `raise_notrace` for internal exceptions.
 
-## 1.1
+# 1.1
 
 - perf: use `Set.elements` to convert to list
 - fix(compat): compat with 4.07
@@ -15,7 +13,7 @@
 - readme: link to gasche's blog post
 - readme: add some explanations and comparison with gen
 
-## 1.0 
+# 1.0 
 
 - remove delimcc sublib (breaking)
 - move to jbuilder (requires OCaml >= 4.02)
@@ -24,7 +22,7 @@
 - add some functions using `result`
 - add `filter_count`
 
-## 0.11
+# 0.11
 
 - make `count` lazy
 - make `group_by` lazy
@@ -35,7 +33,7 @@
 - add `{sum,sumf}` for summation over sequences
 - add `seq_list` and `seq_list_map`
 
-## 0.10
+# 0.10
 
 - add `{union,inter,diff,subset}`
 - add `{join_by,join_all_by,group_join_by}`
@@ -44,7 +42,7 @@
 - add `count`
 - add `doc` and `test` to opam
 
-## 0.9
+# 0.9
 
 - distinction between `diagonal,diagonal_l`
 - add `init,fold_map,fold_filter_map,sorted,diagonal,findi,…`
@@ -52,14 +50,14 @@
 - update readme: convert into asciidoc, add tutorial
 - remove deprecated functions, add missing links to `SequenceLabels`
 
-## 0.8
+# 0.8
 
 - loop based implementation for `int_range_by`
 - move files to 'src/', use qtest for tests
 - add `int_range_by`
 - add `Sequence.flat_map_l`
 
-## 0.7
+# 0.7
 
 - add missing entry in changelog and missing since annotations
 - Add `shuffle`.
@@ -67,7 +65,7 @@
 - Add `sample`.
 - Add `map_by_2`.
 
-## 0.6
+# 0.6
 
 - deprecate `flatMap` and `fmap`
 - in opam file, depend on ocamlbuild
@@ -76,7 +74,7 @@
 - iterate on booleans
 - open Bigarray (preparing for 4.03)
 
-## 0.5.5
+# 0.5.5
 
 - new module `SequenceLabels`
 - `fold_while` fun
@@ -84,27 +82,27 @@
 - removed many warnings, fix tests
 - change name of `IO` functions (keep compat)
 
-## 0.5.4
+# 0.5.4
 
 - depend on `bytes`
 - compliance with `-safe-string`
 - `sequence.bigarray`
 
-## 0.5.3
+# 0.5.3
 
 - bugfix: interaction between `take` and `is_empty`
 
-## 0.5.2
+# 0.5.2
 
 - bugfix in `take`
 - `on_list` for mapping lists through sequences
 
-## 0.5.1
+# 0.5.1
 
 - `Sequence.IO` module, a very very simple way to read/write files
 - options: `to_opt/of_opt/head/head_exn`
 
-## 0.5
+# 0.5
 
 - conversion with `klist`
 - add monadic, choice and applicative infix operators and `>|=`
@@ -121,12 +119,12 @@
 - reading benchmark for persistent sequences.
 - replace `Bench` with `Benchmark`
 
-## 0.4.1
+# 0.4.1
 
 - `persistent_lazy`
 - use `bin_annot`
 
-## 0.4
+# 0.4
 
 - API change for `persistent`
 - more efficient implementation for `persistent`
@@ -135,28 +133,28 @@
 - conversion with `Gen`
 - use Oasis
 
-## 0.3.7
+# 0.3.7
 
 - decreasing int range
 - printing functions
 
-## 0.3.6.1
+# 0.3.6.1
 
 - documentation
 - bugfixes
 
-## 0.3.6
+# 0.3.6
 
 - `fmap`
 - functors to adapt `Set` and `Map`
 
-## 0.3.5
+# 0.3.5
 
 - tests and benchmarks
 - `join` combinator
 - optimization for `Sequence.persistent`
 
-## 0.3.4
+# 0.3.4
 
 - `sort`, `uniq`, `group` and `sort_uniq` combinators implemented
 - some conversion functions that use `Sequence.t2`
