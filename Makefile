@@ -40,4 +40,20 @@ watch:
 		make all; \
 	done
 
-.PHONY: benchs tests examples update_next_tag push_doc push_stable watch
+REPO=git@github.com:c-cube/iter
+DOCDIR=.gh-pages
+
+$(DOCDIR)/.git:
+	mkdir -p $(DOCDIR)
+	cd $(DOCDIR) && (\
+		git clone -b gh-pages $(REPO).git . \
+	)
+
+gh-pages: $(DOCDIR)/.git doc
+	git -C $(DOCDIR) pull
+	cp -r _build/default/_doc/_html/* $(DOCDIR)/doc/dev/
+	git -C $(DOCDIR) add --all
+	git -C $(DOCDIR) commit -a -m "gh-page updates"
+	git -C $(DOCDIR) push origin gh-pages
+
+.PHONY: benchs tests examples update_next_tag push_doc push_stable watch gh-pages
