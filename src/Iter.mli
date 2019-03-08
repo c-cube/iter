@@ -53,7 +53,7 @@ val from_iter : (('a -> unit) -> unit) -> 'a t
 
 val from_labelled_iter : (f:('a -> unit) -> unit) -> 'a t
 (** Build an iterator from a labelled iter function
-    @since NEXT_RELEASE *)
+    @since 1.2 *)
 
 val from_fun : (unit -> 'a option) -> 'a t
 (** Call the function repeatedly until it returns None. This

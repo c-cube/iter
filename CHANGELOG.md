@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.2 
+
+- Rename the library to Iter.
+- Add `from_labeled_iter`.
+- Use `raise_notrace` for internal exceptions.
+
 ## 1.1
 
 - perf: use `Set.elements` to convert to list
