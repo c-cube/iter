@@ -39,12 +39,14 @@ type +'a t = ('a -> unit) -> unit
 type +'a iter = 'a t
 
 (** {b NOTE} Type [('a, 'b) t2 = ('a -> 'b -> unit) -> unit]
-    has been removed and subsumed by [('a * 'b) t] @since 1.0 *)
+    has been removed and subsumed by [('a * 'b) t] 
+    @since 1.0
+*)
 
 type 'a equal = 'a -> 'a -> bool
 type 'a hash = 'a -> int
 
-(** {2 Build an iterator} *)
+(** {2 Creation} *)
 
 val from_iter : (('a -> unit) -> unit) -> 'a t
 (** Build an iterator from a iter function *)
@@ -101,7 +103,15 @@ val cycle : 'a t -> 'a t
     infinite iterator, you should use something like {!take} not to loop
     forever. *)
 
-(** {2 Consume an iterator} *)
+val unfoldr : ('b -> ('a * 'b) option) -> 'b -> 'a t
+(** [unfoldr f b] will apply [f] to [b]. If it
+    yields [Some (x,b')] then [x] is returned
+    and unfoldr recurses with [b']. *)
+
+val scan : ('b -> 'a -> 'b) -> 'b -> 'a t -> 'b t
+(** Iterator of intermediate results *)
+
+(** {2 Consumption} *)
 
 val iter : ('a -> unit) -> 'a t -> unit
 (** Consume the iterator, passing all its arguments to the function.
@@ -181,7 +191,7 @@ val length : 'a t -> int
 val is_empty : 'a t -> bool
 (** Is the iterator empty? Forces the iterator. *)
 
-(** {2 Transform an iterator} *)
+(** {2 Transformation} *)
 
 val filter : ('a -> bool) -> 'a t -> 'a t
 (** Filter on elements of the iterator *)
@@ -373,6 +383,8 @@ val group_join_by : ?eq:'a equal -> ?hash:'a hash ->
     precondition: for any [x] and [y], if [eq x y] then [hash x=hash y] must hold.
     @since 0.10 *)
 
+(** {3 Set-like} *)
+
 val inter :
   ?eq:'a equal -> ?hash:'a hash ->
   'a t -> 'a t -> 'a t
@@ -420,13 +432,7 @@ val subset :
   not (subset (1 -- 4) (2 -- 10))
 *)
 
-val unfoldr : ('b -> ('a * 'b) option) -> 'b -> 'a t
-(** [unfoldr f b] will apply [f] to [b]. If it
-    yields [Some (x,b')] then [x] is returned
-    and unfoldr recurses with [b']. *)
-
-val scan : ('b -> 'a -> 'b) -> 'b -> 'a t -> 'b t
-(** Iterator of intermediate results *)
+(** {3 Arithmetic} *)
 
 val max : ?lt:('a -> 'a -> bool) -> 'a t -> 'a option
 (** Max element of the iterator, using the given comparison function.
@@ -454,6 +460,8 @@ val sum : int t -> int
 val sumf : float t -> float
 (** Sum of elements, using Kahan summation
     @since 0.11 *)
+
+(** {3 List-like} *)
 
 val head : 'a t -> 'a option
 (** First element, if any, otherwise [None]
@@ -491,7 +499,9 @@ val rev : 'a t -> 'a t
 
 val zip_i : 'a t -> (int * 'a) t
 (** Zip elements of the iterator with their index in the iterator.
-    Changed type @since 1.0 to just give an iterator of pairs *)
+    @since 1.0 Changed type to just give an iterator of pairs *)
+
+(** {3 Pair iterators} *)
 
 val fold2 : ('c -> 'a -> 'b -> 'c) -> 'c -> ('a * 'b) t -> 'c
 
@@ -502,7 +512,7 @@ val map2 : ('a -> 'b -> 'c) -> ('a * 'b) t -> 'c t
 val map2_2 : ('a -> 'b -> 'c) -> ('a -> 'b -> 'd) -> ('a * 'b) t -> ('c * 'd) t
 (** [map2_2 f g seq2] maps each [x, y] of seq2 into [f x y, g x y] *)
 
-(** {2 Basic data structures converters} *)
+(** {2 Data structures converters} *)
 
 val to_list : 'a t -> 'a list
 (** Convert the iterator into a list. Preserves order of elements.
@@ -639,7 +649,7 @@ val of_klist : 'a klist -> 'a t
 val to_klist : 'a t -> 'a klist
 (** Make the iterator persistent and then iterate on it. Eager. *)
 
-(** {2 Functorial conversions between sets and iterators} *)
+(** {3 Sets} *)
 
 module Set : sig
   module type S = sig
@@ -663,7 +673,7 @@ module Set : sig
   module Make(X : Set.OrderedType) : S with type elt = X.t
 end
 
-(** {2 Conversion between maps and iterators.} *)
+(** {3 Maps} *)
 
 module Map : sig
   module type S = sig
@@ -689,7 +699,7 @@ module Map : sig
   module Make(V : Map.OrderedType) : S with type key = V.t
 end
 
-(** {2 Infinite iterators of random values} *)
+(** {2 Random iterators} *)
 
 val random_int : int -> int t
 (** Infinite iterator of random integers between 0 and
@@ -720,7 +730,7 @@ val shuffle_buffer : int -> 'a t -> 'a t
     rest is consumed lazily.
     @since 0.7 *)
 
-(** {2 Sampling} *)
+(** {3 Sampling} *)
 
 val sample : int -> 'a t -> 'a array
   (** [sample n seq] returns k samples of [seq], with uniform probability.
@@ -760,7 +770,7 @@ end
 
 include module type of Infix
 
-(** {2 Pretty printing of iterators} *)
+(** {2 Pretty printing} *)
 
 val pp_seq : ?sep:string -> (Format.formatter -> 'a -> unit) ->
   Format.formatter -> 'a t -> unit
