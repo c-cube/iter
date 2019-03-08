@@ -46,7 +46,7 @@ type +'a iter = 'a t
 type 'a equal = 'a -> 'a -> bool
 type 'a hash = 'a -> int
 
-(** {2 Creation} *)
+(** {1 Creation} *)
 
 val from_iter : (('a -> unit) -> unit) -> 'a t
 (** Build an iterator from a iter function *)
@@ -111,7 +111,7 @@ val unfoldr : ('b -> ('a * 'b) option) -> 'b -> 'a t
 val scan : ('b -> 'a -> 'b) -> 'b -> 'a t -> 'b t
 (** Iterator of intermediate results *)
 
-(** {2 Consumption} *)
+(** {1 Consumption} *)
 
 val iter : ('a -> unit) -> 'a t -> unit
 (** Consume the iterator, passing all its arguments to the function.
@@ -191,7 +191,7 @@ val length : 'a t -> int
 val is_empty : 'a t -> bool
 (** Is the iterator empty? Forces the iterator. *)
 
-(** {2 Transformation} *)
+(** {1 Transformation} *)
 
 val filter : ('a -> bool) -> 'a t -> 'a t
 (** Filter on elements of the iterator *)
@@ -260,7 +260,7 @@ val keep_error : (_, 'e) Result.result t -> 'e t
 (** [keep_error l] retains only elements of the form [Error x].
     @since 1.0 *)
 
-(** {2 Caching} *)
+(** {1 Caching} *)
 
 val persistent : 'a t -> 'a t
 (** Iterate on the iterator, storing elements in an efficient internal structure..
@@ -279,7 +279,7 @@ val persistent_lazy : 'a t -> 'a t
     is interrupted prematurely ({!take}, etc.) then [s'] will not be
     memorized, and the next call to [s'] will traverse [s] again. *)
 
-(** {2 Misc} *)
+(** {1 Misc} *)
 
 val sort : ?cmp:('a -> 'a -> int) -> 'a t -> 'a t
 (** Sort the iterator. Eager, O(n) ram and O(n ln(n)) time.
@@ -383,7 +383,7 @@ val group_join_by : ?eq:'a equal -> ?hash:'a hash ->
     precondition: for any [x] and [y], if [eq x y] then [hash x=hash y] must hold.
     @since 0.10 *)
 
-(** {3 Set-like} *)
+(** {2 Set-like} *)
 
 val inter :
   ?eq:'a equal -> ?hash:'a hash ->
@@ -432,7 +432,7 @@ val subset :
   not (subset (1 -- 4) (2 -- 10))
 *)
 
-(** {3 Arithmetic} *)
+(** {2 Arithmetic} *)
 
 val max : ?lt:('a -> 'a -> bool) -> 'a t -> 'a option
 (** Max element of the iterator, using the given comparison function.
@@ -461,7 +461,7 @@ val sumf : float t -> float
 (** Sum of elements, using Kahan summation
     @since 0.11 *)
 
-(** {3 List-like} *)
+(** {2 List-like} *)
 
 val head : 'a t -> 'a option
 (** First element, if any, otherwise [None]
@@ -501,7 +501,7 @@ val zip_i : 'a t -> (int * 'a) t
 (** Zip elements of the iterator with their index in the iterator.
     @since 1.0 Changed type to just give an iterator of pairs *)
 
-(** {3 Pair iterators} *)
+(** {2 Pair iterators} *)
 
 val fold2 : ('c -> 'a -> 'b -> 'c) -> 'c -> ('a * 'b) t -> 'c
 
@@ -512,7 +512,7 @@ val map2 : ('a -> 'b -> 'c) -> ('a * 'b) t -> 'c t
 val map2_2 : ('a -> 'b -> 'c) -> ('a -> 'b -> 'd) -> ('a * 'b) t -> ('c * 'd) t
 (** [map2_2 f g seq2] maps each [x, y] of seq2 into [f x y, g x y] *)
 
-(** {2 Data structures converters} *)
+(** {1 Data structures converters} *)
 
 val to_list : 'a t -> 'a list
 (** Convert the iterator into a list. Preserves order of elements.
@@ -649,7 +649,7 @@ val of_klist : 'a klist -> 'a t
 val to_klist : 'a t -> 'a klist
 (** Make the iterator persistent and then iterate on it. Eager. *)
 
-(** {3 Sets} *)
+(** {2 Sets} *)
 
 module Set : sig
   module type S = sig
@@ -673,7 +673,7 @@ module Set : sig
   module Make(X : Set.OrderedType) : S with type elt = X.t
 end
 
-(** {3 Maps} *)
+(** {2 Maps} *)
 
 module Map : sig
   module type S = sig
@@ -699,7 +699,7 @@ module Map : sig
   module Make(V : Map.OrderedType) : S with type key = V.t
 end
 
-(** {2 Random iterators} *)
+(** {1 Random iterators} *)
 
 val random_int : int -> int t
 (** Infinite iterator of random integers between 0 and
@@ -730,7 +730,7 @@ val shuffle_buffer : int -> 'a t -> 'a t
     rest is consumed lazily.
     @since 0.7 *)
 
-(** {3 Sampling} *)
+(** {2 Sampling} *)
 
 val sample : int -> 'a t -> 'a array
   (** [sample n seq] returns k samples of [seq], with uniform probability.
@@ -739,7 +739,7 @@ val sample : int -> 'a t -> 'a array
       It returns an array of size [min (length seq) n].
       @since 0.7 *)
 
-(** {2 Infix functions} *)
+(** {1 Infix functions} *)
 
 module Infix : sig
   val (--) : int -> int -> int t
@@ -770,7 +770,7 @@ end
 
 include module type of Infix
 
-(** {2 Pretty printing} *)
+(** {1 Pretty printing} *)
 
 val pp_seq : ?sep:string -> (Format.formatter -> 'a -> unit) ->
   Format.formatter -> 'a t -> unit
@@ -784,7 +784,7 @@ val pp_buf : ?sep:string -> (Buffer.t -> 'a -> unit) ->
 val to_string : ?sep:string -> ('a -> string) -> 'a t -> string
 (** Print into a string *)
 
-(** {2 Basic IO}
+(** {1 Basic IO}
 
     Very basic interface to manipulate files as iterator of chunks/lines. The
     iterators take care of opening and closing files properly; every time
