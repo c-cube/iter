@@ -11,15 +11,15 @@
     function is provided, storing elements of a transient iterator
     in memory; the iterator can then be used several times (See further).
 
-    Note that some combinators also return sequences (e.g. {!group}). The
+    Note that some combinators also return iterators (e.g. {!group}). The
     transformation is computed on the fly every time one iterates over
-    the resulting sequence. If a transformation performs heavy computation,
+    the resulting iterator. If a transformation performs heavy computation,
     {!persistent} can also be used as intermediate storage.
 
     Most functions are {b lazy}, i.e. they do not actually use their arguments
     until their result is iterated on. For instance, if one calls {!map}
-    on an iterator, one gets a new sequence, but nothing else happens until
-    this new sequence is used (by folding or iterating on it).
+    on an iterator, one gets a new iterator, but nothing else happens until
+    this new iterator is used (by folding or iterating on it).
 
     If an iterator is built from an iteration function that is {b repeatable}
     (i.e. calling it several times always iterates on the same set of
@@ -55,19 +55,19 @@ val from_labelled_iter : (f:('a -> unit) -> unit) -> 'a t
 
 val from_fun : (unit -> 'a option) -> 'a t
 (** Call the function repeatedly until it returns None. This
-    sequence is transient, use {!persistent} if needed! *)
+    iterator is transient, use {!persistent} if needed! *)
 
 val empty : 'a t
-(** Empty sequence. It contains no element. *)
+(** Empty iterator. It contains no element. *)
 
 val singleton : 'a -> 'a t
-(** Singleton sequence, with exactly one element. *)
+(** Singleton iterator, with exactly one element. *)
 
 val doubleton : 'a -> 'a -> 'a t
 (** Iterator with exactly two elements *)
 
 val init : (int -> 'a) -> 'a t
-(** [init f] is the infinite sequence [f 0; f 1; f 2; …].
+(** [init f] is the infinite iterator [f 0; f 1; f 2; …].
     @since 0.9 *)
 
 val cons : 'a -> 'a t -> 'a t
@@ -84,37 +84,37 @@ val pure : 'a -> 'a t
 (** Synonym to {!singleton} *)
 
 val repeat : 'a -> 'a t
-(** Infinite sequence of the same element. You may want to look
+(** Infinite iterator of the same element. You may want to look
     at {!take} and the likes if you iterate on it. *)
 
 val iterate : ('a -> 'a) -> 'a -> 'a t
-(** [iterate f x] is the infinite sequence [x, f(x), f(f(x)), ...] *)
+(** [iterate f x] is the infinite iterator [x, f(x), f(f(x)), ...] *)
 
 val forever : (unit -> 'b) -> 'b t
 (** Iterator that calls the given function to produce elements.
-    The sequence may be transient (depending on the function), and definitely
+    The iterator may be transient (depending on the function), and definitely
     is infinite. You may want to use {!take} and {!persistent}. *)
 
 val cycle : 'a t -> 'a t
-(** Cycle forever through the given sequence. Assume the given sequence can
+(** Cycle forever through the given iterator. Assume the given iterator can
     be traversed any amount of times (not transient).  This yields an
-    infinite sequence, you should use something like {!take} not to loop
+    infinite iterator, you should use something like {!take} not to loop
     forever. *)
 
 (** {2 Consume an iterator} *)
 
 val iter : ('a -> unit) -> 'a t -> unit
-(** Consume the sequence, passing all its arguments to the function.
+(** Consume the iterator, passing all its arguments to the function.
     Basically [iter f seq] is just [seq f]. *)
 
 val iteri : (int -> 'a -> unit) -> 'a t -> unit
-(** Iterate on elements and their index in the sequence *)
+(** Iterate on elements and their index in the iterator *)
 
 val fold : ('a -> 'b -> 'a) -> 'a -> 'b t -> 'a
-(** Fold over elements of the sequence, consuming it *)
+(** Fold over elements of the iterator, consuming it *)
 
 val foldi : ('a -> int -> 'b -> 'a) -> 'a -> 'b t -> 'a
-(** Fold over elements of the sequence and their index, consuming it *)
+(** Fold over elements of the iterator and their index, consuming it *)
 
 val fold_map : ('acc -> 'a -> 'acc * 'b) -> 'acc -> 'a t -> 'b t
 (** [fold_map f acc l] is like {!map}, but it carries some state as in
@@ -128,14 +128,14 @@ val fold_filter_map : ('acc -> 'a -> 'acc * 'b option) -> 'acc -> 'a t -> 'b t
     @since 0.9 *)
 
 val map : ('a -> 'b) -> 'a t -> 'b t
-(** Map objects of the sequence into other elements, lazily *)
+(** Map objects of the iterator into other elements, lazily *)
 
 val mapi : (int -> 'a -> 'b) -> 'a t -> 'b t
-(** Map objects, along with their index in the sequence *)
+(** Map objects, along with their index in the iterator *)
 
 val map_by_2 : ('a -> 'a -> 'a) -> 'a t -> 'a t
   (** Map objects two by two. lazily.
-      The last element is kept in the sequence if the count is odd.
+      The last element is kept in the iterator if the count is odd.
       @since 0.7 *)
 
 val for_all : ('a -> bool) -> 'a t -> bool
@@ -145,7 +145,7 @@ val exists : ('a -> bool) -> 'a t -> bool
 (** Exists there some element satisfying the predicate? *)
 
 val mem : ?eq:('a -> 'a -> bool) -> 'a -> 'a t -> bool
-(** Is the value a member of the sequence?
+(** Is the value a member of the iterator?
     @param eq the equality predicate to use (default [(=)])
     @since 0.5 *)
 
@@ -176,34 +176,34 @@ val find_pred_exn : ('a -> bool) -> 'a t -> 'a
     @since 0.9 *)
 
 val length : 'a t -> int
-(** How long is the sequence? Forces the sequence. *)
+(** How long is the iterator? Forces the iterator. *)
 
 val is_empty : 'a t -> bool
-(** Is the sequence empty? Forces the sequence. *)
+(** Is the iterator empty? Forces the iterator. *)
 
 (** {2 Transform an iterator} *)
 
 val filter : ('a -> bool) -> 'a t -> 'a t
-(** Filter on elements of the sequence *)
+(** Filter on elements of the iterator *)
 
 val append : 'a t -> 'a t -> 'a t
-(** Append two sequences. Iterating on the result is like iterating
+(** Append two iterators. Iterating on the result is like iterating
     on the first, then on the second. *)
 
 val append_l : 'a t list -> 'a t
-(** Append sequences. Iterating on the result is like iterating
-    on the each sequence of the list in order.
+(** Append iterators. Iterating on the result is like iterating
+    on the each iterator of the list in order.
     @since 0.11 *)
 
 val concat : 'a t t -> 'a t
-(** Concatenate an iterator of sequences into one sequence. *)
+(** Concatenate an iterator of iterators into one iterator. *)
 
 val flatten : 'a t t -> 'a t
 (** Alias for {!concat} *)
 
 val flat_map : ('a -> 'b t) -> 'a t -> 'b t
 (** Monadic bind. Intuitively, it applies the function to every
-    element of the initial sequence, and calls {!concat}.
+    element of the initial iterator, and calls {!concat}.
     Formerly [flatMap]
     @since 0.5 *)
 
@@ -212,8 +212,8 @@ val flat_map_l : ('a -> 'b list) -> 'a t -> 'b t
     @since 0.9 *)
 
 val seq_list : 'a t list -> 'a list t
-(** [seq_list l] returns all the ways to pick one element in each sub-sequence
-    in [l]. Assumes the sub-sequences can be iterated on several times.
+(** [seq_list l] returns all the ways to pick one element in each sub-iterator
+    in [l]. Assumes the sub-iterators can be iterated on several times.
     @since 0.11 *)
 
 val seq_list_map : ('a -> 'b t) -> 'a list -> 'b list t
@@ -235,7 +235,7 @@ val filter_count : ('a -> bool) -> 'a t -> int
     @since 1.0 *)
 
 val intersperse : 'a -> 'a t -> 'a t
-(** Insert the single element between every element of the sequence *)
+(** Insert the single element between every element of the iterator *)
 
 val keep_some : 'a option t -> 'a t
 (** [filter_some l] retains only elements of the form [Some x].
@@ -253,14 +253,14 @@ val keep_error : (_, 'e) Result.result t -> 'e t
 (** {2 Caching} *)
 
 val persistent : 'a t -> 'a t
-(** Iterate on the sequence, storing elements in an efficient internal structure..
-    The resulting sequence can be iterated on as many times as needed.
-    {b Note}: calling persistent on an already persistent sequence
-    will still make a new copy of the sequence! *)
+(** Iterate on the iterator, storing elements in an efficient internal structure..
+    The resulting iterator can be iterated on as many times as needed.
+    {b Note}: calling persistent on an already persistent iterator
+    will still make a new copy of the iterator! *)
 
 val persistent_lazy : 'a t -> 'a t
 (** Lazy version of {!persistent}. When calling [persistent_lazy s],
-    a new sequence [s'] is immediately returned (without actually consuming
+    a new iterator [s'] is immediately returned (without actually consuming
     [s]) in constant time; the first time [s'] is iterated on,
     it also consumes [s] and caches its content into a inner data
     structure that will back [s'] for future iterations.
@@ -272,15 +272,15 @@ val persistent_lazy : 'a t -> 'a t
 (** {2 Misc} *)
 
 val sort : ?cmp:('a -> 'a -> int) -> 'a t -> 'a t
-(** Sort the sequence. Eager, O(n) ram and O(n ln(n)) time.
-    It iterates on elements of the argument sequence immediately,
+(** Sort the iterator. Eager, O(n) ram and O(n ln(n)) time.
+    It iterates on elements of the argument iterator immediately,
     before it sorts them. *)
 
 val sort_uniq : ?cmp:('a -> 'a -> int) -> 'a t -> 'a t
-(** Sort the sequence and remove duplicates. Eager, same as [sort] *)
+(** Sort the iterator and remove duplicates. Eager, same as [sort] *)
 
 val sorted : ?cmp:('a -> 'a -> int) -> 'a t -> bool
-(** Checks whether the sequence is sorted. Eager, same as {!sort}.
+(** Checks whether the iterator is sorted. Eager, same as {!sort}.
     @since 0.9 *)
 
 val group_succ_by : ?eq:('a -> 'a -> bool) -> 'a t -> 'a list t
@@ -291,7 +291,7 @@ val group_succ_by : ?eq:('a -> 'a -> bool) -> 'a t -> 'a list t
 val group_by : ?hash:('a -> int) -> ?eq:('a -> 'a -> bool) ->
   'a t -> 'a list t
 (** Group equal elements, disregarding their order of appearance.
-    The result sequence is traversable as many times as required.
+    The result iterator is traversable as many times as required.
     precondition: for any [x] and [y], if [eq x y] then [hash x=hash y] must hold.
     @since 0.6 *)
 
@@ -307,19 +307,19 @@ val uniq : ?eq:('a -> 'a -> bool) -> 'a t -> 'a t
     like [fun seq -> map List.hd (group seq)]. *)
 
 val product : 'a t -> 'b t -> ('a * 'b) t
-(** Cartesian product of the sequences. When calling [product a b],
+(** Cartesian product of iterators. When calling [product a b],
     the caller {b MUST} ensure that [b] can be traversed as many times
     as required (several times), possibly by calling {!persistent} on it
     beforehand. *)
 
 val diagonal_l : 'a list -> ('a * 'a) t
 (** All pairs of distinct positions of the list. [diagonal l] will
-    return the sequence of all [List.nth i l, List.nth j l] if [i < j].
+    return the iterator of all [List.nth i l, List.nth j l] if [i < j].
     @since 0.9 *)
 
 val diagonal : 'a t -> ('a * 'a) t
-(** All pairs of distinct positions of the sequence.
-    Iterates only once on the sequence, which must be finite.
+(** All pairs of distinct positions of the iterator.
+    Iterates only once on the iterator, which must be finite.
     @since 0.9 *)
 
 val join : join_row:('a -> 'b -> 'c option) -> 'a t -> 'b t -> 'c t
@@ -335,7 +335,7 @@ val join_by : ?eq:'key equal -> ?hash:'key hash ->
   'b t ->
   'c t
 (** [join key1 key2 ~merge] is a binary operation
-    that takes two sequences [a] and [b], projects their
+    that takes two iterators [a] and [b], projects their
     elements resp. with [key1] and [key2], and combine
     values [(x,y)] from [(a,b)] with the same [key]
     using [merge]. If [merge] returns [None], the combination
@@ -350,7 +350,7 @@ val join_all_by : ?eq:'key equal -> ?hash:'key hash ->
   'b t ->
   'c t
 (** [join_all_by key1 key2 ~merge] is a binary operation
-    that takes two sequences [a] and [b], projects their
+    that takes two iterators [a] and [b], projects their
     elements resp. with [key1] and [key2], and, for each key [k]
     occurring in at least one of them:
     - compute the list [l1] of elements of [a] that map to [k]
@@ -366,9 +366,9 @@ val group_join_by : ?eq:'a equal -> ?hash:'a hash ->
   'b t ->
   ('a * 'b list) t
 (** [group_join_by key2] associates to every element [x] of
-    the first sequence, all the elements [y] of the second
-    sequence such that [eq x (key y)]. Elements of the first
-    sequences without corresponding values in the second one
+    the first iterator, all the elements [y] of the second
+    iterator such that [eq x (key y)]. Elements of the first
+    iterators without corresponding values in the second one
     are mapped to [[]]
     precondition: for any [x] and [y], if [eq x y] then [hash x=hash y] must hold.
     @since 0.10 *)
@@ -429,22 +429,22 @@ val scan : ('b -> 'a -> 'b) -> 'b -> 'a t -> 'b t
 (** Iterator of intermediate results *)
 
 val max : ?lt:('a -> 'a -> bool) -> 'a t -> 'a option
-(** Max element of the sequence, using the given comparison function.
-    @return None if the sequence is empty, Some [m] where [m] is the maximal
+(** Max element of the iterator, using the given comparison function.
+    @return None if the iterator is empty, Some [m] where [m] is the maximal
     element otherwise *)
 
 val max_exn : ?lt:('a -> 'a -> bool) -> 'a t -> 'a
 (** Unsafe version of {!max}
-    @raise Not_found if the sequence is empty
+    @raise Not_found if the iterator is empty
     @since 0.10 *)
 
 val min : ?lt:('a -> 'a -> bool) -> 'a t -> 'a option
-(** Min element of the sequence, using the given comparison function.
+(** Min element of the iterator, using the given comparison function.
     see {!max} for more details. *)
 
 val min_exn : ?lt:('a -> 'a -> bool) -> 'a t -> 'a
 (** Unsafe version of {!min}
-    @raise Not_found if the sequence is empty
+    @raise Not_found if the iterator is empty
     @since 0.10 *)
 
 val sum : int t -> int
@@ -461,36 +461,36 @@ val head : 'a t -> 'a option
 
 val head_exn : 'a t -> 'a
 (** First element, if any, fails
-    @raise Invalid_argument if the sequence is empty
+    @raise Invalid_argument if the iterator is empty
     @since 0.5.1 *)
 
 val take : int -> 'a t -> 'a t
-(** Take at most [n] elements from the sequence. Works on infinite
-    sequences. *)
+(** Take at most [n] elements from the iterator. Works on infinite
+    iterators. *)
 
 val take_while : ('a -> bool) -> 'a t -> 'a t
 (** Take elements while they satisfy the predicate, then stops iterating.
-    Will work on an infinite sequence [s] if the predicate is false for at
+    Will work on an infinite iterator [s] if the predicate is false for at
     least one element of [s]. *)
 
 val fold_while : ('a -> 'b -> 'a * [`Stop | `Continue]) -> 'a -> 'b t -> 'a
-(** Folds over elements of the sequence, stopping early if the accumulator
+(** Folds over elements of the iterator, stopping early if the accumulator
     returns [('a, `Stop)]
     @since 0.5.5 *)
 
 val drop : int -> 'a t -> 'a t
-(** Drop the [n] first elements of the sequence. Lazy. *)
+(** Drop the [n] first elements of the iterator. Lazy. *)
 
 val drop_while : ('a -> bool) -> 'a t -> 'a t
 (** Predicate version of {!drop} *)
 
 val rev : 'a t -> 'a t
-(** Reverse the sequence. O(n) memory and time, needs the
-    sequence to be finite. The result is persistent and does
+(** Reverse the iterator. O(n) memory and time, needs the
+    iterator to be finite. The result is persistent and does
     not depend on the input being repeatable. *)
 
 val zip_i : 'a t -> (int * 'a) t
-(** Zip elements of the sequence with their index in the sequence.
+(** Zip elements of the iterator with their index in the iterator.
     Changed type @since 1.0 to just give an iterator of pairs *)
 
 val fold2 : ('c -> 'a -> 'b -> 'c) -> 'c -> ('a * 'b) t -> 'c
@@ -505,12 +505,12 @@ val map2_2 : ('a -> 'b -> 'c) -> ('a -> 'b -> 'd) -> ('a * 'b) t -> ('c * 'd) t
 (** {2 Basic data structures converters} *)
 
 val to_list : 'a t -> 'a list
-(** Convert the sequence into a list. Preserves order of elements.
+(** Convert the iterator into a list. Preserves order of elements.
     This function is tail-recursive, but consumes 2*n memory.
     If order doesn't matter to you, consider {!to_rev_list}. *)
 
 val to_rev_list : 'a t -> 'a list
-(** Get the list of the reversed sequence (more efficient than {!to_list}) *)
+(** Get the list of the reversed iterator (more efficient than {!to_list}) *)
 
 val of_list : 'a list -> 'a t
 
@@ -520,7 +520,7 @@ val on_list : ('a t -> 'b t) -> 'a list -> 'b list
 *)
 
 val pair_with_idx : 'a t -> (int * 'a) t
-(** Similar to {!zip_i} but returns a normal sequence of tuples
+(** Similar to {!zip_i} but returns a normal iterator of tuples
     @since 0.11 *)
 
 val to_opt : 'a t -> 'a option
@@ -551,23 +551,23 @@ val to_stream : 'a t -> 'a Stream.t
 (** Convert to a stream. linear in memory and time (a copy is made in memory) *)
 
 val to_stack : 'a Stack.t -> 'a t -> unit
-(** Push elements of the sequence on the stack *)
+(** Push elements of the iterator on the stack *)
 
 val of_stack : 'a Stack.t -> 'a t
 (** Iterator of elements of the stack (same order as [Stack.iter]) *)
 
 val to_queue : 'a Queue.t -> 'a t -> unit
-(** Push elements of the sequence into the queue *)
+(** Push elements of the iterator into the queue *)
 
 val of_queue : 'a Queue.t -> 'a t
 (** Iterator of elements contained in the queue, FIFO order *)
 
 val hashtbl_add : ('a, 'b) Hashtbl.t -> ('a * 'b) t -> unit
-(** Add elements of the sequence to the hashtable, with
+(** Add elements of the iterator to the hashtable, with
     Hashtbl.add *)
 
 val hashtbl_replace : ('a, 'b) Hashtbl.t -> ('a * 'b) t -> unit
-(** Add elements of the sequence to the hashtable, with
+(** Add elements of the iterator to the hashtable, with
     Hashtbl.replace (erases conflicting bindings) *)
 
 val to_hashtbl : ('a * 'b) t -> ('a, 'b) Hashtbl.t
@@ -593,12 +593,12 @@ exception OneShotSequence
 
 val of_in_channel : in_channel -> char t
 (** Iterates on characters of the input (can block when one
-    iterates over the sequence). If you need to iterate
-    several times on this sequence, use {!persistent}.
-    @raise OneShotSequence when used more than once. *)
+    iterates over the iterator). If you need to iterate
+    several times on this iterator, use {!persistent}.
+    @raise OneShotIterator when used more than once. *)
 
 val to_buffer : char t -> Buffer.t -> unit
-(** Copy content of the sequence into the buffer *)
+(** Copy content of the iterator into the buffer *)
 
 val int_range : start:int -> stop:int -> int t
 (** Iterator on integers in [start...stop] by steps 1. Also see
@@ -611,7 +611,7 @@ val int_range_dec : start:int -> stop:int -> int t
 val int_range_by : step:int -> int -> int -> int t
 (** [int_range_by ~step i j] is the range starting at [i], including [j],
     where the difference between successive elements is [step].
-    use a negative [step] for a decreasing sequence.
+    use a negative [step] for a decreasing iterator.
     @raise Invalid_argument if [step=0] *)
 
 val bools : bool t
@@ -622,7 +622,7 @@ val of_set : (module Set.S with type elt = 'a and type t = 'b) -> 'b -> 'a t
 (** Convert the given set to an iterator. The set module must be provided. *)
 
 val to_set : (module Set.S with type elt = 'a and type t = 'b) -> 'a t -> 'b
-(** Convert the sequence to a set, given the proper set module *)
+(** Convert the iterator to a set, given the proper set module *)
 
 type 'a gen = unit -> 'a option
 type 'a klist = unit -> [`Nil | `Cons of 'a * 'a klist]
@@ -631,15 +631,15 @@ val of_gen : 'a gen -> 'a t
 (** Traverse eagerly the generator and build an iterator from it *)
 
 val to_gen : 'a t -> 'a gen
-(** Make the sequence persistent (O(n)) and then iterate on it. Eager. *)
+(** Make the iterator persistent (O(n)) and then iterate on it. Eager. *)
 
 val of_klist : 'a klist -> 'a t
 (** Iterate on the lazy list *)
 
 val to_klist : 'a t -> 'a klist
-(** Make the sequence persistent and then iterate on it. Eager. *)
+(** Make the iterator persistent and then iterate on it. Eager. *)
 
-(** {2 Functorial conversions between sets and sequences} *)
+(** {2 Functorial conversions between sets and iterators} *)
 
 module Set : sig
   module type S = sig
@@ -663,7 +663,7 @@ module Set : sig
   module Make(X : Set.OrderedType) : S with type elt = X.t
 end
 
-(** {2 Conversion between maps and sequences.} *)
+(** {2 Conversion between maps and iterators.} *)
 
 module Map : sig
   module type S = sig
@@ -682,21 +682,21 @@ module Map : sig
     (** @deprecated use {!of_iter} instead *)
   end
 
-  (** Adapt a pre-existing Map module to make it sequence-aware *)
+  (** Adapt a pre-existing Map module to make it iterator-aware *)
   module Adapt(M : Map.S) : S with type key = M.key and type 'a t = 'a M.t
 
-  (** Create an enriched Map module, with sequence-aware functions *)
+  (** Create an enriched Map module, with iterator-aware functions *)
   module Make(V : Map.OrderedType) : S with type key = V.t
 end
 
-(** {2 Infinite sequences of random values} *)
+(** {2 Infinite iterators of random values} *)
 
 val random_int : int -> int t
-(** Infinite sequence of random integers between 0 and
+(** Infinite iterator of random integers between 0 and
     the given higher bound (see Random.int) *)
 
 val random_bool : bool t
-(** Infinite sequence of random bool values *)
+(** Infinite iterator of random bool values *)
 
 val random_float : float -> float t
 
@@ -704,7 +704,7 @@ val random_array : 'a array -> 'a t
 (** Iterator of choices of an element in the array *)
 
 val random_list : 'a list -> 'a t
-(** Infinite sequence of random elements of the list. Basically the
+(** Infinite iterator of random elements of the list. Basically the
     same as {!random_array}. *)
 
 val shuffle : 'a t -> 'a t
@@ -716,7 +716,7 @@ val shuffle_buffer : int -> 'a t -> 'a t
 (** [shuffle_buffer n seq] returns an iterator of element of [seq] in random
     order. The shuffling is *not* uniform. Uses O(n) memory.
 
-    The first [n] elements of the sequence are consumed immediately. The
+    The first [n] elements of the iterator are consumed immediately. The
     rest is consumed lazily.
     @since 0.7 *)
 
@@ -724,7 +724,7 @@ val shuffle_buffer : int -> 'a t -> 'a t
 
 val sample : int -> 'a t -> 'a array
   (** [sample n seq] returns k samples of [seq], with uniform probability.
-      It will consume the sequence and use O(n) memory.
+      It will consume the iterator and use O(n) memory.
 
       It returns an array of size [min (length seq) n].
       @since 0.7 *)
@@ -754,13 +754,13 @@ module Infix : sig
       @since 0.5 *)
 
   val (<+>) : 'a t -> 'a t -> 'a t
-  (** Concatenation of sequences
+  (** Concatenation of iterators
       @since 0.5 *)
 end
 
 include module type of Infix
 
-(** {2 Pretty printing of sequences} *)
+(** {2 Pretty printing of iterators} *)
 
 val pp_seq : ?sep:string -> (Format.formatter -> 'a -> unit) ->
   Format.formatter -> 'a t -> unit
@@ -776,8 +776,8 @@ val to_string : ?sep:string -> ('a -> string) -> 'a t -> string
 
 (** {2 Basic IO}
 
-    Very basic interface to manipulate files as sequence of chunks/lines. The
-    sequences take care of opening and closing files properly; every time
+    Very basic interface to manipulate files as iterator of chunks/lines. The
+    iterators take care of opening and closing files properly; every time
     one iterates over an iterator, the file is opened/closed again.
 
     Example: copy a file ["a"] into file ["b"], removing blank lines:
@@ -807,7 +807,7 @@ module IO : sig
       same exception as would opening the file and read from it, except
       from [End_of_file] (which is caught). The file is {b always} properly
       closed.
-      Every time the sequence is iterated on, the file is opened again, so
+      Every time the iterator is iterated on, the file is opened again, so
       different iterations might return different results
       @param mode default [0o644]
       @param flags default: [[Open_rdonly]] *)
@@ -816,7 +816,7 @@ module IO : sig
     string -> string t
   (** Read chunks of the given [size] from the file. The last chunk might be
       smaller. Behaves like {!lines_of} regarding errors and options.
-      Every time the sequence is iterated on, the file is opened again, so
+      Every time the iterator is iterated on, the file is opened again, so
       different iterations might return different results *)
 
   val write_to : ?mode:int -> ?flags:open_flag list ->

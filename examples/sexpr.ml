@@ -27,7 +27,7 @@ type t =
 (** Token that compose a Sexpr once serialized *)
 type token = [`Open | `Close | `Atom of string]
 
-(** {2 Traverse a sequence of tokens} *)
+(** {2 Traverse an iterator of tokens} *)
 
 (** Iterate on the S-expression, calling the callback with tokens *)
 let rec iter f s = match s with
@@ -37,11 +37,11 @@ and iter_list f l = match l with
   | [] -> ()
   | x::l' -> iter f x; iter_list f l'
 
-(** Traverse. This yields a sequence of tokens *)
+(** Traverse. This yields an iterator of tokens *)
 let traverse s = Iter.from_iter (fun k -> iter k s)
 
-(** Returns the same sequence of tokens, but during iteration, if
-    the structure of the Sexpr corresponding to the sequence
+(** Returns the same iterator of tokens, but during iteration, if
+    the structure of the Sexpr corresponding to the iterator
     is wrong (bad parenthesing), Invalid_argument is raised
     and iteration is stoped *)
 let validate seq =
@@ -57,7 +57,7 @@ let validate seq =
 
 (** {2 Text <-> tokens} *)
 
-(** Lex: create a sequence of tokens from the given in_channel. *)
+(** Lex: create an iterator of tokens from the given in_channel. *)
 let lex input =
   let seq_fun k =
     let in_word = ref false in
@@ -83,7 +83,7 @@ let lex input =
   in 
   Iter.from_iter seq_fun
 
-(** Build a Sexpr from a sequence of tokens *)
+(** Build a Sexpr from an iterator of tokens *)
 let of_seq seq =
   (* called on every token *)
   let rec k stack token = match token with
@@ -96,7 +96,7 @@ let of_seq seq =
   | `Expr a::stack' -> collapse (a :: acc) stack'
   | _ -> assert false
   in
-  (* iterate on the sequence, given an empty initial stack *)
+  (* iterate, given an empty initial stack *)
   let stack = Iter.fold k [] seq in
   (* stack should contain exactly one expression *)
   match stack with
@@ -112,7 +112,7 @@ let pp_token formatter token = match token with
   | `Close -> Format.fprintf formatter ")@]"
   | `Atom s -> Format.pp_print_string formatter s
 
-(** Print a sequence of Sexpr tokens on the given formatter *)
+(** Print an iterator of Sexpr tokens on the given formatter *)
 let pp_tokens formatter tokens =
   let first = ref true in
   let last = ref false in
@@ -149,7 +149,7 @@ let output_str name str k =
 
 (** {2 Parsing} *)
 
-(** Monadic combinators for parsing data from a sequence of tokens,
+(** Monadic combinators for parsing data from an iterator of tokens,
     without converting to concrete S-expressions.
 
     The [one] parser can raise ParseFailure if it fails to parse
@@ -247,7 +247,7 @@ type 'a state =
   | Bottom : 'a state
   | Push : ('b parser * ('b -> 'a state)) -> 'a state
 
-(** Actually parse the sequence of tokens, with a callback to be called
+(** Actually parse the iterator of tokens, with a callback to be called
     on every parsed value. The callback decides whether to push another
     state or whether to continue. *)
 let parse_k p tokens k =
@@ -295,7 +295,7 @@ let parse p tokens =
   | None -> raise (ParseFailure "incomplete input")
   | Some x -> x
 
-(** Parse a sequence of values *)
+(** Parse an iterator of values *)
 let parse_seq p tokens =
   let seq_fun k =
     parse_k p tokens (fun x -> k x; `Continue)

@@ -77,7 +77,7 @@ module MList = struct
   (** Build a MList of elements of the Seq. The optional argument indicates
       the size of the blocks *)
   let of_seq ?(size=8) seq =
-    (* read sequence into a MList.t *)
+    (* read iterator into a MList.t *)
     let start = make size in
     let l = ref start in
     seq (fun x -> l := push x !l);
