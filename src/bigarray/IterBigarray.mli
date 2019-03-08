@@ -1,5 +1,5 @@
 
-(* This file is free software, part of sequence. See file "license" for more details. *)
+(* This file is free software, part of iter. See file "license" for more details. *)
 
 (** {1 Interface and Helpers for bigarrays}
 

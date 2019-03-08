@@ -28,27 +28,27 @@ type t =
 type token = [`Open | `Close | `Atom of string]
   (** Token that compose a Sexpr once serialized *)
 
-(** {2 Traverse a sequence of tokens} *)
+(** {2 Traverse an iterator of tokens} *)
 
 val iter : (token -> unit) -> t -> unit
   (** Iterate on the S-expression, calling the callback with tokens *)
 
 val traverse : t -> token Iter.t
-  (** Traverse. This yields a sequence of tokens *)
+  (** Traverse. This yields an iterator of tokens *)
 
 val validate : token Iter.t -> token Iter.t
-  (** Returns the same sequence of tokens, but during iteration, if
-      the structure of the Sexpr corresponding to the sequence
+  (** Returns the same iterator of tokens, but during iteration, if
+      the structure of the Sexpr corresponding to the iterator
       is wrong (bad parenthesing), Invalid_argument is raised
       and iteration is stoped *)
 
 (** {2 Text <-> tokens} *)
 
 val lex : char Iter.t -> token Iter.t
-  (** Lex: create a sequence of tokens from the given sequence of chars. *)
+  (** Lex: create an iterator of tokens from the given iterator of chars. *)
 
 val of_seq : token Iter.t -> t
-  (** Build a Sexpr from a sequence of tokens, or raise Failure *)
+  (** Build a Sexpr from an iterator of tokens, or raise Failure *)
 
 (** {2 Printing} *)
 
@@ -56,7 +56,7 @@ val pp_token : Format.formatter -> token -> unit
   (** Print a token on the given formatter *)
 
 val pp_tokens : Format.formatter -> token Iter.t -> unit
-  (** Print a sequence of Sexpr tokens on the given formatter *)
+  (** Print an iterator of Sexpr tokens on the given formatter *)
 
 val pp_sexpr : ?indent:bool -> Format.formatter -> t -> unit
   (** Pretty-print the S-expr. If [indent] is true, the S-expression
@@ -65,14 +65,14 @@ val pp_sexpr : ?indent:bool -> Format.formatter -> t -> unit
 (** {2 Serializing} *)
 
 val output_seq : string -> token Iter.t -> (token -> unit) -> unit
-  (** print a pair "(name @,sequence)" *)
+  (** print a pair "(name @,iterator)" *)
 
 val output_str : string -> string -> (token -> unit) -> unit
   (** print a pair "(name str)" *)
 
 (** {2 Parsing} *)
 
-(** Monadic combinators for parsing data from a sequence of tokens,
+(** Monadic combinators for parsing data from an iterator of tokens,
     without converting to concrete S-expressions. *)
 
 type 'a parser
@@ -125,8 +125,8 @@ val many : 'a parser -> 'a list parser
 val many1 : 'a parser -> 'a list parser
 
 val parse : 'a parser -> token Iter.t -> 'a
-  (** Parses exactly one value from the sequence of tokens. Raises
+  (** Parses exactly one value from the iterator of tokens. Raises
       ParseFailure if anything goes wrong. *)
 
 val parse_seq : 'a parser -> token Iter.t -> 'a Iter.t
-  (** Parses a sequence of values *)
+  (** Parses an iterator of values *)

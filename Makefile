@@ -26,7 +26,7 @@ build-benchs:
 examples:
 	dune build examples/test_sexpr.exe
 
-VERSION=$(shell awk '/^version:/ {print $$2}' sequence.opam)
+VERSION=$(shell awk '/^version:/ {print $$2}' iter.opam)
 
 update_next_tag:
 	@echo "update version to $(VERSION)..."

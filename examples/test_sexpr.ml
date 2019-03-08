@@ -1,5 +1,5 @@
 
-(** {2 Test sequences} *)
+(** {2 Test iterators} *)
 
 (** print a list of items using the printing function *)
 let pp_list ?(sep=", ") pp_item formatter l = 
@@ -94,7 +94,7 @@ let _ =
     (Iter.of_array
       (Iter.to_array (Iter.append
         (Iter.take 5 (Iter.of_list l3)) (Iter.of_list l4))));
-  (* sequence, persistent, etc *)
+  (* iterator, persistent, etc *)
   let seq = Iter.int_range ~start:0 ~stop:100000 in
   let seq' = Iter.persistent seq in
   let stream = Iter.to_stream seq' in
