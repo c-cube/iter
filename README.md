@@ -1,7 +1,7 @@
 # Iter [![build status](https://travis-ci.org/c-cube/iter.svg?branch=master)](https://travis-ci.org/c-cube/iter) [![docs](https://img.shields.io/badge/doc-online-blue.svg)][doc]
 
-Simple abstraction over `iter` functions, intended to iterate efficiently
-on collections while performing some transformations. 
+Clean and efficient loop fusion for all your iterating needs!
+
 
 ```ocaml
 # #require "iter";;
@@ -10,6 +10,9 @@ on collections while performing some transformations.
 - : int = 8345837500
 ```
 
+`Iter` is a simple abstraction over `iter` functions
+intended to iterate efficiently
+on collections while performing some transformations. 
 Common operations supported by `Iter` include
 `filter`, `map`, `take`, `drop`, `append`, `flat_map`, etc.
 `Iter` is not designed to be as general-purpose or flexible as `Seq`. 
