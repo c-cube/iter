@@ -1,50 +1,39 @@
-# Iter
+# Iter [![build status](https://travis-ci.org/c-cube/iter.svg?branch=master)](https://travis-ci.org/c-cube/iter) [![docs](https://img.shields.io/badge/doc-online-blue.svg)][doc]
 
 Simple abstraction over `iter` functions, intended to iterate efficiently
-on collections while performing some transformations. Used to be called `Sequence`.
+on collections while performing some transformations. 
+
+```ocaml
+# #require "iter";;
+# let p x = x mod 5 = 0 in
+  Iter.(1 -- 5_000 |> filter p |> map (fun x -> x * x) |> fold (+) 0);;
+- : int = 8345837500
+```
 
 Common operations supported by `Iter` include
 `filter`, `map`, `take`, `drop`, `append`, `flat_map`, etc.
-`Iter` is not designed to be as general-purpose or flexible as, say,
-Batteries' `'a Enum.t`. Rather, it aims at providing a very simple and efficient
+`Iter` is not designed to be as general-purpose or flexible as `Seq`. 
+Rather, it aims at providing a very simple and efficient
 way of iterating on a finite number of values, only allocating (most of the time)
 one intermediate closure to do so. For instance, iterating on keys, or values,
 of a `Hashtbl.t`, without creating a list.
-
-[![build status](https://travis-ci.org/c-cube/iter.svg?branch=master)](https://travis-ci.org/c-cube/iter)
+Similarly, the code above is turned into a single optimized
+for loop with `flambda`.
 
 ## Documentation
 
 There is only one important type, `'a Iter.t`, and lots of functions built
 around this type.
-To get an overview of iter (originally "sequence"), its origins and why it was created,
-you can start with [the slides of a talk](http://simon.cedeela.fr/assets/talks/sequence.pdf)
-I (@c-cube) made at some OCaml meeting.
-
-See [the online API](https://c-cube.github.io/iter/)
+See [the online API][doc]
 for more details on the set of available functions.
+Some examples can be found below.
 
-## Build
+[doc]: https://c-cube.github.io/iter/
 
-1. via opam `opam install iter`
-2. manually (need OCaml >= 4.02.0): `make all install`
-
-If you have [qtest](https://github.com/vincent-hugot/qtest) installed,
-you can build and run tests with
-
-```
-$ make test
-```
-
-If you have [benchmarks](https://github.com/Chris00/ocaml-benchmark) installed,
-you can build and run benchmarks with
-
-```
-$ make benchs
-```
-
-To see how to use the library, check the following tutorial.
-The `tests` and `examples` directories also have some examples, but they're a bit arcane.
+The library used to be called `Sequence`.
+Some historical perspective is provided 
+in [this talk](http://simon.cedeela.fr/assets/talks/sequence.pdf)
+given by @c-cube at some OCaml meeting.
 
 ## Short Tutorial
 
@@ -57,7 +46,6 @@ With iter, if the source structure provides a
 `iter` function (or a `to_iter` wrapper), it becomes:
 
 ```ocaml
-# #require "iter";;
 # let q : int Queue.t = Queue.create();;
 val q : int Queue.t = <abstr>
 # Iter.( 1 -- 10 |> to_queue q);;
@@ -229,6 +217,29 @@ compile time (e.g. `Iter.(--)` becomes a for loop, and `Iter.filter`
 becomes a if test).
 
 For more details, you can read http://gallium.inria.fr/blog/generators-iterators-control-and-continuations/ .
+
+
+## Build
+
+1. via opam `opam install iter`
+2. manually (need OCaml >= 4.02.0): `make all install`
+
+If you have [qtest](https://github.com/vincent-hugot/qtest) installed,
+you can build and run tests with
+
+```
+$ make test
+```
+
+If you have [benchmarks](https://github.com/Chris00/ocaml-benchmark) installed,
+you can build and run benchmarks with
+
+```
+$ make benchs
+```
+
+To see how to use the library, check the following tutorial.
+The `tests` and `examples` directories also have some examples, but they're a bit arcane.
 
 ## License
 

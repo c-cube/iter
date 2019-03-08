@@ -1,9 +1,0 @@
-#directory "_build/src";;
-#load "iter.cma";;
-
-open Iter.Infix;;
-
-#directory "_build/src/bigarray/";;
-#load "bigarray.cma";;
-
-(* vim:syntax=ocaml *)
