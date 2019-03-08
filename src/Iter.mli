@@ -134,9 +134,9 @@ val mapi : (int -> 'a -> 'b) -> 'a t -> 'b t
 (** Map objects, along with their index in the iterator *)
 
 val map_by_2 : ('a -> 'a -> 'a) -> 'a t -> 'a t
-  (** Map objects two by two. lazily.
-      The last element is kept in the iterator if the count is odd.
-      @since 0.7 *)
+(** Map objects two by two. lazily.
+    The last element is kept in the iterator if the count is odd.
+    @since 0.7 *)
 
 val for_all : ('a -> bool) -> 'a t -> bool
 (** Do all elements satisfy the predicate? *)

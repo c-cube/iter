@@ -33,9 +33,9 @@ let empty _ = ()
     (try iter (fun _ -> raise Exit) seq; true with Exit -> false);
 *)
 
-let singleton x k = k x
 let return x k = k x
-let pure f k = k f
+let singleton = return
+let pure = return
 
 let doubleton x y k = k x; k y
 
@@ -168,7 +168,7 @@ let concat s k = s (fun s' -> s' k)
     |> OUnit.assert_equal 2000
 *)
 
-let flatten s = concat s
+let flatten = concat
 
 let flat_map f seq k = seq (fun x -> f x k)
 
@@ -196,7 +196,8 @@ let seq_list l = seq_list_map (fun x->x) l
 *)
 
 let filter_map f seq k =
-  seq (fun x -> match f x with
+  seq
+    (fun x -> match f x with
       | None -> ()
       | Some y -> k y)
 
@@ -222,7 +223,9 @@ let filter_count f seq =
 
 let intersperse elem seq k =
   let first = ref true in
-  seq (fun x -> (if !first then first := false else k elem); k x)
+  seq (fun x ->
+      if !first then first := false else k elem;
+      k x)
 
 (*$R
   (1 -- 100)
