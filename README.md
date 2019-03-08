@@ -178,25 +178,19 @@ example library. It requires OCaml>=4.0 to compile, because of the GADT
 structure used in the monadic parser combinators part of `examples/sexpr.ml`.
 Be careful that this is quite obscure.
 
-## Comparison with [gen](https://github.com/c-cube/gen)
+## Comparison with `Seq` from the standard library
 
-- `Gen` is an *external* iterator.
+- `Seq` is an *external* iterator.
   It means that the code which consumes
-  some iterator of type `'a Gen.t` is the one which decides when to
+  some iterator of type `'a Seq.t` is the one which decides when to
   go to the next element. This gives a lot of flexibility, for example
   when iterating on several iterators at the same time:
 
   ```ocaml
-  let zip (g1: 'a Gen.t) (g2:'b Gen.t) : ('a * 'b) Gen.t =
-    let x1 = ref (g1 ()) in
-    let x2 = ref (g2 ()) in
-    fun () -> match !x1, !x2 with
-      | None, _ | _, None -> None
-      | Some x, Some y ->
-        (* fetch next elements from g1 and g2 *)
-        x1 := g1 ();
-        x2 := g2 ();
-        Some (x,y)
+  let rec zip a b () = match a(), b() with
+    | Nil, _
+    | _, Nil -> Nil
+    | Cons (x, a'), Cons (y, b') -> Cons ((x,y), zip a' b')
   ```
 
 - `Iter` is an *internal* iterator. When one wishes to iterate over
@@ -206,10 +200,10 @@ Be careful that this is quite obscure.
   This makes `zip` impossible to implement. However, the type `'a Iter.t`
   is general enough that it can be extracted from any classic `iter` function,
   including from data structures such as `Map.S.t` or `Set.S.t` or `Hashtbl.t`;
-  one cannot obtain a `'a Gen.t` from these without having access to the internal
+  one cannot obtain a `'a Seq.t` from these without having access to the internal
   data structure.
 
-In short, `'a Gen.t` is more expressive than `'a Iter.t`, but it also
+In short, `'a Seq.t` is more expressive than `'a Iter.t`, but it also
 requires more knowledge of the underlying source of items.
 For some operations such as `map` or `flat_map`, Iter is also extremely
 efficient and will, if flambda permits, be totally removed at
