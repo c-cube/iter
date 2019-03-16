@@ -3,7 +3,7 @@
 
 (** {1 Interface and Helpers for bigarrays} *)
 
-open! Bigarray
+open! IterBigarrayShims_
 
 let of_bigarray b yield =
   let len = Bigarray.Array1.dim b in
@@ -16,7 +16,7 @@ let mmap filename =
     let fd = Unix.openfile filename [Unix.O_RDONLY] 0 in
     let len = Unix.lseek fd 0 Unix.SEEK_END in
     let _ = Unix.lseek fd 0 Unix.SEEK_SET in
-    let b = Bigarray.Array1.map_file fd Bigarray.char Bigarray.c_layout false len in
+    let b = bigarray_map_file fd Bigarray.char Bigarray.c_layout false len in
     try
       of_bigarray b yield;
       Unix.close fd

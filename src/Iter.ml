@@ -3,6 +3,8 @@
 
 (** {1 Simple and Efficient Iterators} *)
 
+open Iter_shims_
+
 (** Iter abstract iterator type *)
 type 'a t = ('a -> unit) -> unit
 

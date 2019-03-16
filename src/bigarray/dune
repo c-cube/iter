@@ -3,8 +3,18 @@
   (name iter_bigarray)
   (public_name iter.bigarray)
   (libraries iter bigarray)
+  (modules IterBigarray IterBigarrayShims_)
   (wrapped false)
   (optional)
   (flags :standard -w +a-4-42-44-48-50-58-32-60@8 -safe-string)
-  (ocamlopt_flags :standard (:include ../flambda.flags))
-  )
+  (ocamlopt_flags :standard (:include ../flambda.flags)))
+
+(executable
+  (name mkshims)
+  (modules mkshims)
+  (libraries dune.configurator))
+
+(rule
+  (targets IterBigarrayShims_.ml)
+  (deps mkshims.exe)
+  (action (with-stdout-to %{targets} (run ./mkshims.exe))))

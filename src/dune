@@ -2,17 +2,24 @@
   (targets flambda.flags)
   (deps mkflags.ml)
   (mode fallback)
-  (action
-    (run ocaml ./mkflags.ml))
-  )
+  (action (run ocaml ./mkflags.ml)))
+
+(executable
+  (name mkshims)
+  (modules mkshims)
+  (libraries dune.configurator))
+
+(rule
+  (targets Iter_shims_.ml)
+  (deps mkshims.exe)
+  (action (with-stdout-to %{targets} (run ./mkshims.exe))))
 
 (library
   (name iter)
   (public_name iter)
   (wrapped false)
-  (modules Iter IterLabels)
+  (modules Iter IterLabels Iter_shims_)
   (flags :standard -w +a-4-42-44-48-50-58-32-60@8 -safe-string -nolabels)
   (ocamlopt_flags :standard (:include flambda.flags))
-  (libraries bytes result)
-  )
+  (libraries bytes result))
 
