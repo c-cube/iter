@@ -2,7 +2,7 @@
 (library
   (name iter_bigarray)
   (public_name iter.bigarray)
-  (libraries iter bigarray)
+  (libraries iter bigarray unix)
   (modules IterBigarray IterBigarrayShims_)
   (wrapped false)
   (optional)
