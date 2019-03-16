@@ -398,7 +398,7 @@ let persistent_lazy (seq:'a t) =
       let seq' = MList.of_iter_with seq k in
       r := LazyCached (MList.to_iter seq')
 
-let sort ?(cmp=Pervasives.compare) seq =
+let sort ?(cmp=Stdlib.compare) seq =
   (* use an intermediate list, then sort the list *)
   let l = fold (fun l x -> x::l) [] seq in
   let l = List.fast_sort cmp l in
@@ -414,7 +414,7 @@ let sort ?(cmp=Pervasives.compare) seq =
 
 exception Exit_sorted
 
-let sorted ?(cmp=Pervasives.compare) seq =
+let sorted ?(cmp=Stdlib.compare) seq =
   let prev = ref None in
   try
     seq (fun x -> match !prev with
@@ -518,7 +518,7 @@ let uniq ?(eq=fun x y -> x = y) seq k =
     |> OUnit.assert_equal [1;2;3;4;3]
 *)
 
-let sort_uniq (type elt) ?(cmp=Pervasives.compare) seq =
+let sort_uniq (type elt) ?(cmp=Stdlib.compare) seq =
   let module S = Set.Make(struct
       type t = elt
       let compare = cmp
@@ -669,7 +669,7 @@ let group_join_by (type a) ?(eq=(=)) ?(hash=Hashtbl.hash) f c1 c2 =
   (group_join_by (fun s->s.[0]) \
     (of_str "abc") \
     (of_list ["abc"; "boom"; "attic"; "deleted"; "barbary"; "bop"]) \
-  |> map (fun (c,l)->c,List.sort Pervasives.compare l) \
+  |> map (fun (c,l)->c,List.sort Stdlib.compare l) \
   |> sort |> to_list)
 *)
 
@@ -1145,10 +1145,10 @@ let int_range_by ~step i j yield =
 
 (*$Q
   Q.(pair small_int small_int) (fun (i,j) -> \
-    let i = Pervasives.min i j and j = Pervasives.max i j in \
+    let i = Stdlib.min i j and j = Stdlib.max i j in \
     (i--j |> to_list) = (int_range_by ~step:1 i j |> to_list))
   Q.(pair small_int small_int) (fun (i,j) -> \
-    let i = Pervasives.min i j and j = Pervasives.max i j in \
+    let i = Stdlib.min i j and j = Stdlib.max i j in \
     (i--j |> to_rev_list) = (int_range_by ~step:~-1 j i |> to_list))
 *)
 
@@ -1360,7 +1360,7 @@ let sample k seq =
     let seq = of_list l in
     let a = sample n seq in
     (array_for_all (fun x -> exists ((=) x) seq) a)
-    && (Array.length a = Pervasives.min (length seq) n) )
+    && (Array.length a = Stdlib.min (length seq) n) )
 *)
 
 (** {2 Infix functions} *)
