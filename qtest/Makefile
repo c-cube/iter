@@ -1,5 +1,5 @@
 
-QTEST_PREAMBLE=''
+QTEST_PREAMBLE='open Iter_shims_;; '
 DONTTEST=../src/iterLabels.ml ../src/mkflags.ml ../src/mkshims.ml ../src/bigarray/mkshims.ml
 QTESTABLE=$(filter-out $(DONTTEST), \
 	$(wildcard ../src/*.ml) \
