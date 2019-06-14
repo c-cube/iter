@@ -1,3 +1,10 @@
+
+# 1.2.1
+
+- fix: use `Stdlib` instead of `Pervasives`
+- fix: missing dep on unix for 4.08
+- add shims with dune magic for 4.08 compat
+
 # 1.2 
 
 - Rename the library to Iter.
