@@ -4,7 +4,7 @@ version: "1.1"
 author: "Simon Cruanes"
 maintainer: "simon.cruanes.2007@m4x.org"
 license: "BSD-2-clauses"
-description: "Compatibility package for `iter`"
+synopsis: "Compatibility package for `iter`"
 build: [
   ["dune" "build" "@install" "-p" name "-j" jobs]
 ]
