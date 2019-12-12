@@ -13,7 +13,8 @@ build: [
 depends: [
   "base-bytes"
   "result"
-  "dune" {build}
+  "dune" { >= "1.1" }
+  "dune-configurator"
   "qcheck" {with-test}
   "qtest" {with-test}
   "mdx" {with-test}
