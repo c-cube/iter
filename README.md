@@ -181,7 +181,7 @@ example library. It requires OCaml>=4.0 to compile, because of the GADT
 structure used in the monadic parser combinators part of `examples/sexpr.ml`.
 Be careful that this is quite obscure.
 
-## Comparison with `Seq` from the standard library
+## Comparison with `Seq` from the standard library, and with `Gen`
 
 - `Seq` is an *external* iterator.
   It means that the code which consumes
@@ -206,6 +206,14 @@ Be careful that this is quite obscure.
   one cannot obtain a `'a Seq.t` from these without having access to the internal
   data structure.
 
+- `Gen` (from [the gen library](http://github.com/c-cube/gen))
+  is an *external* iterator, like `Seq`, but it is imperative, mutable, and consumable
+  (you can't iterate twice on the same `'a Gen.t`).
+  It looks a lot like iterators in rust/java/… and can be pretty efficient in some cases.
+  Since you control iteration you can also write `map2`, `for_all2`, etc but
+  only with linear use of input generators (since you can traverse them only once).
+  That requires some trickery for cartesian_product (like storing already produced elements internally).
+
 In short, `'a Seq.t` is more expressive than `'a Iter.t`, but it also
 requires more knowledge of the underlying source of items.
 For some operations such as `map` or `flat_map`, Iter is also extremely
@@ -213,8 +221,9 @@ efficient and will, if flambda permits, be totally removed at
 compile time (e.g. `Iter.(--)` becomes a for loop, and `Iter.filter`
 becomes a if test).
 
-For more details, you can read http://gallium.inria.fr/blog/generators-iterators-control-and-continuations/ .
-
+For more details, you can read http://gallium.inria.fr/blog/generators-iterators-control-and-continuations/ or
+see [the slides about Iter](https://simon.cedeela.fr/assets/talks/sequence.pdf)
+by me (c-cube) when `Iter` was still called `Sequence`.
 
 ## Build
 
