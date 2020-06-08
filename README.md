@@ -35,7 +35,7 @@ Some examples can be found below.
 
 The library used to be called `Sequence`.
 Some historical perspective is provided 
-in [this talk](http://simon.cedeela.fr/assets/talks/sequence.pdf)
+in [this talk](https://simon.cedeela.fr/assets/talks/sequence.pdf)
 given by @c-cube at some OCaml meeting.
 
 ## Short Tutorial
