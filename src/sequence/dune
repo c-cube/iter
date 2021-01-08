@@ -1,7 +1,0 @@
-
-(library
-  (name sequence)
-  (public_name sequence)
-  (wrapped false)
-  (flags :standard -warn-error -a+8 -safe-string)
-  (libraries iter))
