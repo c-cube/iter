@@ -296,13 +296,14 @@ val sorted : ?cmp:('a -> 'a -> int) -> 'a t -> bool
 val group_succ_by : ?eq:('a -> 'a -> bool) -> 'a t -> 'a list t
 (** Group equal consecutive elements. Linear time.
     Formerly synonym to [group].
+    {b note}: Order of items in each list is unspecified.
     @since 0.6 *)
 
 val group_by : ?hash:('a -> int) -> ?eq:('a -> 'a -> bool) ->
   'a t -> 'a list t
 (** Group equal elements, disregarding their order of appearance.
-    The result iterator is traversable as many times as required.
     precondition: for any [x] and [y], if [eq x y] then [hash x=hash y] must hold.
+    {b note}: Order of items in each list is unspecified.
     @since 0.6 *)
 
 val count : ?hash:('a -> int) -> ?eq:('a -> 'a -> bool) ->
