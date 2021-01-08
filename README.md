@@ -1,4 +1,4 @@
-# Iter [![build status](https://travis-ci.org/c-cube/iter.svg?branch=master)](https://travis-ci.org/c-cube/iter) [![docs](https://img.shields.io/badge/doc-online-blue.svg)][doc]
+# Iter  ![build](https://github.com/c-cube/iter/workflows/build/badge.svg)
 
 Clean and efficient loop fusion for all your iterating needs!
 

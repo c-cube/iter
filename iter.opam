@@ -13,6 +13,7 @@ build: [
 depends: [
   "base-bytes"
   "result"
+  "ocaml" { >= "4.03.0" }
   "dune" { >= "1.1" }
   "dune-configurator"
   "qcheck" {with-test}
