@@ -2,6 +2,8 @@
 module S = Iter
 open Iter.Infix
 
+[@@@ocaml.warning "-5"]
+
 let small = [10;20;50;100;500]
 let medium = small @ [1000;10_000;100_000]
 let big = medium @ [500_000; 1_000_000; 2_000_000]

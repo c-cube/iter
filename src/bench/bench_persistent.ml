@@ -1,3 +1,5 @@
+[@@@ocaml.warning "-5"]
+
 module MList = struct
   type 'a t = {
     content : 'a array;   (* elements of the node *)
