@@ -12,9 +12,10 @@ jobs:
     strategy:
       matrix:
         os:
-          - macos-latest
           - ubuntu-latest
           - windows-latest
+            # macOS is just too slow, ugh
+          #- macos-latest
         ocaml-compiler:
           - 4.03.x
           - 4.08.x
