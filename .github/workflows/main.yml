@@ -1,32 +1,33 @@
 name: build
-on: [push, pull_request]
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
 jobs:
   run:
     name: Build
     strategy:
       matrix:
-        os: [macos-latest, ubuntu-latest, windows-latest]
-        ocaml: [ '4.08.0', '4.03.0', '4.11.0' ]
+        os:
+          - macos-latest
+          - ubuntu-latest
+          - windows-latest
+        ocaml-compiler:
+          - 4.03.x
+          - 4.08.x
+          - 4.12.x
     runs-on: ${{ matrix.os }}
     steps:
-    - uses: actions/checkout@main
-    - uses: avsm/setup-ocaml@v1
+    - uses: actions/checkout@v2
+    - uses: ocaml/setup-ocaml@v2
       with:
-        ocaml-version: ${{ matrix.ocaml }}
-    - name: cache opam
-      id: cache-opam
-      uses: actions/cache@v2
-      with:
-        path: _opam
-        key: opam-${{matrix.operating-system}}-${{matrix.ocaml-version}}
+        ocaml-compiler: ${{ matrix.ocaml-compiler }}
     - run: opam pin -n .
-      if: steps.cache-opam.outputs.cache-hit != 'true'
     - run: opam depext -yt iter
-      if: steps.cache-opam.outputs.cache-hit != 'true'
     - run: opam install -t . --deps-only
-      if: ${{ matrix.os != 'windows-latest' }} and ${{ steps.cache-opam.outputs.cache-hit != 'true' }}
-    - run: opam install . --deps-only  # no test deps
-      if: ${{ matrix.os == 'windows-latest' }} and ${{ steps.cache-opam.outputs.cache-hit != 'true' }}
     - run: opam exec -- dune build
     - run: opam exec -- dune runtest
-      if: ${{ matrix.os != 'windows-latest' }}
+      if: ${{ matrix.os == 'ubuntu-latest'}}
