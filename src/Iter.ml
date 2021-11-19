@@ -26,7 +26,7 @@ let rec from_fun f k = match f () with
   | None -> ()
   | Some x -> k x; from_fun f k
 
-let empty _ = ()
+let[@inline] empty _ = ()
 
 (*$R
   let seq = empty in
@@ -35,16 +35,16 @@ let empty _ = ()
     (try iter (fun _ -> raise Exit) seq; true with Exit -> false);
 *)
 
-let return x k = k x
+let[@inline] return x k = k x
 let singleton = return
 let pure = return
 
-let doubleton x y k = k x; k y
+let[@inline] doubleton x y k = k x; k y
 
-let cons x l k = k x; l k
-let snoc l x k = l k; k x
+let[@inline] cons x l k = k x; l k
+let[@inline] snoc l x k = l k; k x
 
-let repeat x k = while true do k x done
+let[@inline] repeat x k = while true do k x done
 
 (*$R
   let seq = repeat "hello" in
@@ -73,7 +73,7 @@ let rec forever f k =
 
 let cycle s k = while true do s k; done
 
-let iter f seq = seq f
+let[@inline] iter f seq = seq f
 
 let iteri f seq =
   let r = ref 0 in
@@ -131,9 +131,9 @@ let fold_filter_map f init seq yield =
          | None -> ()
          | Some y' -> yield y')
 
-let map f seq k = seq (fun x -> k (f x))
+let[@inline] map f seq k = seq (fun x -> k (f x))
 
-let mapi f seq k =
+let[@inline] mapi f seq k =
   let i = ref 0 in
   seq (fun x -> k (f !i x); incr i)
 
@@ -147,13 +147,13 @@ let map_by_2 f seq k =
   match !r with
   | None -> () | Some x -> k x
 
-let filter p seq k = seq (fun x -> if p x then k x)
+let[@inline] filter p seq k = seq (fun x -> if p x then k x)
 
-let append s1 s2 k = s1 k; s2 k
+let[@inline] append s1 s2 k = s1 k; s2 k
 
-let append_l l k = List.iter (fun sub -> sub k) l
+let[@inline] append_l l k = List.iter (fun sub -> sub k) l
 
-let concat s k = s (fun s' -> s' k)
+let[@inline] concat s k = s (fun s' -> s' k)
 
 (*$R
   let s1 = (1 -- 5) in
@@ -172,7 +172,7 @@ let concat s k = s (fun s' -> s' k)
 
 let flatten = concat
 
-let flat_map f seq k = seq (fun x -> f x k)
+let[@inline] flat_map f seq k = seq (fun x -> f x k)
 
 (*$R
   (1 -- 1000)
@@ -181,15 +181,15 @@ let flat_map f seq k = seq (fun x -> f x k)
     |> OUnit.assert_equal 2000
 *)
 
-let flat_map_l f seq k =
+let[@inline] flat_map_l f seq k =
   seq (fun x -> List.iter k (f x))
 
-let rec seq_list_map f l k = match l with
+let[@unroll 2] rec seq_list_map f l k = match l with
  | [] -> k []
  | x :: tail ->
    f x (fun x' -> seq_list_map f tail (fun tail' -> k (x'::tail')))
 
-let seq_list l = seq_list_map (fun x->x) l
+let[@inline] seq_list l = seq_list_map (fun x->x) l
 
 (*$= & ~printer:Q.Print.(list @@ list int)
   [[1;2];[1;3]] (seq_list [singleton 1; doubleton 2 3] |> to_list)
@@ -197,7 +197,7 @@ let seq_list l = seq_list_map (fun x->x) l
   [[1;2;4];[1;3;4]] (seq_list [singleton 1; doubleton 2 3; singleton 4] |> to_list)
 *)
 
-let filter_map f seq k =
+let[@inline] filter_map f seq k =
   seq
     (fun x -> match f x with
       | None -> ()
@@ -534,7 +534,7 @@ let sort_uniq (type elt) ?(cmp=Stdlib.compare) seq =
     |> OUnit.assert_equal [1;2;3;4;5;42]
 *)
 
-let product outer inner k =
+let[@inline] product outer inner k =
   outer (fun x -> inner (fun y -> k (x,y)))
 
 (*$R
@@ -774,7 +774,7 @@ let min_exn ?lt seq = match min ?lt seq with
   0 (0 -- 100 |> min_exn ?lt:None)
 *)
 
-let sum seq =
+let[@inline] sum seq =
   let n = ref 0 in
   seq (fun x -> n := !n + x);
   !n
@@ -959,7 +959,7 @@ let find_pred_exn f seq = match find_pred f seq with
   | Some x -> x
   | None -> raise Not_found
 
-let length seq =
+let[@inline] length seq =
   let r = ref 0 in
   seq (fun _ -> incr r);
   !r
@@ -976,7 +976,7 @@ let is_empty seq =
 
 (** {2 Transform an iterator} *)
 
-let zip_i seq k =
+let[@inline] zip_i seq k =
   let r = ref 0 in
   seq (fun x -> let n = !r in incr r; k (n, x))
 
@@ -985,20 +985,20 @@ let fold2 f acc seq2 =
   seq2 (fun (x,y) -> acc := f !acc x y);
   !acc
 
-let iter2 f seq2 = seq2 (fun (x,y) -> f x y)
+let[@inline] iter2 f seq2 = seq2 (fun (x,y) -> f x y)
 
-let map2 f seq2 k = seq2 (fun (x,y) -> k (f x y))
+let[@inline] map2 f seq2 k = seq2 (fun (x,y) -> k (f x y))
 
-let map2_2 f g seq2 k =
+let[@inline] map2_2 f g seq2 k =
   seq2 (fun (x,y) -> k (f x y, g x y))
 
 (** {2 Basic data structures converters} *)
 
 let to_list seq = List.rev (fold (fun y x -> x::y) [] seq)
 
-let to_rev_list seq = fold (fun y x -> x :: y) [] seq
+let[@inline] to_rev_list seq = fold (fun y x -> x :: y) [] seq
 
-let of_list l k = List.iter k l
+let[@inline] of_list l k = List.iter k l
 
 let on_list f l =
   to_list (f (of_list l))
@@ -1009,7 +1009,7 @@ let pair_with_idx seq k =
 
 let to_opt = head
 
-let of_opt o k = match o with
+let[@inline] of_opt o k = match o with
   | None -> ()
   | Some x -> k x
 
@@ -1024,9 +1024,9 @@ let to_array seq =
     a
   )
 
-let of_array a k = Array.iter k a
+let[@inline] of_array a k = Array.iter k a
 
-let of_array_i a k =
+let[@inline] of_array_i a k =
   for i = 0 to Array.length a - 1 do
     k (i, Array.unsafe_get a i)
   done
@@ -1043,15 +1043,15 @@ let to_stream seq =
   let l = MList.of_iter seq in
   MList.to_stream l
 
-let to_stack s seq = iter (fun x -> Stack.push x s) seq
+let[@inline] to_stack s seq = iter (fun x -> Stack.push x s) seq
 
-let of_stack s k = Stack.iter k s
+let[@inline] of_stack s k = Stack.iter k s
 
-let to_queue q seq = seq (fun x -> Queue.push x q)
+let[@inline] to_queue q seq = seq (fun x -> Queue.push x q)
 
-let of_queue q k = Queue.iter k q
+let[@inline] of_queue q k = Queue.iter k q
 
-let hashtbl_add h seq =
+let[@inline] hashtbl_add h seq =
   seq (fun (k,v) -> Hashtbl.add h k v)
 
 (*$R
@@ -1071,13 +1071,13 @@ let to_hashtbl seq =
   hashtbl_replace h seq;
   h
 
-let of_hashtbl h k = Hashtbl.iter (fun a b -> k (a, b)) h
+let[@inline] of_hashtbl h k = Hashtbl.iter (fun a b -> k (a, b)) h
 
 let hashtbl_keys h k = Hashtbl.iter (fun a _ -> k a) h
 
 let hashtbl_values h k = Hashtbl.iter (fun _ b -> k b) h
 
-let of_str s k = String.iter k s
+let[@inline] of_str s k = String.iter k s
 
 let to_str seq =
   let b = Buffer.create 64 in
@@ -1366,15 +1366,15 @@ let sample k seq =
 (** {2 Infix functions} *)
 
 module Infix = struct
-  let (--) i j = int_range ~start:i ~stop:j
+  let[@inline] (--) i j = int_range ~start:i ~stop:j
 
-  let (--^) i j = int_range_dec ~start:i ~stop:j
+  let[@inline] (--^) i j = int_range_dec ~start:i ~stop:j
 
-  let (>>=) x f = flat_map f x
+  let[@inline] (>>=) x f = flat_map f x
 
-  let (>|=) x f = map f x
+  let[@inline] (>|=) x f = map f x
 
-  let (<*>) funs args k =
+  let[@inline] (<*>) funs args k =
     funs (fun f -> args (fun x -> k (f x)))
 
   let (<+>) = append
