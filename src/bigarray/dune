@@ -5,9 +5,7 @@
   (libraries iter bigarray unix)
   (modules IterBigarray IterBigarrayShims_)
   (wrapped false)
-  (optional)
-  (flags :standard -warn-error -a+8 -safe-string)
-  (ocamlopt_flags :standard (:include ../flambda.flags)))
+  (optional))
 
 (executable
   (name mkshims)

@@ -1,8 +1,3 @@
-(rule
-  (targets flambda.flags)
-  (deps mkflags.ml)
-  (mode fallback)
-  (action (run ocaml ./mkflags.ml)))
 
 (executable
   (name mkshims)
@@ -19,7 +14,11 @@
   (public_name iter)
   (wrapped false)
   (modules Iter IterLabels Iter_shims_)
-  (flags :standard -warn-error -a+8 -safe-string -nolabels)
-  (ocamlopt_flags :standard (:include flambda.flags))
+  (flags :standard -nolabels)
   (libraries bytes result))
 
+
+(env
+  (_
+    (flags :standard -warn-error -a+8 -safe-string -strict-sequence)
+    (ocamlopt_flags :standard -O3 -unbox-closures -unbox-closures-factor 20)))
