@@ -3,6 +3,6 @@
  (name runtest)
  (deps README.md)
  (action (progn
-          (run mdx test %{deps})
+          (run ocaml-mdx test %{deps})
           (diff? %{deps} %{deps}.corrected))))
 

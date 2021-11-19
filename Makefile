@@ -33,27 +33,8 @@ update_next_tag:
 	sed -i "s/NEXT_VERSION/$(VERSION)/g" src/*.ml src/*.mli
 	sed -i "s/NEXT_RELEASE/$(VERSION)/g" src/*.ml src/*.mli
 
+WATCH ?= @install
 watch:
-	while find src/ -print0 | xargs -0 inotifywait -e delete_self -e modify ; do \
-		echo "============ at `date` ==========" ; \
-		sleep 0.2; \
-		make all; \
-	done
+	dune build $(WATCH) -w
 
-REPO=git@github.com:c-cube/iter
-DOCDIR=.gh-pages
-
-$(DOCDIR)/.git:
-	mkdir -p $(DOCDIR)
-	cd $(DOCDIR) && (\
-		git clone -b gh-pages $(REPO).git . \
-	)
-
-gh-pages: $(DOCDIR)/.git doc
-	git -C $(DOCDIR) pull
-	cp -r _build/default/_doc/_html/* $(DOCDIR)/doc/dev/
-	git -C $(DOCDIR) add --all
-	git -C $(DOCDIR) commit -a -m "gh-page updates"
-	git -C $(DOCDIR) push origin gh-pages
-
-.PHONY: benchs tests examples update_next_tag push_doc push_stable watch gh-pages
+.PHONY: benchs tests examples update_next_tag
