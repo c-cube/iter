@@ -1,4 +1,9 @@
 
+# 1.3
+
+- use `inline` annotations
+- prepare for newer mdx (for tests)
+
 # 1.2.1
 
 - fix: use `Stdlib` instead of `Pervasives`
