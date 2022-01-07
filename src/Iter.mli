@@ -39,7 +39,7 @@ type +'a t = ('a -> unit) -> unit
 type +'a iter = 'a t
 
 (** {b NOTE} Type [('a, 'b) t2 = ('a -> 'b -> unit) -> unit]
-    has been removed and subsumed by [('a * 'b) t] 
+    has been removed and subsumed by [('a * 'b) t]
     @since 1.0
 *)
 
@@ -118,7 +118,17 @@ val iter : ('a -> unit) -> 'a t -> unit
     Basically [iter f seq] is just [seq f]. *)
 
 val iteri : (int -> 'a -> unit) -> 'a t -> unit
-(** Iterate on elements and their index in the iterator *)
+    (** Iterate on elements and their index in the iterator *)
+
+val for_each : 'a t -> ('a -> unit) -> unit
+(** Consume the iterator, passing all its arguments to the function.
+    [for_each seq f] is the same as [iter f seq], i.e., [iter] with
+    arguments reversed. *)
+
+val for_eachi : 'a t -> (int -> 'a -> unit) -> unit
+(** Iterate on elements and their index in the iterator.
+    [for_eachi seq f] is the same as [iteri f seq], i.e., [iteri] with
+    arguments reversed. *)
 
 val fold : ('a -> 'b -> 'a) -> 'a -> 'b t -> 'a
 (** Fold over elements of the iterator, consuming it *)
@@ -686,7 +696,7 @@ module Map : sig
     val to_list : 'a t -> (key * 'a) list
     val of_list : (key * 'a) list -> 'a t
 
-    val to_seq : 'a t -> (key * 'a) iter 
+    val to_seq : 'a t -> (key * 'a) iter
     (** @deprecated use {!to_iter} instead *)
 
     val of_seq : (key * 'a) iter -> 'a t
@@ -849,4 +859,3 @@ module IO : sig
     string -> Bytes.t t -> unit
   (** @since 0.5.4 *)
 end
-

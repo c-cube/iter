@@ -7,3 +7,4 @@ man/
 *.install
 .merlin
 .gh-pages
+_opam

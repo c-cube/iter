@@ -82,6 +82,10 @@ let iteri f seq =
        f !r x;
        incr r)
 
+let for_each seq f = iter f seq
+
+let for_eachi seq f = iteri f seq
+
 let fold f init seq =
   let r = ref init in
   seq (fun elt -> r := f !r elt);
@@ -1232,14 +1236,14 @@ end
 module Map = struct
   module type S = sig
     include Map.S
-    val to_iter : 'a t -> (key * 'a) iter 
+    val to_iter : 'a t -> (key * 'a) iter
     val of_iter : (key * 'a) iter -> 'a t
     val keys : 'a t -> key iter
     val values : 'a t -> 'a iter
     val to_list : 'a t -> (key * 'a) list
     val of_list : (key * 'a) list -> 'a t
 
-    val to_seq : 'a t -> (key * 'a) iter 
+    val to_seq : 'a t -> (key * 'a) iter
     (** @deprecated use {!to_iter} instead *)
 
     val of_seq : (key * 'a) iter -> 'a t
@@ -1338,7 +1342,7 @@ let sample k seq =
       if !i < k then
         a.(!i) <- x
       else
-        let j = Random.int (!i) in 
+        let j = Random.int (!i) in
         if j < k then a.(j) <- x
         else ()
     in
