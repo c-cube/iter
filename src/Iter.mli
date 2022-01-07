@@ -123,12 +123,14 @@ val iteri : (int -> 'a -> unit) -> 'a t -> unit
 val for_each : 'a t -> ('a -> unit) -> unit
 (** Consume the iterator, passing all its arguments to the function.
     [for_each seq f] is the same as [iter f seq], i.e., [iter] with
-    arguments reversed. *)
+    arguments reversed.
+    @since NEXT_RELEASE *)
 
 val for_eachi : 'a t -> (int -> 'a -> unit) -> unit
 (** Iterate on elements and their index in the iterator.
     [for_eachi seq f] is the same as [iteri f seq], i.e., [iteri] with
-    arguments reversed. *)
+    arguments reversed.
+    @since NEXT_RELEASE *)
 
 val fold : ('a -> 'b -> 'a) -> 'a -> 'b t -> 'a
 (** Fold over elements of the iterator, consuming it *)
