@@ -1007,6 +1007,67 @@ let[@inline] of_list l k = List.iter k l
 let on_list f l =
   to_list (f (of_list l))
 
+let of_seq seq k =
+  Seq.iter k seq
+
+let to_seq (type a) (self:a t) : a Seq.t =
+  let stop = ref false in
+  let cur = ref None in
+
+  let module M = struct
+    type _ EffectHandlers.eff +=
+      | Yield : a -> unit EffectHandlers.eff
+  end in
+
+  let iter () : unit =
+    self (fun x -> EffectHandlers.perform (M.Yield x));
+    stop := true;
+    cur := None;
+  in
+
+  let k: _ EffectHandlers.Shallow.continuation ref
+    = ref (EffectHandlers.Shallow.fiber iter) in
+
+  let effc
+    : type c. c EffectHandlers.eff -> ((c,_) EffectHandlers.Shallow.continuation -> _) option
+    = function
+      | M.Yield x ->
+        cur := Some x;
+        Some (fun k' -> k := k')
+      | _ -> None
+  in
+
+  let handler = {
+    EffectHandlers.Shallow.retc=ignore; exnc=ignore; effc;
+  } in
+
+  let rec next () =
+    if !stop then Seq.Nil
+    else (
+      EffectHandlers.Shallow.continue_with !k () handler;
+      match !cur with
+      | None -> Seq.Nil
+      | Some x -> Seq.Cons (x, next)
+    )
+  in
+  next
+
+(*$R
+  let seq = ref @@ to_seq (1 -- 5) in
+
+  let next () = match (!seq) () with
+    | Seq.Nil -> None
+    | Seq.Cons (x,tl) -> seq := tl; Some x
+  in
+
+  assert_equal ~printer:(Q.Print.(option int)) (Some 1) (next ());
+  assert_equal ~printer:(Q.Print.(option int)) (Some 2) (next ());
+  assert_equal ~printer:(Q.Print.(option int)) (Some 3) (next ());
+  assert_equal ~printer:(Q.Print.(option int)) (Some 4) (next ());
+  assert_equal ~printer:(Q.Print.(option int)) (Some 5) (next ());
+  assert_equal ~printer:(Q.Print.(option int)) None (next ());
+  *)
+
 let pair_with_idx seq k =
   let r = ref 0 in
   seq (fun x -> let n = !r in incr r; k (n,x))

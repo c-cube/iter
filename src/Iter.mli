@@ -542,6 +542,14 @@ val on_list : ('a t -> 'b t) -> 'a list -> 'b list
     @since 0.5.2
 *)
 
+val of_seq : 'a Seq.t -> 'a t
+(** Iterate on the sequence.
+    @since NEXT_RELEASE *)
+
+val to_seq : 'a t -> 'a Seq.t
+(** Sequence from the iterator (using effects).
+    @since NEXT_RELEASE *)
+
 val pair_with_idx : 'a t -> (int * 'a) t
 (** Similar to {!zip_i} but returns a normal iterator of tuples
     @since 0.11 *)
