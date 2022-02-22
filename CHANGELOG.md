@@ -1,4 +1,9 @@
 
+# 1.4
+
+- fix dune files for dune 3
+- add `for_each` and `for_eachi`
+
 # 1.3
 
 - use `inline` annotations
