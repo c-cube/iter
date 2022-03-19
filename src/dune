@@ -15,7 +15,7 @@
   (wrapped false)
   (modules Iter IterLabels Iter_shims_)
   (flags :standard -nolabels)
-  (libraries bytes result))
+  (libraries bytes result seq))
 
 
 (env

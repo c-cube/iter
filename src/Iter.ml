@@ -344,14 +344,11 @@ module MList = struct
 
   let to_gen l = _to_next () l
 
-  let to_stream l =
-    Stream.from (_to_next 42 l)  (* 42=magic cookiiiiiie *)
-
-  let to_klist l =
+  let to_seq l =
     let rec make (l,i) () = match l with
-      | Nil -> `Nil
+      | Nil -> Seq.Nil
       | Cons (_, n, tl) when i = !n -> make (!tl,0) ()
-      | Cons (a, _, _) -> `Cons (a.(i), make (l,i+1))
+      | Cons (a, _, _) -> Seq.Cons (a.(i), make (l,i+1))
     in make (l,0)
 end
 
@@ -361,31 +358,22 @@ let persistent seq =
 
 (*$R
   let printer = pp_ilist in
-  let stream = Stream.from (fun i -> if i < 5 then Some i else None) in
-  let seq = of_stream stream in
-  OUnit.assert_equal ~printer [0;1;2;3;4] (seq |> to_list);
-  OUnit.assert_equal ~printer [] (seq |> to_list);
+  let iter = of_gen_once (let i=ref (-1) in fun() -> incr i; if !i < 5 then Some !i else None) in
+  (* consume iter into a persistent version of itself *)
+  let iter' = persistent iter in
+  OUnit.assert_raises OneShotSequence (fun () -> iter |> to_list);
+  OUnit.assert_equal ~printer [0;1;2;3;4] (iter' |> to_list);
+  OUnit.assert_equal ~printer [0;1;2;3;4] (iter' |> to_list);
+  OUnit.assert_equal ~printer [0;1;2;3;4] (iter' |> to_seq_persistent |> of_seq |> to_list);
 *)
 
 (*$R
   let printer = pp_ilist in
-  let stream = Stream.from (fun i -> if i < 5 then Some i else None) in
-  let seq = of_stream stream in
-  (* consume seq into a persistent version of itself *)
-  let seq' = persistent seq in
-  OUnit.assert_equal ~printer [] (seq |> to_list);
-  OUnit.assert_equal ~printer [0;1;2;3;4] (seq' |> to_list);
-  OUnit.assert_equal ~printer [0;1;2;3;4] (seq' |> to_list);
-  OUnit.assert_equal ~printer [0;1;2;3;4] (seq' |> to_stream |> of_stream |> to_list);
-*)
-
-(*$R
-  let printer = pp_ilist in
-  let seq = (0 -- 10_000) in
-  let seq' = persistent seq in
-  OUnit.assert_equal 10_001 (length seq');
-  OUnit.assert_equal 10_001 (length seq');
-  OUnit.assert_equal ~printer [0;1;2;3] (seq' |> take 4 |> to_list);
+  let iter = (0 -- 10_000) in
+  let iter' = persistent iter in
+  OUnit.assert_equal 10_001 (length iter');
+  OUnit.assert_equal 10_001 (length iter');
+  OUnit.assert_equal ~printer [0;1;2;3] (iter' |> take 4 |> to_list);
 *)
 
 type 'a lazy_state =
@@ -542,8 +530,7 @@ let[@inline] product outer inner k =
   outer (fun x -> inner (fun y -> k (x,y)))
 
 (*$R
-  let stream = Stream.from (fun i -> if i < 3 then Some i else None) in
-  let a = of_stream stream in
+  let a = 0 -- 2 in
   let b = of_list ["a";"b";"c"] in
   let s = product a b |> map (fun (x,y) -> y,x)
     |> to_list |> List.sort compare in
@@ -1041,11 +1028,13 @@ let array_slice a i j k =
     k a.(idx);  (* iterate on sub-array *)
   done
 
-let of_stream s k = Stream.iter k s
+let rec of_seq l k = match l() with
+  | Seq.Nil -> ()
+  | Seq.Cons (x,tl) -> k x; of_seq tl k
 
-let to_stream seq =
+let to_seq_persistent seq =
   let l = MList.of_iter seq in
-  MList.to_stream l
+  MList.to_seq l
 
 let[@inline] to_stack s seq = iter (fun x -> Stack.push x s) seq
 
@@ -1169,28 +1158,25 @@ let to_set (type s) (type v) m seq =
     S.empty seq
 
 type 'a gen = unit -> 'a option
-type 'a klist = unit -> [`Nil | `Cons of 'a * 'a klist]
+
+(* consume the generator to build a MList *)
+let rec of_gen1_ g k = match g () with
+  | None -> ()
+  | Some x -> k x; of_gen1_ g k
+
+let of_gen_once g =
+  let first = ref true in
+  fun k ->
+    if !first then first := false else raise OneShotSequence;
+    of_gen1_ g k
 
 let of_gen g =
-  (* consume the generator to build a MList *)
-  let rec iter1 k = match g () with
-    | None -> ()
-    | Some x -> k x; iter1 k
-  in
-  let l = MList.of_iter iter1 in
+  let l = MList.of_iter (of_gen1_ g) in
   MList.to_iter l
 
 let to_gen seq =
   let l = MList.of_iter seq in
   MList.to_gen l
-
-let rec of_klist l k = match l() with
-  | `Nil -> ()
-  | `Cons (x,tl) -> k x; of_klist tl k
-
-let to_klist seq =
-  let l = MList.of_iter seq in
-  MList.to_klist l
 
 (** {2 Functorial conversions between sets and iterators} *)
 

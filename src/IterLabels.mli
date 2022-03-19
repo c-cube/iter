@@ -531,11 +531,14 @@ val of_opt : 'a option -> 'a t
 (** Iterate on 0 or 1 values.
     @since 0.5.1 *)
 
-val of_stream : 'a Stream.t -> 'a t
-(** Iterator of elements of a stream (usable only once) *)
+val of_seq : 'a Seq.t -> 'a t
+(** Iterator of elements of a {!Seq.t}.
+    @since NEXT_RELEASE *)
 
-val to_stream : 'a t -> 'a Stream.t
-(** Convert to a stream. linear in memory and time (a copy is made in memory) *)
+val to_seq_persistent : 'a t -> 'a Seq.t
+(** Convert to a {!Seq}. Linear in memory and time (a copy is made in memory).
+    This does not work on infinite iterators.
+    @since NEXT_RELEASE *)
 
 val to_stack : 'a Stack.t -> 'a t -> unit
 (** Push elements of the iterator on the stack *)
@@ -613,19 +616,12 @@ val to_set : (module Set.S with type elt = 'a and type t = 'b) -> 'a t -> 'b
 (** Convert the iterator to a set, given the proper set module *)
 
 type 'a gen = unit -> 'a option
-type 'a klist = unit -> [`Nil | `Cons of 'a * 'a klist]
 
 val of_gen : 'a gen -> 'a t
 (** Traverse eagerly the generator and build an iterator from it *)
 
 val to_gen : 'a t -> 'a gen
 (** Make the iterator persistent (O(n)) and then iterate on it. Eager. *)
-
-val of_klist : 'a klist -> 'a t
-(** Iterate on the lazy list *)
-
-val to_klist : 'a t -> 'a klist
-(** Make the iterator persistent and then iterate on it. Eager. *)
 
 (** {3 Sets} *)
 
