@@ -620,6 +620,11 @@ type 'a gen = unit -> 'a option
 val of_gen : 'a gen -> 'a t
 (** Traverse eagerly the generator and build an iterator from it *)
 
+val of_gen_once : 'a gen -> 'a t
+(** One shot iterator using this generator.
+    It must not be traversed twice.
+    @since NEXT_RELEASE *)
+
 val to_gen : 'a t -> 'a gen
 (** Make the iterator persistent (O(n)) and then iterate on it. Eager. *)
 
