@@ -569,12 +569,12 @@ val of_opt : 'a option -> 'a t
 
 val of_seq : 'a Seq.t -> 'a t
 (** Iterator of elements of a {!Seq.t}.
-    @since NEXT_RELEASE *)
+    @since 1.5 *)
 
 val to_seq_persistent : 'a t -> 'a Seq.t
 (** Convert to a {!Seq}. Linear in memory and time (a copy is made in memory).
     This does not work on infinite iterators.
-    @since NEXT_RELEASE *)
+    @since 1.5 *)
 
 val to_stack : 'a Stack.t -> 'a t -> unit
 (** Push elements of the iterator on the stack *)
@@ -658,7 +658,7 @@ val of_gen : 'a gen -> 'a t
 val of_gen_once : 'a gen -> 'a t
 (** One shot iterator using this generator.
     It must not be traversed twice.
-    @since NEXT_RELEASE *)
+    @since 1.5 *)
 
 val to_gen : 'a t -> 'a gen
 (** Make the iterator persistent (O(n)) and then iterate on it. Eager. *)

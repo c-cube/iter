@@ -1,4 +1,10 @@
 
+# 1.5
+
+- use Seq
+- remove Stream entirely to be ready for OCaml 5.0
+- add `of_gen_once`
+
 # 1.4
 
 - fix dune files for dune 3
