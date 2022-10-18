@@ -65,10 +65,14 @@ val init : (int -> 'a) -> 'a t
 
 val cons : 'a -> 'a t -> 'a t
 (** [cons x l] yields [x], then yields from [l].
-    Same as [append (singleton x) l] *)
+    Same as [append (singleton x) l].
+
+    Caution: it is advised not to build long iterators out of [cons],
+    because it's inefficient. Each additional [cons x i] adds one
+    layer of function call per item traversed in [i]. *)
 
 val snoc : 'a t -> 'a -> 'a t
-(** Same as {!cons} but yields the element after iterating on [l] *)
+(** Same as {!cons} but yields the element after iterating on [l]. *)
 
 val return : 'a -> 'a t
 (** Synonym to {!singleton} *)
