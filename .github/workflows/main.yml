@@ -29,6 +29,6 @@ jobs:
     - run: opam pin -n .
     - run: opam depext -yt iter
     - run: opam install -t . --deps-only
-    - run: opam exec -- dune build @install
-    - run: opam exec -- dune runtest
+    - run: opam exec -- dune build @src/install
+    - run: opam exec -- dune runtest tests/
       if: ${{ matrix.os == 'ubuntu-latest'}}
