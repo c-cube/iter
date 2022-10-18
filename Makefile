@@ -22,7 +22,7 @@ BENCH_TARGETS= benchs.exe bench_persistent_read.exe bench_persistent.exe
 benchs:
 	@for i in $(BENCH_TARGETS) ; do \
 	  echo "run benchmark $$i" ; \
-	  dune exec "src/bench/$$i" ; done
+	  dune exec $(DUNE_OPTS) "src/bench/$$i" ; done
 
 build-benchs:
 	@dune build $(DUNE_OPTS) $(addprefix src/bench/, $(BENCH_TARGETS))
@@ -31,7 +31,7 @@ bench-persistent:
 	@dune exec $(DUNE_OPTS) src/bench/bench_persistent.exe
 bench-persistent-read:
 	@dune exec $(DUNE_OPTS) src/bench/bench_persistent_read.exe
-benchs:
+benchs-iter:
 	@dune exec $(DUNE_OPTS) src/bench/benchs.exe
 
 examples:
