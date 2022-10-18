@@ -1,24 +1,25 @@
-
 (executable
-  (name mkshims)
-  (modules mkshims)
-  (libraries dune.configurator))
+ (name mkshims)
+ (modules mkshims)
+ (libraries dune.configurator))
 
 (rule
-  (targets Iter_shims_.ml)
-  (deps mkshims.exe)
-  (action (with-stdout-to %{targets} (run ./mkshims.exe))))
+ (targets Iter_shims_.ml)
+ (deps mkshims.exe)
+ (action
+  (with-stdout-to
+   %{targets}
+   (run ./mkshims.exe))))
 
 (library
-  (name iter)
-  (public_name iter)
-  (wrapped false)
-  (modules Iter IterLabels Iter_shims_)
-  (flags :standard -nolabels)
-  (libraries bytes result seq))
-
+ (name iter)
+ (public_name iter)
+ (wrapped false)
+ (modules Iter IterLabels Iter_shims_)
+ (flags :standard -w +a -warn-error -a+8 -nolabels)
+ (libraries bytes result seq))
 
 (env
-  (_
-    (flags :standard -warn-error -a+8 -safe-string -strict-sequence)
-    (ocamlopt_flags :standard -O3 -unbox-closures -unbox-closures-factor 20)))
+ (_
+  (flags :standard -w +a -warn-error -a+8 -strict-sequence)
+  (ocamlopt_flags :standard -O3 -unbox-closures -unbox-closures-factor 20)))

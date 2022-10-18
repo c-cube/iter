@@ -20,24 +20,24 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 
 (* {1 Basic S-expressions, with printing and parsing} *)
 
+(** S-expression *)
 type t =
   | Atom of string  (** An atom *)
   | List of t list  (** A list of S-expressions *)
-  (** S-expression *)
 
-type token = [`Open | `Close | `Atom of string]
-  (** Token that compose a Sexpr once serialized *)
+type token = [ `Open | `Close | `Atom of string ]
+(** Token that compose a Sexpr once serialized *)
 
 (** {2 Traverse an iterator of tokens} *)
 
 val iter : (token -> unit) -> t -> unit
-  (** Iterate on the S-expression, calling the callback with tokens *)
+(** Iterate on the S-expression, calling the callback with tokens *)
 
 val traverse : t -> token Iter.t
-  (** Traverse. This yields an iterator of tokens *)
+(** Traverse. This yields an iterator of tokens *)
 
 val validate : token Iter.t -> token Iter.t
-  (** Returns the same iterator of tokens, but during iteration, if
+(** Returns the same iterator of tokens, but during iteration, if
       the structure of the Sexpr corresponding to the iterator
       is wrong (bad parenthesing), Invalid_argument is raised
       and iteration is stoped *)
@@ -45,30 +45,30 @@ val validate : token Iter.t -> token Iter.t
 (** {2 Text <-> tokens} *)
 
 val lex : char Iter.t -> token Iter.t
-  (** Lex: create an iterator of tokens from the given iterator of chars. *)
+(** Lex: create an iterator of tokens from the given iterator of chars. *)
 
 val of_seq : token Iter.t -> t
-  (** Build a Sexpr from an iterator of tokens, or raise Failure *)
+(** Build a Sexpr from an iterator of tokens, or raise Failure *)
 
 (** {2 Printing} *)
 
 val pp_token : Format.formatter -> token -> unit
-  (** Print a token on the given formatter *)
+(** Print a token on the given formatter *)
 
 val pp_tokens : Format.formatter -> token Iter.t -> unit
-  (** Print an iterator of Sexpr tokens on the given formatter *)
+(** Print an iterator of Sexpr tokens on the given formatter *)
 
 val pp_sexpr : ?indent:bool -> Format.formatter -> t -> unit
-  (** Pretty-print the S-expr. If [indent] is true, the S-expression
+(** Pretty-print the S-expr. If [indent] is true, the S-expression
       is printed with indentation. *)
 
 (** {2 Serializing} *)
 
 val output_seq : string -> token Iter.t -> (token -> unit) -> unit
-  (** print a pair "(name @,iterator)" *)
+(** print a pair "(name @,iterator)" *)
 
 val output_str : string -> string -> (token -> unit) -> unit
-  (** print a pair "(name str)" *)
+(** print a pair "(name str)" *)
 
 (** {2 Parsing} *)
 
@@ -79,54 +79,53 @@ type 'a parser
 
 exception ParseFailure of string
 
-val (>>=) : 'a parser -> ('a -> 'b parser) -> 'b parser
-  (** Monadic bind: computes a parser from the result of
+val ( >>= ) : 'a parser -> ('a -> 'b parser) -> 'b parser
+(** Monadic bind: computes a parser from the result of
       the first parser *)
 
-val (>>) : 'a parser -> 'b parser -> 'b parser
-  (** Like (>>=), but ignores the result of the first parser *)
+val ( >> ) : 'a parser -> 'b parser -> 'b parser
+(** Like (>>=), but ignores the result of the first parser *)
 
 val return : 'a -> 'a parser
-  (** Parser that consumes no input and return the given value *)
+(** Parser that consumes no input and return the given value *)
 
 val fail : string -> 'a parser
-  (** Fails parsing with the given message *)
+(** Fails parsing with the given message *)
 
 val one : (token -> 'a) -> 'a parser
-  (** consumes one token with the function *)
+(** consumes one token with the function *)
 
 val skip : unit parser
-  (** Skip the token *)
+(** Skip the token *)
 
 val lookahead : (token -> 'a parser) -> 'a parser
-  (** choose parser given current token *)
+(** choose parser given current token *)
 
 val left : unit parser
-  (** Parses a `Open *)
+(** Parses a `Open *)
 
 val right : unit parser
-  (** Parses a `Close *)
+(** Parses a `Close *)
 
 val pair : 'a parser -> 'b parser -> ('a * 'b) parser
 val triple : 'a parser -> 'b parser -> 'c parser -> ('a * 'b * 'c) parser
 
-val (^||) : (string * (unit -> 'a parser)) -> 'a parser -> 'a parser
-  (** [(name,p) ^|| p'] behaves as [p ()] if the next token is [`Atom name], and
+val ( ^|| ) : string * (unit -> 'a parser) -> 'a parser -> 'a parser
+(** [(name,p) ^|| p'] behaves as [p ()] if the next token is [`Atom name], and
       like [p'] otherwise *)
 
 val map : 'a parser -> ('a -> 'b) -> 'b parser
-  (** Maps the value returned by the parser *)
+(** Maps the value returned by the parser *)
 
 val p_str : string parser
 val p_int : int parser
 val p_bool : bool parser
-
 val many : 'a parser -> 'a list parser
 val many1 : 'a parser -> 'a list parser
 
 val parse : 'a parser -> token Iter.t -> 'a
-  (** Parses exactly one value from the iterator of tokens. Raises
+(** Parses exactly one value from the iterator of tokens. Raises
       ParseFailure if anything goes wrong. *)
 
 val parse_seq : 'a parser -> token Iter.t -> 'a Iter.t
-  (** Parses an iterator of values *)
+(** Parses an iterator of values *)

@@ -13,6 +13,10 @@ clean:
 doc:
 	@dune build @doc
 
+format:
+	@dune build @fmt --auto-promote
+
+DUNE_OPTS ?= --profile=release
 BENCH_TARGETS= benchs.exe bench_persistent_read.exe bench_persistent.exe
 
 benchs:
@@ -21,10 +25,17 @@ benchs:
 	  dune exec "src/bench/$$i" ; done
 
 build-benchs:
-	@dune build $(addprefix src/bench/, $(BENCH_TARGETS))
+	@dune build $(DUNE_OPTS) $(addprefix src/bench/, $(BENCH_TARGETS))
+
+bench-persistent:
+	@dune exec $(DUNE_OPTS) src/bench/bench_persistent.exe
+bench-persistent-read:
+	@dune exec $(DUNE_OPTS) src/bench/bench_persistent_read.exe
+benchs:
+	@dune exec $(DUNE_OPTS) src/bench/benchs.exe
 
 examples:
-	dune build examples/test_sexpr.exe
+	dune exec examples/test_sexpr.exe
 
 VERSION=$(shell awk '/^version:/ {print $$2}' iter.opam)
 

@@ -1,6 +1,4 @@
-
 (* This file is free software, part of iterator. See file "license" for more details. *)
-
 
 (** {1 Simple and Efficient Iterators}
 
@@ -112,7 +110,8 @@ val fold_map : f:('acc -> 'a -> 'acc * 'b) -> init:'acc -> 'a t -> 'b t
     information to the map function.
     @since 0.9 *)
 
-val fold_filter_map : f:('acc -> 'a -> 'acc * 'b option) -> init:'acc -> 'a t -> 'b t
+val fold_filter_map :
+  f:('acc -> 'a -> 'acc * 'b option) -> init:'acc -> 'a t -> 'b t
 (** [fold_filter_map f acc l] is a {!fold_map}-like function, but the
     function can choose to skip an element by retuning [None].
     @since 0.9 *)
@@ -124,7 +123,7 @@ val mapi : f:(int -> 'a -> 'b) -> 'a t -> 'b t
 (** Map objects, along with their index in the iterator *)
 
 val map_by_2 : f:('a -> 'a -> 'a) -> 'a t -> 'a t
-  (** Map objects two by two. lazily.
+(** Map objects two by two. lazily.
       The last element is kept in the iterator if the count is odd.
       @since 0.7 *)
 
@@ -170,7 +169,6 @@ val length : 'a t -> int
 
 val is_empty : 'a t -> bool
 (** Is the iterator empty? Forces the iterator. *)
-
 
 (** {2 Transformation} *)
 
@@ -275,15 +273,13 @@ val group_succ_by : ?eq:('a -> 'a -> bool) -> 'a t -> 'a list t
     Formerly synonym to [group].
     @since 0.6 *)
 
-val group_by : ?hash:('a -> int) -> ?eq:('a -> 'a -> bool) ->
-  'a t -> 'a list t
+val group_by : ?hash:('a -> int) -> ?eq:('a -> 'a -> bool) -> 'a t -> 'a list t
 (** Group equal elements, disregarding their order of appearance.
     The result iterator is traversable as many times as required.
     precondition: for any [x] and [y], if [eq x y] then [hash x=hash y] must hold.
     @since 0.6 *)
 
-val count : ?hash:('a -> int) -> ?eq:('a -> 'a -> bool) ->
-  'a t -> ('a * int) t
+val count : ?hash:('a -> int) -> ?eq:('a -> 'a -> bool) -> 'a t -> ('a * int) t
 (** Map each distinct element to its number of occurrences in the whole seq.
     Similar to [group_by seq |> map (fun l->List.hd l, List.length l)]
     @since 0.10 *)
@@ -314,8 +310,11 @@ val join : join_row:('a -> 'b -> 'c option) -> 'a t -> 'b t -> 'c t
     the two elements do not combine. Assume that [b] allows for multiple
     iterations. *)
 
-val join_by : ?eq:'key equal -> ?hash:'key hash ->
-  ('a -> 'key) -> ('b -> 'key) ->
+val join_by :
+  ?eq:'key equal ->
+  ?hash:'key hash ->
+  ('a -> 'key) ->
+  ('b -> 'key) ->
   merge:('key -> 'a -> 'b -> 'c option) ->
   'a t ->
   'b t ->
@@ -329,8 +328,11 @@ val join_by : ?eq:'key equal -> ?hash:'key hash ->
     precondition: for any [x] and [y], if [eq x y] then [hash x=hash y] must hold.
     @since 0.10 *)
 
-val join_all_by : ?eq:'key equal -> ?hash:'key hash ->
-  ('a -> 'key) -> ('b -> 'key) ->
+val join_all_by :
+  ?eq:'key equal ->
+  ?hash:'key hash ->
+  ('a -> 'key) ->
+  ('b -> 'key) ->
   merge:('key -> 'a list -> 'b list -> 'c option) ->
   'a t ->
   'b t ->
@@ -346,7 +348,9 @@ val join_all_by : ?eq:'key equal -> ?hash:'key hash ->
       and [c] is inserted in the result.
     @since 0.10 *)
 
-val group_join_by : ?eq:'a equal -> ?hash:'a hash ->
+val group_join_by :
+  ?eq:'a equal ->
+  ?hash:'a hash ->
   ('b -> 'a) ->
   'a t ->
   'b t ->
@@ -359,9 +363,7 @@ val group_join_by : ?eq:'a equal -> ?hash:'a hash ->
     precondition: for any [x] and [y], if [eq x y] then [hash x=hash y] must hold.
     @since 0.10 *)
 
-val inter :
-  ?eq:'a equal -> ?hash:'a hash ->
-  'a t -> 'a t -> 'a t
+val inter : ?eq:'a equal -> ?hash:'a hash -> 'a t -> 'a t -> 'a t
 (** Intersection of two collections. Each element will occur at most once
     in the result. Eager.
     precondition: for any [x] and [y], if [eq x y] then [hash x=hash y] must hold.
@@ -372,9 +374,7 @@ val inter :
   [] (inter (0--5) (6--10) |> to_list)
 *)
 
-val union :
-  ?eq:'a equal -> ?hash:'a hash ->
-  'a t -> 'a t -> 'a t
+val union : ?eq:'a equal -> ?hash:'a hash -> 'a t -> 'a t -> 'a t
 (** Union of two collections. Each element will occur at most once
     in the result. Eager.
     precondition: for any [x] and [y], if [eq x y] then [hash x=hash y] must hold.
@@ -384,9 +384,7 @@ val union :
   [2;4;5;6] (union (4--6) (cons 2 (4--5)) |> sort |> to_list)
 *)
 
-val diff :
-  ?eq:'a equal -> ?hash:'a hash ->
-  'a t -> 'a t -> 'a t
+val diff : ?eq:'a equal -> ?hash:'a hash -> 'a t -> 'a t -> 'a t
 (** Set difference. Eager.
     @since 0.10 *)
 
@@ -394,9 +392,7 @@ val diff :
   [1;2;8;9;10] (diff (1--10) (3--7) |> to_list)
 *)
 
-val subset :
-  ?eq:'a equal -> ?hash:'a hash ->
-  'a t -> 'a t -> bool
+val subset : ?eq:'a equal -> ?hash:'a hash -> 'a t -> 'a t -> bool
 (** [subset a b] returns [true] if all elements of [a] belong to [b]. Eager.
     precondition: for any [x] and [y], if [eq x y] then [hash x=hash y] must hold.
     @since 0.10 *)
@@ -459,7 +455,8 @@ val take_while : f:('a -> bool) -> 'a t -> 'a t
     Will work on an infinite iterator [s] if the predicate is false for at
     least one element of [s]. *)
 
-val fold_while : f:('a -> 'b -> 'a * [`Stop | `Continue]) -> init:'a -> 'b t -> 'a
+val fold_while :
+  f:('a -> 'b -> 'a * [ `Stop | `Continue ]) -> init:'a -> 'b t -> 'a
 (** Folds over elements of the iterator, stopping early if the accumulator
     returns [('a, `Stop)]
     @since 0.5.5 *)
@@ -480,14 +477,12 @@ val zip_i : 'a t -> (int * 'a) t
     @since 1.0 Changed type to just give an iterator of pairs *)
 
 val fold2 : f:('c -> 'a -> 'b -> 'c) -> init:'c -> ('a * 'b) t -> 'c
-
 val iter2 : f:('a -> 'b -> unit) -> ('a * 'b) t -> unit
-
 val map2 : f:('a -> 'b -> 'c) -> ('a * 'b) t -> 'c t
 
-val map2_2 : f:('a -> 'b -> 'c) -> ('a -> 'b -> 'd) -> ('a * 'b) t -> ('c * 'd) t
+val map2_2 :
+  f:('a -> 'b -> 'c) -> ('a -> 'b -> 'd) -> ('a * 'b) t -> ('c * 'd) t
 (** [map2_2 f g seq2] maps each [x, y] of seq2 into [f x y, g x y] *)
-
 
 (** {2 Data structures converters} *)
 
@@ -568,9 +563,8 @@ val of_hashtbl : ('a, 'b) Hashtbl.t -> ('a * 'b) t
 
 val hashtbl_keys : ('a, 'b) Hashtbl.t -> 'a t
 val hashtbl_values : ('a, 'b) Hashtbl.t -> 'b t
-
 val of_str : string -> char t
-val to_str :  char t -> string
+val to_str : char t -> string
 
 val concat_str : string t -> string
 (** Concatenate strings together, eagerly.
@@ -633,6 +627,7 @@ val to_gen : 'a t -> 'a gen
 module Set : sig
   module type S = sig
     include Set.S
+
     val of_iter : elt iter -> t
     val to_iter : t -> elt iter
     val to_list : t -> elt list
@@ -646,10 +641,10 @@ module Set : sig
   end
 
   (** Create an enriched Set module from the given one *)
-  module Adapt(X : Set.S) : S with type elt = X.elt and type t = X.t
+  module Adapt (X : Set.S) : S with type elt = X.elt and type t = X.t
 
   (** Functor to build an extended Set module from an ordered type *)
-  module Make(X : Set.OrderedType) : S with type elt = X.t
+  module Make (X : Set.OrderedType) : S with type elt = X.t
 end
 
 (** {3 Maps} *)
@@ -657,6 +652,7 @@ end
 module Map : sig
   module type S = sig
     include Map.S
+
     val to_iter : 'a t -> (key * 'a) iter
     val of_iter : (key * 'a) iter -> 'a t
     val keys : 'a t -> key iter
@@ -672,10 +668,10 @@ module Map : sig
   end
 
   (** Adapt a pre-existing Map module to make it iterator-aware *)
-  module Adapt(M : Map.S) : S with type key = M.key and type 'a t = 'a M.t
+  module Adapt (M : Map.S) : S with type key = M.key and type 'a t = 'a M.t
 
   (** Create an enriched Map module, with iterator-aware functions *)
-  module Make(V : Map.OrderedType) : S with type key = V.t
+  module Make (V : Map.OrderedType) : S with type key = V.t
 end
 
 (** {2 Random iterators} *)
@@ -712,7 +708,7 @@ val shuffle_buffer : n:int -> 'a t -> 'a t
 (** {3 Sampling} *)
 
 val sample : n:int -> 'a t -> 'a array
-  (** [sample n seq] returns k samples of [seq], with uniform probability.
+(** [sample n seq] returns k samples of [seq], with uniform probability.
       It will consume the iterator and use O(n) memory.
 
       It returns an array of size [min (length seq) n].
@@ -721,28 +717,28 @@ val sample : n:int -> 'a t -> 'a array
 (** {2 Infix functions} *)
 
 module Infix : sig
-  val (--) : int -> int -> int t
+  val ( -- ) : int -> int -> int t
   (** [a -- b] is the range of integers from [a] to [b], both included,
       in increasing order. It will therefore be empty if [a > b]. *)
 
-  val (--^) : int -> int -> int t
+  val ( --^ ) : int -> int -> int t
   (** [a --^ b] is the range of integers from [b] to [a], both included,
       in decreasing order (starts from [a]).
       It will therefore be empty if [a < b]. *)
 
-  val (>>=) : 'a t -> ('a -> 'b t) -> 'b t
+  val ( >>= ) : 'a t -> ('a -> 'b t) -> 'b t
   (** Monadic bind (infix version of {!flat_map}
       @since 0.5 *)
 
-  val (>|=) : 'a t -> ('a -> 'b) -> 'b t
+  val ( >|= ) : 'a t -> ('a -> 'b) -> 'b t
   (** Infix version of {!map}
       @since 0.5 *)
 
-  val (<*>) : ('a -> 'b) t -> 'a t -> 'b t
+  val ( <*> ) : ('a -> 'b) t -> 'a t -> 'b t
   (** Applicative operator (product+application)
       @since 0.5 *)
 
-  val (<+>) : 'a t -> 'a t -> 'a t
+  val ( <+> ) : 'a t -> 'a t -> 'a t
   (** Concatenation of iterators
       @since 0.5 *)
 end
@@ -751,13 +747,16 @@ include module type of Infix
 
 (** {2 Pretty printing} *)
 
-val pp_seq : ?sep:string -> (Format.formatter -> 'a -> unit) ->
-  Format.formatter -> 'a t -> unit
+val pp_seq :
+  ?sep:string ->
+  (Format.formatter -> 'a -> unit) ->
+  Format.formatter ->
+  'a t ->
+  unit
 (** Pretty print an iterator of ['a], using the given pretty printer
     to print each elements. An optional separator string can be provided. *)
 
-val pp_buf : ?sep:string -> (Buffer.t -> 'a -> unit) ->
-  Buffer.t -> 'a t -> unit
+val pp_buf : ?sep:string -> (Buffer.t -> 'a -> unit) -> Buffer.t -> 'a t -> unit
 (** Print into a buffer *)
 
 val to_string : ?sep:string -> ('a -> string) -> 'a t -> string
@@ -790,8 +789,7 @@ val to_string : ?sep:string -> ('a -> string) -> 'a t -> string
     @since 0.5.1 *)
 
 module IO : sig
-  val lines_of : ?mode:int -> ?flags:open_flag list ->
-    string -> string t
+  val lines_of : ?mode:int -> ?flags:open_flag list -> string -> string t
   (** [lines_of filename] reads all lines of the given file. It raises the
       same exception as would opening the file and read from it, except
       from [End_of_file] (which is caught). The file is {b always} properly
@@ -801,29 +799,29 @@ module IO : sig
       @param mode default [0o644]
       @param flags default: [[Open_rdonly]] *)
 
-  val chunks_of : ?mode:int -> ?flags:open_flag list -> ?size:int ->
-    string -> string t
+  val chunks_of :
+    ?mode:int -> ?flags:open_flag list -> ?size:int -> string -> string t
   (** Read chunks of the given [size] from the file. The last chunk might be
       smaller. Behaves like {!lines_of} regarding errors and options.
       Every time the iterator is iterated on, the file is opened again, so
       different iterations might return different results *)
 
-  val write_to : ?mode:int -> ?flags:open_flag list ->
-    string -> string t -> unit
+  val write_to :
+    ?mode:int -> ?flags:open_flag list -> string -> string t -> unit
   (** [write_to filename seq] writes all strings from [seq] into the given
       file. It takes care of opening and closing the file.
       @param mode default [0o644]
       @param flags used by [open_out_gen]. Default: [[Open_creat;Open_wronly]]. *)
 
-  val write_bytes_to : ?mode:int -> ?flags:open_flag list ->
-    string -> Bytes.t t -> unit
+  val write_bytes_to :
+    ?mode:int -> ?flags:open_flag list -> string -> Bytes.t t -> unit
   (** @since 0.5.4 *)
 
-  val write_lines : ?mode:int -> ?flags:open_flag list ->
-    string -> string t -> unit
+  val write_lines :
+    ?mode:int -> ?flags:open_flag list -> string -> string t -> unit
   (** Same as {!write_to}, but intercales ['\n'] between each string *)
 
-  val write_bytes_lines : ?mode:int -> ?flags:open_flag list ->
-    string -> Bytes.t t -> unit
+  val write_bytes_lines :
+    ?mode:int -> ?flags:open_flag list -> string -> Bytes.t t -> unit
   (** @since 0.5.4 *)
 end
