@@ -304,15 +304,13 @@ let () =
       let i = Stdlib.min i j and j = Stdlib.max i j in
       i -- j |> to_rev_list = (int_range_by ~step:~-1 j i |> to_list))
 
-open struct
-  let array_for_all f a =
-    try
-      for i = 0 to Array.length a - 1 do
-        if not (f a.(i)) then raise Exit
-      done;
-      true
-    with Exit -> false
-end
+let array_for_all f a =
+  try
+    for i = 0 to Array.length a - 1 do
+      if not (f a.(i)) then raise Exit
+    done;
+    true
+  with Exit -> false
 
 let () =
   add_qcheck __LINE__
