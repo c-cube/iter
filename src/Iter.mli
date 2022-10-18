@@ -1,4 +1,4 @@
-(** Simple and Efficient Iterators
+(** Simple and Efficient Iterators.
 
     The iterators are designed to allow easy transfer (mappings) between data
     structures, without defining [n^2] conversions between the [n] types. The
