@@ -1,4 +1,9 @@
 
+# 1.6
+
+- use dune 2.0
+- remove qtest, format all code using ocamlformat
+
 # 1.5
 
 - use Seq
