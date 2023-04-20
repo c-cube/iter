@@ -328,6 +328,22 @@ let () =
   OUnit.assert_bool "not empty" (not (is_empty s));
   ()
 
+let with_tmp_file f =
+  let path = Filename.temp_file "test_iter" "data" in
+  try
+    let x = f path in
+    (try Sys.remove path with _ -> ());
+    x
+  with e ->
+    (try Sys.remove path with _ -> ());
+    raise e
+
+let () =
+  with_tmp_file @@ fun path ->
+  Iter.IO.write_lines path Iter.empty;
+  let l = Iter.IO.lines_of path |> Iter.to_list in
+  OUnit.assert_equal ~printer:Q.Print.(list @@ Printf.sprintf "%S") [] l
+
 let () =
   let errcode = QCheck_base_runner.run_tests ~colors:false !qchecks in
   if errcode <> 0 then exit errcode
