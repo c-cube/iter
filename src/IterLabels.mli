@@ -674,11 +674,9 @@ module Map : sig
   module Make (V : Map.OrderedType) : S with type key = V.t
 end
 
-(** {2 Random iterators}
+(** {2 Random iterators} *)
 
-    Random iterators use [Random.int], [Random.float], [Random.bool],
-    etc., under the hood, so they will respect seeding of the random
-    generator in the usual way. *)
+(** {3 Generating} *)
 
 val random_int : int -> int t
 (** Infinite iterator of random integers between 0 and
@@ -717,6 +715,26 @@ val sample : n:int -> 'a t -> 'a array
 
       It returns an array of size [min (length seq) n].
       @since 0.7 *)
+
+(** {3 Seeding}
+
+    Random iterators use [Random.int], [Random.float], [Random.bool],
+    etc., under the hood, so they will respect seeding of the random
+    generator in the usual way.  I.e., if you do not initialize the
+    random generator with one of [Random.init], [Random.full_init], or
+    [Random.self_init] before calling these functions, they will yield
+    the same values across seperate invocations of your program.
+
+    Example:
+
+    {[
+      (* Ensure a fresh random seed each time the program is executed. *)
+      let () = Random.self_init ()
+
+      (* Generate random values. *)
+      let l = Iter.random_int 1000 |> Iter.take 3 |> Iter.to_list
+    ]}
+    *)
 
 (** {2 Infix functions} *)
 
