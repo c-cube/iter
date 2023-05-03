@@ -705,7 +705,11 @@ module Map : sig
   module Make (V : Map.OrderedType) : S with type key = V.t
 end
 
-(** {1 Random iterators} *)
+(** {1 Random iterators}
+
+    Random iterators use [Random.int], [Random.float], [Random.bool],
+    etc., under the hood, so they will respect seeding of the random
+    generator in the usual way. *)
 
 val random_int : int -> int t
 (** Infinite iterator of random integers between 0 and
