@@ -794,6 +794,22 @@ module Infix : sig
   val ( <+> ) : 'a t -> 'a t -> 'a t
   (** Concatenation of iterators
       @since 0.5 *)
+
+  val ( let+ ) : 'a t -> ('a -> 'b) -> 'b t
+  (** Alias for {!map}
+      @since NEXT_RELEASE *)
+
+  val ( and+ ) : 'a t -> 'b t -> ('a * 'b) t
+  (** Alias for {!product}
+      @since NEXT_RELEASE *)
+
+  val ( let* ) : 'a t -> ('a -> 'b t) -> 'b t
+  (** Alias for {!flat_map}
+      @since NEXT_RELEASE *)
+
+  val ( and* ) : 'a t -> 'b t -> ('a * 'b) t
+  (** Alias for {!product}
+      @since NEXT_RELEASE *)
 end
 
 include module type of Infix

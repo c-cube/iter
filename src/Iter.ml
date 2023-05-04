@@ -1115,6 +1115,10 @@ module Infix = struct
   let[@inline] ( >|= ) x f = map f x
   let[@inline] ( <*> ) funs args k = funs (fun f -> args (fun x -> k (f x)))
   let ( <+> ) = append
+  let[@inline] ( let+ ) x f = map f x
+  let[@inline] ( let* ) x f = flat_map f x
+  let ( and+ ) = product
+  let ( and* ) = product
 end
 
 include Infix
