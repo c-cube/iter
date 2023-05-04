@@ -1,21 +1,9 @@
-(executable
- (name mkshims)
- (modules mkshims)
- (libraries dune.configurator))
-
-(rule
- (targets Iter_shims_.ml)
- (deps mkshims.exe)
- (action
-  (with-stdout-to
-   %{targets}
-   (run ./mkshims.exe))))
 
 (library
  (name iter)
  (public_name iter)
  (wrapped false)
- (modules Iter IterLabels Iter_shims_)
+ (modules Iter IterLabels)
  (flags :standard -w +a -warn-error -a+8 -nolabels)
  (libraries bytes result seq))
 

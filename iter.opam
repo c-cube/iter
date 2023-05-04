@@ -11,12 +11,8 @@ build: [
   ["dune" "runtest" "-p" name "-j" jobs] {with-test & arch != "arm32" & arch != "x86_32"}
 ]
 depends: [
-  "base-bytes"
-  "result"
-  "seq"
-  "ocaml" { >= "4.03.0" }
+  "ocaml" { >= "4.08.0" }
   "dune" { >= "2.0" }
-  "dune-configurator"
   "qcheck-core" {with-test}
   "ounit2" {with-test}
   "mdx" {with-test & >= "1.3" }

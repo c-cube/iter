@@ -1,9 +1,5 @@
 (* This file is free software, part of iter. See file "license" for more details. *)
 
-(** {1 Simple and Efficient Iterators} *)
-
-open Iter_shims_
-
 type 'a t = ('a -> unit) -> unit
 (** Iter abstract iterator type *)
 

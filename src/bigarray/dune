@@ -2,19 +2,6 @@
  (name iter_bigarray)
  (public_name iter.bigarray)
  (libraries iter bigarray unix)
- (modules IterBigarray IterBigarrayShims_)
+ (modules IterBigarray)
  (wrapped false)
  (optional))
-
-(executable
- (name mkshims)
- (modules mkshims)
- (libraries dune.configurator))
-
-(rule
- (targets IterBigarrayShims_.ml)
- (deps mkshims.exe)
- (action
-  (with-stdout-to
-   %{targets}
-   (run ./mkshims.exe))))

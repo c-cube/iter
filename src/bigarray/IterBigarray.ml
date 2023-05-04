@@ -2,7 +2,8 @@
 
 (** {1 Interface and Helpers for bigarrays} *)
 
-open! IterBigarrayShims_
+let bigarray_map_file fd ty lay b len =
+  Unix.map_file fd ty lay b [| len |] |> Bigarray.array1_of_genarray
 
 let of_bigarray b yield =
   let len = Bigarray.Array1.dim b in
