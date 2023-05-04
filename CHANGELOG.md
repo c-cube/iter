@@ -1,4 +1,11 @@
 
+# 1.7
+
+- add let operators in Infix
+- require OCaml >= 4.08
+- improve docs about random iterators
+- fix: `IO.write_lines` should produce an empty file for an empty iter
+
 # 1.6
 
 - use dune 2.0
