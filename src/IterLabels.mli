@@ -227,11 +227,11 @@ val keep_some : 'a option t -> 'a t
     Same as [filter_map (fun x->x)]
     @since 1.0 *)
 
-val keep_ok : ('a, _) Result.result t -> 'a t
+val keep_ok : ('a, _) result t -> 'a t
 (** [keep_ok l] retains only elements of the form [Ok x].
     @since 1.0 *)
 
-val keep_error : (_, 'e) Result.result t -> 'e t
+val keep_error : (_, 'e) result t -> 'e t
 (** [keep_error l] retains only elements of the form [Error x].
     @since 1.0 *)
 
