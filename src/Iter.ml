@@ -114,7 +114,7 @@ let map_by_2 f seq k =
   let f y =
     match !r with
     | None -> r := Some y
-    | Some x -> k (f x y)
+    | Some x -> r := None; k (f x y)
   in
   seq f;
   match !r with
