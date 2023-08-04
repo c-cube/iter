@@ -351,17 +351,20 @@ let () =
 (* map_by_2 tests *)
 let test = OUnit.assert_equal ~printer:Q.Print.(list int)
 let () = test [] (map_by_2 (fun a _ -> a) (of_list []) |> to_list)
+
 (* Test empty iterator *)
-let () = test [1] (map_by_2 (fun _ b -> b) (of_list [1]) |> to_list)
-let () = test [3] (map_by_2 (fun _ b -> b) (1--3) |> drop 1 |> to_list)
-let () = test [9] (map_by_2 (fun _ b -> b) (1--9) |> drop 4 |> to_list)
+let () = test [ 1 ] (map_by_2 (fun _ b -> b) (of_list [ 1 ]) |> to_list)
+let () = test [ 3 ] (map_by_2 (fun _ b -> b) (1 -- 3) |> drop 1 |> to_list)
+let () = test [ 9 ] (map_by_2 (fun _ b -> b) (1 -- 9) |> drop 4 |> to_list)
+
 (* Odd number of elements should leave the last element in the iterator.
    For an increasing integer range [1,2k] (fun _ b -> b) returns only
    even numbers so this is sufficient to test that this element is left
    in the iterator. *)
-let () = test [1] (map_by_2 (fun a _ -> a) (1--2) |> to_list)
-let () = test [2] (map_by_2 (fun _ b -> b) (1--2) |> to_list)
+let () = test [ 1 ] (map_by_2 (fun a _ -> a) (1 -- 2) |> to_list)
+let () = test [ 2 ] (map_by_2 (fun _ b -> b) (1 -- 2) |> to_list)
+
 (* Test two elements *)
-let () = test [1;3;5;7;9] (map_by_2 (fun a _ -> a) (1--10) |> to_list)
-let () = test [2;4;6;8;10] (map_by_2 (fun _ b -> b) (1--10) |> to_list)
+let () = test [ 1; 3; 5; 7; 9 ] (map_by_2 (fun a _ -> a) (1 -- 10) |> to_list)
+let () = test [ 2; 4; 6; 8; 10 ] (map_by_2 (fun _ b -> b) (1 -- 10) |> to_list)
 (* Test more than two elements *)
