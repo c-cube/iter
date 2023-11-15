@@ -237,6 +237,22 @@ let () =
   OUnit.assert_equal 2 n;
   ()
 
+let () =
+  OUnit.assert_equal
+    ~cmp:(CCList.equal Int.equal)
+    (1 -- 10
+     |> map_while (fun x -> if x = 7 then `Return (x + 1) else `Yield (x - 1))
+     |> to_list)
+    [0; 1; 2; 3; 4; 5; 8]
+
+let () =
+  OUnit.assert_equal
+    ~cmp:(List.equal Int.equal)
+    (1 -- 10
+     |> map_while (fun x -> if x = 7 then `Stop else `Yield (x - 1))
+     |> to_list)
+    [0; 1; 2; 3; 4; 5]
+
 let () = 1 -- 5 |> drop 2 |> to_list |> OUnit.assert_equal [ 3; 4; 5 ]
 let () = 1 -- 5 |> rev |> to_list |> OUnit.assert_equal [ 5; 4; 3; 2; 1 ]
 

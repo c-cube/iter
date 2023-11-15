@@ -658,6 +658,16 @@ let take_while p seq k =
 
 exception ExitFoldWhile
 
+let map_while f seq k =
+  let exception ExitMapWhile in
+  let consume x =
+    match f x with
+    | `Yield y -> k y
+    | `Return y -> k y; raise_notrace ExitMapWhile
+    | `Stop -> raise_notrace ExitMapWhile
+  in
+  try seq consume with ExitMapWhile -> ()
+
 let fold_while f s seq =
   let state = ref s in
   let consume x =
