@@ -487,6 +487,17 @@ val take_while : ('a -> bool) -> 'a t -> 'a t
     Will work on an infinite iterator [s] if the predicate is false for at
     least one element of [s]. *)
 
+val map_while : ('a -> [ `Yield of 'b | `Return of 'b | `Stop ]) -> 'a t -> 'b t
+(** Maps over elements of the iterator, stopping early if the mapped function
+    returns [`Stop] or [`Return x]. At each iteration:
+    {ul
+      {- If [f] returns [`Yield y], [y] is added to the sequence and the
+         iteration continues.}
+      {- If [f] returns [`Stop], nothing is added to the sequence and the
+         iteration stops.}
+      {- If [f] returns [`Return y], [y] is added to the sequence and the
+         iteration stops.}} *)
+
 val fold_while : ('a -> 'b -> 'a * [ `Stop | `Continue ]) -> 'a -> 'b t -> 'a
 (** Folds over elements of the iterator, stopping early if the accumulator
     returns [('a, `Stop)]
