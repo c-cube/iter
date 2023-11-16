@@ -1,4 +1,9 @@
 
+# 1.8
+
+- add `Iter.map_while`
+- fix bug in `map_by_2`, add tests
+
 # 1.7
 
 - add let operators in Infix

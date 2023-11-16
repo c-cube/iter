@@ -496,7 +496,8 @@ val map_while : ('a -> [ `Yield of 'b | `Return of 'b | `Stop ]) -> 'a t -> 'b t
       {- If [f] returns [`Stop], nothing is added to the sequence and the
          iteration stops.}
       {- If [f] returns [`Return y], [y] is added to the sequence and the
-         iteration stops.}} *)
+         iteration stops.}}
+    @since 1.8 *)
 
 val fold_while : ('a -> 'b -> 'a * [ `Stop | `Continue ]) -> 'a -> 'b t -> 'a
 (** Folds over elements of the iterator, stopping early if the accumulator
