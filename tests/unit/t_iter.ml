@@ -247,7 +247,7 @@ let () =
 
 let () =
   OUnit.assert_equal
-    ~cmp:(List.equal Int.equal)
+    ~cmp:(CCList.equal Int.equal)
     (1 -- 10
      |> map_while (fun x -> if x = 7 then `Stop else `Yield (x - 1))
      |> to_list)
