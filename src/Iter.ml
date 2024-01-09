@@ -189,7 +189,9 @@ let keep_error seq k =
 
 (** Mutable unrolled list to serve as intermediate storage *)
 module MList = struct
-  type 'a node = Nil | Cons of { a : 'a array; mutable n : int; mutable tl : 'a node }
+  type 'a node =
+    | Nil
+    | Cons of { a: 'a array; mutable n: int; mutable tl: 'a node }
 
   (* build and call callback on every element *)
   let of_iter_with seq k =
@@ -198,13 +200,13 @@ module MList = struct
     let cur = ref Nil in
     let tail = ref Nil in
 
-    let[@inline] replace_tail () = 
-      match !acc with 
-      | Nil -> acc := !cur 
-      | _ -> 
-        match !tail with 
-        | Nil -> () 
-        | Cons r -> r.tl <- !cur 
+    let[@inline] replace_tail () =
+      match !acc with
+      | Nil -> acc := !cur
+      | _ ->
+        (match !tail with
+        | Nil -> ()
+        | Cons r -> r.tl <- !cur)
     in
 
     seq (fun x ->
@@ -214,7 +216,7 @@ module MList = struct
         | Nil ->
           let n = !chunk_size in
           if n < 4096 then chunk_size := 2 * n;
-          cur := Cons {a=Array.make n x; n = 1; tl = Nil}
+          cur := Cons { a = Array.make n x; n = 1; tl = Nil }
         | Cons r ->
           assert (r.n < Array.length r.a);
           r.a.(r.n) <- x;
@@ -232,7 +234,7 @@ module MList = struct
   let rec iter f l =
     match l with
     | Nil -> ()
-    | Cons {a; n; tl} ->
+    | Cons { a; n; tl } ->
       for i = 0 to n - 1 do
         f a.(i)
       done;
@@ -242,7 +244,7 @@ module MList = struct
     let rec iteri i f l =
       match l with
       | Nil -> ()
-      | Cons {a; n; tl} ->
+      | Cons { a; n; tl } ->
         for j = 0 to n - 1 do
           f (i + j) a.(j)
         done;
@@ -253,7 +255,7 @@ module MList = struct
   let rec iter_rev f l =
     match l with
     | Nil -> ()
-    | Cons {a; n; tl} ->
+    | Cons { a; n; tl } ->
       iter_rev f tl;
       for i = n - 1 downto 0 do
         f a.(i)
@@ -263,7 +265,7 @@ module MList = struct
     let rec len acc l =
       match l with
       | Nil -> acc
-      | Cons {n; tl; _} -> len (acc + n) tl
+      | Cons { n; tl; _ } -> len (acc + n) tl
     in
     len 0 l
 
@@ -271,8 +273,8 @@ module MList = struct
   let rec get l i =
     match l with
     | Nil -> raise (Invalid_argument "MList.get")
-    | Cons {a; n; _} when i < n -> a.(i)
-    | Cons {n; tl; _} -> get tl (i - n)
+    | Cons { a; n; _ } when i < n -> a.(i)
+    | Cons { n; tl; _ } -> get tl (i - n)
 
   let to_iter l k = iter k l
 
@@ -283,11 +285,11 @@ module MList = struct
     let rec get_next _ =
       match !cur with
       | Nil -> None
-      | Cons {n; tl; _} when !i = n ->
+      | Cons { n; tl; _ } when !i = n ->
         cur := tl;
         i := 0;
         get_next arg
-      | Cons {a; _} ->
+      | Cons { a; _ } ->
         let x = a.(!i) in
         incr i;
         Some x
@@ -300,8 +302,8 @@ module MList = struct
     let rec make (l, i) () =
       match l with
       | Nil -> Seq.Nil
-      | Cons {n; tl; _} when i = n -> make (tl, 0) ()
-      | Cons {a;_} -> Seq.Cons (a.(i), make (l, i + 1))
+      | Cons { n; tl; _ } when i = n -> make (tl, 0) ()
+      | Cons { a; _ } -> Seq.Cons (a.(i), make (l, i + 1))
     in
     make (l, 0)
 end
@@ -673,7 +675,9 @@ let map_while f seq k =
   let consume x =
     match f x with
     | `Yield y -> k y
-    | `Return y -> k y; raise_notrace ExitMapWhile
+    | `Return y ->
+      k y;
+      raise_notrace ExitMapWhile
     | `Stop -> raise_notrace ExitMapWhile
   in
   try seq consume with ExitMapWhile -> ()

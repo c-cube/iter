@@ -1,4 +1,3 @@
-
 (tests
-  (names t_iter)
-  (libraries iter qcheck-core qcheck-core.runner ounit2))
+ (names t_iter)
+ (libraries iter qcheck-core qcheck-core.runner ounit2))
