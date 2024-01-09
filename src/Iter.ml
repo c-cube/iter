@@ -189,63 +189,73 @@ let keep_error seq k =
 
 (** Mutable unrolled list to serve as intermediate storage *)
 module MList = struct
-  type 'a node = Nil | Cons of 'a array * int ref * 'a node ref
+  type 'a node = Nil | Cons of { a : 'a array; mutable n : int; mutable tl : 'a node }
 
   (* build and call callback on every element *)
   let of_iter_with seq k =
-    let start = ref Nil in
     let chunk_size = ref 8 in
-    (* fill the list. prev: tail-reference from previous node *)
-    let prev, cur = ref start, ref Nil in
+    let acc = ref Nil in
+    let cur = ref Nil in
+    let tail = ref Nil in
+
+    let[@inline] replace_tail () = 
+      match !acc with 
+      | Nil -> acc := !cur 
+      | _ -> 
+        match !tail with 
+        | Nil -> () 
+        | Cons r -> r.tl <- !cur 
+    in
+
     seq (fun x ->
         k x;
         (* callback *)
         match !cur with
         | Nil ->
           let n = !chunk_size in
-          if n < 4096 then chunk_size := 2 * !chunk_size;
-          cur := Cons (Array.make n x, ref 1, ref Nil)
-        | Cons (a, n, next) ->
-          assert (!n < Array.length a);
-          a.(!n) <- x;
-          incr n;
-          if !n = Array.length a then (
-            !prev := !cur;
-            prev := next;
+          if n < 4096 then chunk_size := 2 * n;
+          cur := Cons {a=Array.make n x; n = 1; tl = Nil}
+        | Cons r ->
+          assert (r.n < Array.length r.a);
+          r.a.(r.n) <- x;
+          r.n <- succ r.n;
+          if r.n = Array.length r.a then (
+            replace_tail ();
+            tail := !cur;
             cur := Nil
           ));
-    !prev := !cur;
-    !start
+    replace_tail ();
+    !acc
 
   let of_iter seq = of_iter_with seq (fun _ -> ())
 
   let rec iter f l =
     match l with
     | Nil -> ()
-    | Cons (a, n, tl) ->
-      for i = 0 to !n - 1 do
+    | Cons {a; n; tl} ->
+      for i = 0 to n - 1 do
         f a.(i)
       done;
-      iter f !tl
+      iter f tl
 
   let iteri f l =
     let rec iteri i f l =
       match l with
       | Nil -> ()
-      | Cons (a, n, tl) ->
-        for j = 0 to !n - 1 do
+      | Cons {a; n; tl} ->
+        for j = 0 to n - 1 do
           f (i + j) a.(j)
         done;
-        iteri (i + !n) f !tl
+        iteri (i + n) f tl
     in
     iteri 0 f l
 
   let rec iter_rev f l =
     match l with
     | Nil -> ()
-    | Cons (a, n, tl) ->
-      iter_rev f !tl;
-      for i = !n - 1 downto 0 do
+    | Cons {a; n; tl} ->
+      iter_rev f tl;
+      for i = n - 1 downto 0 do
         f a.(i)
       done
 
@@ -253,7 +263,7 @@ module MList = struct
     let rec len acc l =
       match l with
       | Nil -> acc
-      | Cons (_, n, tl) -> len (acc + !n) !tl
+      | Cons {n; tl; _} -> len (acc + n) tl
     in
     len 0 l
 
@@ -261,8 +271,8 @@ module MList = struct
   let rec get l i =
     match l with
     | Nil -> raise (Invalid_argument "MList.get")
-    | Cons (a, n, _) when i < !n -> a.(i)
-    | Cons (_, n, tl) -> get !tl (i - !n)
+    | Cons {a; n; _} when i < n -> a.(i)
+    | Cons {n; tl; _} -> get tl (i - n)
 
   let to_iter l k = iter k l
 
@@ -273,11 +283,11 @@ module MList = struct
     let rec get_next _ =
       match !cur with
       | Nil -> None
-      | Cons (_, n, tl) when !i = !n ->
-        cur := !tl;
+      | Cons {n; tl; _} when !i = n ->
+        cur := tl;
         i := 0;
         get_next arg
-      | Cons (a, _, _) ->
+      | Cons {a; _} ->
         let x = a.(!i) in
         incr i;
         Some x
@@ -290,8 +300,8 @@ module MList = struct
     let rec make (l, i) () =
       match l with
       | Nil -> Seq.Nil
-      | Cons (_, n, tl) when i = !n -> make (!tl, 0) ()
-      | Cons (a, _, _) -> Seq.Cons (a.(i), make (l, i + 1))
+      | Cons {n; tl; _} when i = n -> make (tl, 0) ()
+      | Cons {a;_} -> Seq.Cons (a.(i), make (l, i + 1))
     in
     make (l, 0)
 end
