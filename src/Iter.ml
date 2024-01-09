@@ -204,7 +204,7 @@ module MList = struct
       | _ -> 
         match !tail with 
         | Nil -> () 
-        | Cons (_ as r) -> r.tl <- !cur 
+        | Cons r -> r.tl <- !cur 
     in
 
     seq (fun x ->
@@ -215,11 +215,11 @@ module MList = struct
           let n = !chunk_size in
           if n < 4096 then chunk_size := 2 * n;
           cur := Cons {a=Array.make n x; n = 1; tl = Nil}
-        | Cons ({a; n; tl} as r) ->
-          assert (n < Array.length a);
-          a.(n) <- x;
-          r.n <- succ n;
-          if r.n = Array.length a then (
+        | Cons r ->
+          assert (r.n < Array.length r.a);
+          r.a.(r.n) <- x;
+          r.n <- succ r.n;
+          if r.n = Array.length r.a then (
             replace_tail ();
             tail := !cur;
             cur := Nil
