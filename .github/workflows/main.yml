@@ -16,13 +16,15 @@ jobs:
           #- macos-latest
         ocaml-compiler:
           - 4.08.x
-          - 4.12.x
+          - 4.14.x
+            # TODO: - 5.1.x #  https://github.com/ocaml/setup-ocaml/issues/733
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v2
     - uses: ocaml/setup-ocaml@v2
       with:
         ocaml-compiler: ${{ matrix.ocaml-compiler }}
+        allow-prerelease-opam: true
     - run: opam pin -n .
     - run: opam depext -yt iter
     - run: opam install -t . --deps-only
