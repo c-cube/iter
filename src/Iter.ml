@@ -330,9 +330,8 @@ let sort ?(cmp = Stdlib.compare) seq =
   let l = List.fast_sort cmp l in
   fun k -> List.iter k l
 
-exception Exit_sorted
-
 let sorted ?(cmp = Stdlib.compare) seq =
+  let exception Exit_sorted in
   let prev = ref None in
   try
     seq (fun x ->
@@ -556,9 +555,8 @@ let diff (type a) ?(eq = ( = )) ?(hash = Hashtbl.hash) c1 c2 =
   c2 (fun x -> Tbl.replace tbl x ());
   fun yield -> c1 (fun x -> if not (Tbl.mem tbl x) then yield x)
 
-exception Subset_exit
-
 let subset (type a) ?(eq = ( = )) ?(hash = Hashtbl.hash) c1 c2 =
+  let exception Subset_exit in
   let module Tbl = Hashtbl.Make (struct
     type t = a
 
@@ -630,9 +628,8 @@ let sumf seq : float =
       sum := t);
   !sum
 
-exception ExitHead
-
 let head seq =
+  let exception ExitHead in
   let r = ref None in
   try
     seq (fun x ->
@@ -646,9 +643,8 @@ let head_exn seq =
   | None -> invalid_arg "Iter.head_exn"
   | Some x -> x
 
-exception ExitTake
-
 let take n seq k =
+  let exception ExitTake in
   let count = ref 0 in
   try
     seq (fun x ->
@@ -657,9 +653,8 @@ let take n seq k =
         k x)
   with ExitTake -> ()
 
-exception ExitTakeWhile
-
 let take_while p seq k =
+  let exception ExitTakeWhile in
   try
     seq (fun x ->
         if p x then
@@ -667,8 +662,6 @@ let take_while p seq k =
         else
           raise_notrace ExitTakeWhile)
   with ExitTakeWhile -> ()
-
-exception ExitFoldWhile
 
 let map_while f seq k =
   let exception ExitMapWhile in
@@ -683,6 +676,7 @@ let map_while f seq k =
   try seq consume with ExitMapWhile -> ()
 
 let fold_while f s seq =
+  let exception ExitFoldWhile in
   let state = ref s in
   let consume x =
     let acc, cont = f !state x in
@@ -721,18 +715,16 @@ let rev seq =
   let l = MList.of_iter seq in
   fun k -> MList.iter_rev k l
 
-exception ExitForall
-
 let for_all p seq =
+  let exception ExitForall in
   try
     seq (fun x -> if not (p x) then raise_notrace ExitForall);
     true
   with ExitForall -> false
 
-exception ExitExists
-
 (** Exists there some element satisfying the predicate? *)
 let exists p seq =
+  let exception ExitExists in
   try
     seq (fun x -> if p x then raise_notrace ExitExists);
     false
@@ -740,9 +732,8 @@ let exists p seq =
 
 let mem ?(eq = ( = )) x seq = exists (eq x) seq
 
-exception ExitFind
-
 let find_map f seq =
+  let exception ExitFind in
   let r = ref None in
   (try
      seq (fun x ->
@@ -757,6 +748,7 @@ let find_map f seq =
 let find = find_map
 
 let find_mapi f seq =
+  let exception ExitFind in
   let i = ref 0 in
   let r = ref None in
   (try
@@ -790,9 +782,8 @@ let[@inline] length seq =
   seq (fun _ -> incr r);
   !r
 
-exception ExitIsEmpty
-
 let is_empty seq =
+  let exception ExitIsEmpty in
   try
     seq (fun _ -> raise_notrace ExitIsEmpty);
     true
