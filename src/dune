@@ -3,7 +3,7 @@
  (public_name iter)
  (wrapped false)
  (modules Iter IterLabels)
- (flags :standard -w +a -warn-error -a+8 -nolabels))
+ (flags :standard -w +a-4 -warn-error -a+8 -nolabels))
 
 (env
  (_

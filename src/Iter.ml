@@ -1031,8 +1031,13 @@ module Map = struct
     let of_iter_ seq = fold (fun m (k, v) -> M.add k v m) M.empty seq
     let keys m = from_iter (fun k -> M.iter (fun x _ -> k x) m)
     let values m = from_iter (fun k -> M.iter (fun _ y -> k y) m)
+
+    [@@@ocaml.warning "-32"]
+
     let of_list l = of_iter_ (of_list l)
     let to_list x = to_list (to_iter_ x)
+
+    [@@@ocaml.warning "+32"]
 
     include M
 
