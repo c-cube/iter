@@ -22,4 +22,4 @@ let mmap filename yield =
   with e ->
     Unix.close fd;
     raise e
-  [@@ocaml.warning "-3"]
+[@@ocaml.warning "-3"]
