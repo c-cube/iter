@@ -1,4 +1,10 @@
 
+# 1.9
+
+
+- Switch exceptions used for control flow from global to local
+- Update Iter.ml to use mutable fields instead of refs (#44)
+
 # 1.8
 
 - add `Iter.map_while`
