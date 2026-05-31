@@ -15,7 +15,7 @@ jobs:
             # macOS is just too slow, ugh
           #- macos-latest
         ocaml-compiler:
-          - 4.08.x
+          - 4.11.x
           - 4.14.x
             # TODO: - 5.1.x #  https://github.com/ocaml/setup-ocaml/issues/733
     runs-on: ${{ matrix.os }}
