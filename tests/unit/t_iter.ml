@@ -317,14 +317,14 @@ let () = test [] (int_range_by ~step:1 4 1 |> to_list)
 
 let () =
   add_qcheck __LINE__
-    Q.(pair small_int small_int)
+    Q.(pair nat_small nat_small)
     (fun (i, j) ->
       let i = Stdlib.min i j and j = Stdlib.max i j in
       i -- j |> to_list = (int_range_by ~step:1 i j |> to_list))
 
 let () =
   add_qcheck __LINE__
-    Q.(pair small_int small_int)
+    Q.(pair nat_small nat_small)
     (fun (i, j) ->
       let i = Stdlib.min i j and j = Stdlib.max i j in
       i -- j |> to_rev_list = (int_range_by ~step:~-1 j i |> to_list))

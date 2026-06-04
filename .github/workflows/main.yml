@@ -1,33 +1,27 @@
 name: build
+
 on:
   push:
     branches:
       - main
   pull_request:
+
 jobs:
   run:
-    name: Build
+    name: build
+    timeout-minutes: 15
     strategy:
+      fail-fast: true
       matrix:
-        os:
-          - ubuntu-latest
-          - windows-latest
-            # macOS is just too slow, ugh
-          #- macos-latest
-        ocaml-compiler:
-          - 4.11.x
-          - 4.14.x
-            # TODO: - 5.1.x #  https://github.com/ocaml/setup-ocaml/issues/733
-    runs-on: ${{ matrix.os }}
+        container:
+          - ghcr.io/c-cube/c-cube-commmon/ci-4.14:latest
+          - ghcr.io/c-cube/c-cube-commmon/ci-5.4:latest
+
+    runs-on: ubuntu-latest
+    container: ${{ matrix.container }}
     steps:
-    - uses: actions/checkout@v2
-    - uses: ocaml/setup-ocaml@v3
-      with:
-        ocaml-compiler: ${{ matrix.ocaml-compiler }}
-        allow-prerelease-opam: true
-    - run: opam pin -n .
-    - run: opam depext -yt iter
-    - run: opam install -t . --deps-only
-    - run: opam exec -- dune build @src/install
-    - run: opam exec -- dune runtest tests/
-      if: ${{ matrix.os == 'ubuntu-latest'}}
+      - uses: actions/checkout@v6
+      - run: opam pin -n .
+      - run: opam install -t . --deps-only
+      - run: opam exec -- dune build @install
+      - run: opam exec -- dune runtest tests/
