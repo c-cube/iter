@@ -1,6 +1,7 @@
 (rule
  (alias runtest)
  (deps
+  (package iter)
   (:dep README.md))
  (action
   (progn
